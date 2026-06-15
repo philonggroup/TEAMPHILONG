@@ -1242,7 +1242,6 @@ function renderResultEditor(){
   const s=DB.staff.find(x=>x.id===$('e-staff').value);
   const box=$('result-editor');
   if(!s){box.innerHTML=`<div class="empty" style="padding:24px 10px"><i class="ti ti-user-question"></i><div class="e-sub">Chọn nhân viên để nhập kết quả.</div></div>`;return;}
-  }
   if(s.role==='QL'){renderQlEditor(s);return;}
   const ym=$('period').value, weeks=weeksOfMonth(ym), ex=existingWeekAgg(s,ym), isNV=s.role==='NVKD';
   const mm=ym.slice(5);
