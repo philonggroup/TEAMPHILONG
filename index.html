@@ -233,6 +233,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--fg);font-size:15px;mi
 .rev-pills{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .rev-pill{background:var(--ink-100);border-radius:11px;padding:9px 14px;font:800 15px var(--f);color:var(--fg);display:flex;align-items:center}
 .rev-pill .pd{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:7px}
+
+/* Birthday */
+.bd-banner{background:linear-gradient(135deg,#ff9a56,#ff6b6b);color:#fff;padding:12px 16px;border-radius:12px;margin:0 0 14px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;}
+.bd-banner .bd-icon{font-size:22px}.bd-banner .bd-txt{flex:1}.bd-banner .bd-name{font-size:15px;font-weight:700}
+.bd-banner .bd-bonus{background:rgba(255,255,255,.25);padding:2px 8px;border-radius:20px;font-size:12px;margin-left:6px}
 </style>
 </head>
 <body>
@@ -257,7 +262,8 @@ body{font-family:var(--f);background:var(--bg);color:var(--fg);font-size:15px;mi
 <div class="page act" id="pg-pay">
   <div id="sample-banner"></div>
   <div class="bfilter" id="branch-filter"></div>
-  <div class="team" id="team"></div>
+  <div id="bd-banner-zone"></div>
+<div class="team" id="team"></div>
   <div class="team" id="ktv-rev" style="margin-top:-6px"></div>
   <div id="board"></div>
 </div>
@@ -420,25 +426,25 @@ function seed(){
   const S=[
     {id:'s1', branch:'CN2',code:'2 TRAM',    name:'Nguyễn Thị Thùy Trâm', phone:'0988213331',  role:'QL',  fixedSalary:0, position:'Quản lý CN', active:true},
     {id:'s2', branch:'CN2',code:'LANH',      name:'Lê Thị Lành',          phone:'0944202677',  role:'CD',  fixedSalary:0, position:'Kế toán',    active:true},
-    {id:'s3', branch:'CN2',code:'PHƯỢNG',    name:'Bùi Thị Bích Phượng',  phone:'',            role:'NVKD',position:'CVDV',       active:true},
-    {id:'s4', branch:'CN2',code:'DCAO',      name:'Đỗ Văn Cao',           phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
+    {id:'s3', branch:'CN2',code:'PHƯỢNG',    name:'Bùi Thị Bích Phượng',  phone:'',            role:'NVKD',position:'CVDV',       active:true},dob:'01/12/2001',
+    {id:'s4', branch:'CN2',code:'DCAO',      name:'Đỗ Văn Cao',           phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},dob:'19/04/2003',
     {id:'s5', branch:'CN2',code:'THÀNH LỚN', name:'Nguyễn Văn Thành',     phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
     {id:'s6', branch:'CN2',code:'BO',        name:'Lục Văn Bộ',           phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
     {id:'s7', branch:'CN2',code:'PHUC',      name:'Nguyễn Hạnh Phúc',     phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
-    {id:'s8', branch:'CN2',code:'KHAI',      name:'Trần Văn Khải',        phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
-    {id:'s9', branch:'CN2',code:'QUANG',     name:'Trần Minh Quang',      phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
+    {id:'s8', branch:'CN2',code:'KHAI',      name:'Trần Văn Khải',        phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},dob:'28/08/1989',
+    {id:'s9', branch:'CN2',code:'QUANG',     name:'Trần Minh Quang',      phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},dob:'06/03/2004',
     {id:'s10',branch:'CN2',code:'TRI',       name:'Nguyễn Minh Trí',      phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
     {id:'s11',branch:'CN2',code:'TAM CN2',   name:'Nguyễn Chí Tâm',       phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
     {id:'s12',branch:'CN2',code:'THÀNH NHỎ', name:'Nguyễn Chí Thành',     phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
     {id:'s13',branch:'CN1',code:'LUÂN',      name:'Phạm Thành Luân',      phone:'0916890096',  role:'QL',  fixedSalary:0, position:'Quản lý CN', active:true},
     {id:'s14',branch:'CN1',code:'DUNG',      name:'Trần Thị Dung',        phone:'0342428777',  role:'CD',  fixedSalary:0, position:'Kế toán',    active:true},
-    {id:'s15',branch:'CN1',code:'PHƯƠNG',    name:'Phạm Kim Phương',      phone:'',            role:'KTV', position:'Kỹ thuật trưởng', active:true},
+    {id:'s15',branch:'CN1',code:'PHƯƠNG',    name:'Phạm Kim Phương',      phone:'',            role:'KTV', position:'Kỹ thuật trưởng', active:true},dob:'20/05/2003',
     {id:'s16',branch:'CN1',code:'BẦU',       name:'Nguyễn Chí Tâm',       phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
-    {id:'s17',branch:'CN1',code:'THÀNH',     name:'Lân Văn Thành',        phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},
+    {id:'s17',branch:'CN1',code:'THÀNH',     name:'Lân Văn Thành',        phone:'',            role:'KTV', position:'Kỹ thuật',   active:true},dob:'19/11/1994',
     {id:'s18',branch:'CN3',code:'NS01',name:'Huỳnh Văn Đình',     phone:'',role:'QL',  fixedSalary:0, position:'Quản lý CH', active:true},
-    {id:'s19',branch:'CN3',code:'NS02',name:'Nguyễn Trung Kiên',  phone:'',role:'NVKD',position:'Marketing & Sales', active:true},
+    {id:'s19',branch:'CN3',code:'NS02',name:'Nguyễn Trung Kiên',  phone:'',role:'NVKD',position:'Marketing & Sales', active:true},dob:'10/09/1999',
     {id:'s20',branch:'CN3',code:'NS03',name:'Trần Thanh Duy',     phone:'',role:'KTV', position:'Kỹ thuật trưởng', active:true},
-    {id:'s21',branch:'CN3',code:'NS04',name:'Trần Ngọc Hào',      phone:'',role:'KTV', position:'Kỹ thuật',   active:true},
+    {id:'s21',branch:'CN3',code:'NS04',name:'Trần Ngọc Hào',      phone:'',role:'KTV', position:'Kỹ thuật',   active:true},dob:'28/01/2000',
     {id:'s22',branch:'CN3',code:'NS05',name:'Nguyễn Thị Thảo',    phone:'',role:'CD',  fixedSalary:0, position:'Kế toán nội bộ', active:true},
     {id:'s23',branch:'CN3',code:'NS06',name:'Tài - Học Việc',     phone:'',role:'KTV', trainee:true, position:'Phụ việc', active:true},
     {id:'s24',branch:'CN3',code:'',    name:'Huỳnh Văn Đỉnh',     phone:'',role:'QL',  fixedSalary:0, position:'Quản lý vùng', active:true},
@@ -760,7 +766,12 @@ function cardHTML(r,rank){
   </div>`;
 }
 
+/* SINH NHAT */
+function getBdAlerts(){var t=new Date(),dd=t.getDate(),mm=t.getMonth()+1,alerts=[];(DB.staff||[]).forEach(function(s){if(!s.dob)return;var p=s.dob.split("/");if(p.length<2)return;var bd=parseInt(p[0],10),bm=parseInt(p[1],10);var diff=Math.round((new Date(t.getFullYear(),bm-1,bd)-new Date(t.getFullYear(),mm-1,dd))/86400000);if(diff===0)alerts.push({s:s,type:"today"});else if(diff>0&&diff<=3)alerts.push({s:s,type:"soon",diff:diff});});return alerts;}
+function renderBdBanner(){var el=document.getElementById("bd-banner-zone");if(!el)return;var alerts=getBdAlerts();if(!alerts.length){el.innerHTML="";return;}el.innerHTML=alerts.map(function(a){var it=a.type==="today";var msg=it?"Hom nay sinh nhat: <b>"+esc(a.s.name)+"</b>":"Con "+a.diff+" ngay sinh nhat <b>"+esc(a.s.name)+"</b>";return "<div class=\"bd-banner\"><span class=\"bd-icon\">"+(it?"&#127881;":"&#127880;")+"</span><span class=\"bd-txt\">"+msg+" <span class=\"bd-bonus\">Thuong 200k</span></span></div>";}).join("");}
+
 function render(){
+  renderBdBanner();
   const ym=$('period').value||new Date().toISOString().slice(0,7);
   $('sample-banner').innerHTML='';
 
@@ -868,7 +879,7 @@ function arcPath(cx,cy,r,a1,a2){
   return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${large} ${sweep} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
 }
 function revDonutHTML(s,A,ym){
-  const isNV=s.role==='NVKD';
+  const isNV=s.role==='NVKD'||s.role==='QL';
   const dvl=isNV?(A.revLop||0):(A.congLop||0);
   const dvnl=isNV?(A.revOther||0):(A.congNgoaiLop||0);
   const comm=A.commRaw||0;
@@ -1198,11 +1209,7 @@ function applyImport(){
 }
 
 /* ════════ KẾT QUẢ KINH DOANH ════════ */
-function fillStaffSelect(){
-  const sel=$('e-staff'),cur=sel.value,act=DB.staff.filter(s=>s.active&&s.role!=='CD'&&s.role!=='QL');
-  sel.innerHTML=act.length?act.map(s=>`<option value="${s.id}">${esc(s.branch||'')} · ${esc(s.name)} — ${s.role}</option>`).join(''):'<option value="">— Chưa có NVKD/KTV —</option>';
-  if(cur&&act.some(s=>s.id===cur))sel.value=cur;
-}
+function fillStaffSelect(){var sel=$('e-staff'),cur=sel.value;var list=(DB.staff||[]).filter(function(s){return s.active;});var rl=function(r){return r==='KTV'?'KTV':r==='QL'?'QL':r==='CD'?'KT':r==='NVKD'?'CVDV':r;};sel.innerHTML=list.map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.branch)+' · '+esc(s.name)+' — '+rl(s.role)+'</option>';}).join('');if(!list.find(function(s){return s.id===cur;})&&list.length)sel.value=list[0].id;}
 function weeksOfMonth(ym){
   const [y,m]=ym.split('-').map(Number);
   const days=new Date(y,m,0).getDate();
@@ -1236,7 +1243,7 @@ function renderResultEditor(){
   const s=DB.staff.find(x=>x.id===$('e-staff').value);
   const box=$('result-editor');
   if(!s){box.innerHTML=`<div class="empty" style="padding:24px 10px"><i class="ti ti-user-question"></i><div class="e-sub">Chọn nhân viên để nhập kết quả.</div></div>`;return;}
-  if(s.role==='CD'){box.innerHTML=`<div class="ambig" style="margin-top:4px">${esc(s.name)} là vị trí <b>lương cố định</b> — không nhập kết quả riêng. Đặt mức lương ở tab Nhân viên.</div>`;return;}
+  }
   if(s.role==='QL'){renderQlEditor(s);return;}
   const ym=$('period').value, weeks=weeksOfMonth(ym), ex=existingWeekAgg(s,ym), isNV=s.role==='NVKD';
   const mm=ym.slice(5);
