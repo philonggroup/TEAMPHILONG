@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Phi Long Auto - Luong KTV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--blu-500:#1E4FB8;--blu-600:#173E94;--blu-700:#122F71;--blu-50:#EBF1FB;--blu-100:#D2DFF5;
+--yel-500:#FFC400;--yel-300:#FFDC4C;--yel-50:#FFFAE0;--yel-700:#A67D00;
+--ink-50:#F4F6F8;--ink-100:#E6EAEF;--ink-200:#CFD5DD;--ink-300:#AAB3BE;
+--ink-400:#7C8693;--ink-500:#535C69;--ink-900:#0B0E13;
+--grn:#16A34A;--grn-bg:#E7F8ED;--red:#DC2626;--red-bg:#FCEAEA;
+--amb:#F59E0B;--amb-bg:#FFF4E0;
+--card:#fff;--bd:var(--ink-100);--bd2:var(--ink-200);--fg:var(--ink-900);--fg2:var(--ink-500);--fg3:var(--ink-400);
+--r-md:10px;--r-lg:14px;--r-pill:999px;
+--f:'Inter',-apple-system,sans-serif;--fm:'JetBrains Mono',monospace;
+}
+body{font-family:var(--f);background:var(--ink-50);color:var(--fg);font-size:15px;min-height:100vh;padding-bottom:32px}
+.wrap{max-width:560px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,#5a3a00,#F59E0B);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 8px 24px rgba(90,58,0,.35)}
+.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.logo{font:800 20px/1.2 var(--f)}.logo span{color:#fff3b0}
+.logo-sub{font:400 11px/1.4 var(--f);opacity:.8;margin-top:2px}
+.back-btn{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:var(--r-pill);padding:6px 12px;color:#fff;font:600 11px/1 var(--f);cursor:pointer;text-decoration:none}
+.page-title{padding:8px 0 12px;font:700 13px/1 var(--f);opacity:.95}
+.sec{background:var(--card);border:1px solid var(--bd);border-radius:var(--r-lg);padding:16px;margin-bottom:10px}
+.sec-title{font:700 13px/1.3 var(--f);color:#92400e;margin-bottom:14px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.fg:last-child{margin-bottom:0}
+.fg label{font:600 11px/1 var(--f);color:var(--fg3);text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select{height:44px;border:1px solid var(--bd2);border-radius:var(--r-md);padding:0 13px;font:400 15px/1 var(--f);color:var(--fg);background:#fff}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--amb);box-shadow:0 0 0 3px #FFF4E0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 .fg{margin-bottom:0}
+.row-title{font:600 12px/1 var(--f);color:var(--fg2);margin:10px 0 8px;padding-top:8px;border-top:1px solid var(--bd)}
+.row-title.first{border-top:none;margin-top:0;padding-top:0}
+.note-box{background:var(--amb-bg);border:1px solid var(--yel-300);border-radius:var(--r-md);padding:9px 12px;font:500 12px/1.5 var(--f);color:#92400e;margin-bottom:10px}
+.btn-calc{width:100%;height:52px;background:linear-gradient(135deg,#92400e,#F59E0B);color:#fff;border:none;border-radius:var(--r-lg);font:700 15px/1 var(--f);cursor:pointer;margin-top:4px}
+.result-card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r-lg);padding:16px;margin-bottom:10px;display:none}
+.result-card.show{display:block}
+.result-title{font:700 13px/1 var(--f);color:#92400e;margin-bottom:14px;border-bottom:1px solid var(--bd);padding-bottom:10px}
+.sal-box{background:linear-gradient(135deg,#92400e,#F59E0B);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;color:#fff;text-align:center}
+.sal-lbl{font:600 11px/1 var(--f);opacity:.85;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.sal-val{font:800 30px/1 var(--fm);color:#fff3b0}
+.sal-sub{font:600 12px/1 var(--f);opacity:.7;margin-top:4px}
+.kpi-row{display:flex;justify-content:center;margin-top:8px}
+.kpi-badge{padding:4px 14px;border-radius:var(--r-pill);font:700 12px/1 var(--f)}
+.kpi-0{background:var(--red-bg);color:var(--red)}.kpi-07{background:#FFF4E0;color:#b45309}
+.kpi-10{background:var(--grn-bg);color:var(--grn)}.kpi-11{background:var(--blu-50);color:var(--blu-600)}
+.kpi-13{background:#FFFAE0;color:var(--yel-700);border:1px solid #FFDC4C}
+.bt{width:100%;border-collapse:collapse}
+.bt tr{border-bottom:1px solid var(--bd)}
+.bt tr:last-child{border-bottom:none}
+.bt td{padding:7px 4px;font:400 13px/1.4 var(--f);color:var(--fg)}
+.bt td:last-child{text-align:right;font:600 12px/1 var(--fm)}
+.bt .tr td{font:700 13px/1 var(--f);color:#92400e;padding-top:10px;border-top:2px solid #FFF4E0}
+.bt .tr td:last-child{font:800 13px/1 var(--fm)}
+.bt .sub td{font:400 12px/1.4 var(--f);color:var(--fg3)}
+.bt .sub td:last-child{font:500 12px/1 var(--fm);color:var(--fg2)}
+.bt .sect td{font:600 11px/1 var(--f);color:var(--fg3);padding:10px 4px 6px;text-transform:uppercase;letter-spacing:.04em;border-bottom:none}
+.warn{background:var(--red-bg);border:1px solid #fca5a5;border-radius:var(--r-md);padding:9px 12px;font:500 12px/1.5 var(--f);color:var(--red);margin-bottom:8px}
+.sch-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.sch-cell{background:var(--ink-50);border:1px solid var(--bd);border-radius:8px;padding:5px 2px;text-align:center}
+.sch-dn{font:600 9px/1 var(--f);color:var(--fg3);text-transform:uppercase;margin-bottom:2px}
+.sch-d{font:700 14px/1 var(--fm);color:var(--fg)}
+.sch-s{font:600 8px/1 var(--f);padding:2px 4px;border-radius:99px;margin-top:2px;display:inline-block}
+.sw{background:var(--grn-bg);color:var(--grn)}.so{background:var(--ink-100);color:var(--fg3)}.st{background:var(--blu-50);color:var(--blu-600);border:1px solid var(--blu-100)}
+.cong-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+.cong-table th{background:var(--amb-bg);color:#92400e;font:600 11px/1 var(--f);padding:6px 8px;text-align:left;border:1px solid var(--yel-300)}
+.cong-table td{padding:5px 8px;border:1px solid var(--bd);color:var(--fg2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="logo">PHI LONG <span>AUTO</span></div>
+        <div class="logo-sub">Tinh luong KTV — 2026</div>
+      </div>
+      <a href="index.html" class="back-btn">&larr; Trang chu</a>
+    </div>
+    <div class="page-title">&#128296; Bang Luong Ky Thuat Vien (KTV)</div>
+  </div>
+  <div style="padding:12px">
+
+    <!-- Loai KTV -->
+    <div class="sec">
+      <div class="sec-title">&#128100; Thong tin KTV</div>
+      <div class="fg"><label>Ho va ten</label><input id="name" type="text" placeholder="VD: Tran Van B"></div>
+      <div class="grid2">
+        <div class="fg"><label>Chi nhanh</label><input id="branch" type="text" placeholder="VD: CN01"></div>
+        <div class="fg"><label>Ky tinh luong</label><input id="period" type="text" placeholder="VD: 6/2026"></div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label>Ngay cong thuc te</label><input id="workdays" type="number" min="0" max="31" value="26"></div>
+        <div class="fg"><label>Ngay cong chuan</label><input type="number" value="26" readonly></div>
+      </div>
+      <div class="fg">
+        <label>Loai KTV</label>
+        <select id="ktv_type" onchange="toggleKtvType()">
+          <option value="chinh">KTV chinh thuc</option>
+          <option value="moi">KTV moi / hoc viec (DT &lt; 10tr)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Co dat 200 diem y thuc cong viec? (Mo thuong them Muc 2)</label>
+        <select id="ythuc_ok">
+          <option value="1">Co — dat 200 diem ✓</option>
+          <option value="0">Khong</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cong dich vu KTV -->
+    <div id="sec_chinh">
+      <div class="sec">
+        <div class="sec-title">&#128295; Cong dich vu (DVL - Dich vu lop)</div>
+        <div class="note-box">
+          Tinh cong = So luong x Don gia quy doi. Nhap tong cong theo tung loai.
+        </div>
+        <table class="cong-table">
+          <tr><th>Loai lop</th><th>Mam</th><th>Cong/chiec</th></tr>
+          <tr><td>Lop tai 400-1200 (vd 550r13)</td><td>12-16</td><td>60.000d</td></tr>
+          <tr><td>Lop tai 20</td><td>20</td><td>70.000d</td></tr>
+          <tr><td>Lop du lich 145-320 (vd 205/65r17)</td><td>14-16</td><td>40.000d</td></tr>
+          <tr><td>Lop du lich &gt;16</td><td>&gt;16</td><td>50.000d</td></tr>
+        </table>
+        <div style="margin-top:10px">
+          <div class="row-title first">DVL - Cong lap lop (tinh theo don gia quy doi)</div>
+          <div class="grid2">
+            <div class="fg"><label>So lop tai 12-16 (x60k)</label><input id="lop_tai_16" type="number" min="0" value="0"></div>
+            <div class="fg"><label>So lop tai mam 20 (x70k)</label><input id="lop_tai_20" type="number" min="0" value="0"></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>So lop DL 14-16 (x40k)</label><input id="lop_dl_16" type="number" min="0" value="0"></div>
+            <div class="fg"><label>So lop DL &gt;16 (x50k)</label><input id="lop_dl_g16" type="number" min="0" value="0"></div>
+          </div>
+          <div class="row-title">DVL - Bao duong (tong gia tri cong co dinh)</div>
+          <div class="grid2">
+            <div class="fg"><label>Thay nhot (x50k/xe)</label><input id="bd_nhot" type="number" min="0" value="0"></div>
+            <div class="fg"><label>Ac quy (x50k/cai)</label><input id="bd_acqy" type="number" min="0" value="0"></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>Gat mua (x10k/cap)</label><input id="bd_gat" type="number" min="0" value="0"></div>
+            <div class="fg"><label>VS dan lanh (x300k)</label><input id="bd_lanh" type="number" min="0" value="0"></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>Thay nhot hop so TH (x500k)</label><input id="bd_hopso" type="number" min="0" value="0"></div>
+            <div class="fg"><label>VS kim phun (x300k)</label><input id="bd_kimphun" type="number" min="0" value="0"></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>VS buong dot (x300k)</label><input id="bd_buongdot" type="number" min="0" value="0"></div>
+            <div class="fg"><label>Thay oc camber (x100k)</label><input id="bd_camber" type="number" min="0" value="0"></div>
+          </div>
+          <div class="row-title">DVL - Dich vu tinh theo gia phieu (nhap tong tien)</div>
+          <div class="fg"><label>Can bang dong, va lop, va nam, van lop, dao lop, khi nito, can chum, lang dia phanh, giam xoc — tong VND</label>
+            <input id="dv_giaphieu" type="number" min="0" value="0">
+          </div>
+          <div class="row-title">DVNL - Dich vu ngoai lop (tong cong DVNL)</div>
+          <div class="fg"><label>Tong cong DVNL (VND)</label><input id="dvnl_cong" type="number" min="0" value="0"></div>
+          <div class="row-title">LD - Luu dong (tong cong LD)</div>
+          <div class="fg"><label>Tong cong LD (VND)</label><input id="ld_cong" type="number" min="0" value="0"></div>
+          <div class="row-title">So KTV cung lam job (chia cong deu)</div>
+          <div class="fg"><label>So KTV cung thuc hien (mac dinh 1)</label><input id="so_ktv" type="number" min="1" value="1"></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">&#128178; KPI</div>
+        <div class="fg"><label>Doanh thu ke hoach (tinh % KPI)</label><input id="rev_plan" type="number" min="0" value="0"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">&#11088; Thuong nang suat</div>
+        <div class="row-title first">Trong tuan</div>
+        <div class="fg"><label>Co xe quay dau trong tuan?</label>
+          <select id="return_week"><option value="0">Khong co ✓</option><option value="1">Co ✗</option></select>
+        </div>
+        <div class="row-title">Trong thang</div>
+        <div class="fg"><label>So xe quay dau trong thang</label>
+          <select id="return_month"><option value="0">0 xe ✓</option><option value="1">1 xe ✓</option><option value="2">2 xe ✓</option><option value="3">3+ xe ✗</option></select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcKTV()">TINH LUONG KTV</button>
+
+    <div class="result-card" id="result">
+      <div class="result-title">Ket qua tinh luong KTV</div>
+      <div class="sal-box">
+        <div class="sal-lbl">TONG LUONG THANG</div>
+        <div class="sal-val" id="res-total">0</div>
+        <div class="sal-sub">VND</div>
+        <div class="kpi-row"><div id="kpibadge" class="kpi-badge kpi-10">KPI x1.0</div></div>
+      </div>
+      <div id="res-warns"></div>
+      <table class="bt"><tbody id="res-rows"></tbody></table>
+    </div>
+
+    <div class="sec" style="margin-top:8px">
+      <div class="sec-title">&#128197; Lich lam viec thang <span id="calmonth"></span></div>
+      <div id="calgrid" class="sch-grid"></div>
+    </div>
+  </div>
+</div>
+<script>
+function fm(n){n=Math.round(n);return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function g(id){return parseFloat(document.getElementById(id).value)||0;}
+function gi(id){return parseInt(document.getElementById(id).value)||0;}
+function gs(id){return document.getElementById(id).value;}
+function kpiCoeff(pct){if(pct<80)return 0;if(pct<90)return 0.7;if(pct<100)return 1.0;if(pct<130)return 1.1;return 1.3;}
+function kpiClass(c){if(c===0)return 'kpi-0';if(c===0.7)return 'kpi-07';if(c===1.0)return 'kpi-10';if(c===1.1)return 'kpi-11';return 'kpi-13';}
+function kpiLabel(c,pct){
+  const map={0:'KPI x0 (<80%)',0.7:'KPI x0.7 (80-90%)',1.0:'KPI x1.0 (90-100%)',1.1:'KPI x1.1 (100-130%)',1.3:'KPI x1.3 (>=130%)'};
+  return (map[c]||'KTV KPI x'+c)+' — '+pct.toFixed(1)+'%';
+}
+function toggleKtvType(){
+  const isMoi = document.getElementById('ktv_type').value === 'moi';
+  document.getElementById('sec_chinh').style.display = isMoi ? 'none' : 'block';
+}
+function calcKTV(){
+  const wd=g('workdays')||26, std=26, pr=wd/std;
+  const ktvType=gs('ktv_type');
+  // KTV moi
+  if(ktvType==='moi'){
+    document.getElementById('res-total').textContent='5.000.000';
+    const kb=document.getElementById('kpibadge');
+    kb.className='kpi-badge kpi-07';
+    kb.textContent='KTV moi / hoc viec — ap muc san';
+    document.getElementById('res-warns').innerHTML='<div class="warn">KTV moi: DT &lt; 10tr → ap muc san 5.000.000d</div>';
+    document.getElementById('res-rows').innerHTML=
+      '<tr><td>Muc luong san KTV moi/hoc viec</td><td>5.000.000d</td></tr>';
+    document.getElementById('result').classList.add('show');
+    return;
+  }
+  // KTV chinh thuc
+  const soKTV=g('so_ktv')||1;
+  // Tinh cong DVL
+  const congLopTai16=(g('lop_tai_16')*60000)/soKTV;
+  const congLopTai20=(g('lop_tai_20')*70000)/soKTV;
+  const congLopDL16=(g('lop_dl_16')*40000)/soKTV;
+  const congLopDLg16=(g('lop_dl_g16')*50000)/soKTV;
+  const congBD=(g('bd_nhot')*50000+g('bd_acqy')*50000+g('bd_gat')*10000+g('bd_lanh')*300000+g('bd_hopso')*500000+g('bd_kimphun')*300000+g('bd_buongdot')*300000+g('bd_camber')*100000)/soKTV;
+  const congGiaPhieu=(g('dv_giaphieu'))/soKTV;
+  const congDVL=congLopTai16+congLopTai20+congLopDL16+congLopDLg16+congBD+congGiaPhieu;
+  const congDVNL=g('dvnl_cong')/soKTV;
+  const congLD=g('ld_cong')/soKTV;
+  const congDVTotal=congDVL+congDVNL+congLD;
+  // KPI
+  const revPlan=g('rev_plan');
+  const kpiPct=revPlan>0?(congDVTotal/revPlan*100):100;
+  const kc=kpiCoeff(kpiPct);
+  // A. P1
+  const base=4200000*pr, xe=260000*pr, com=780000*pr;
+  const ythuc=1000000*kc, vitri=650000*kc;
+  const p1=base+xe+com+ythuc+vitri;
+  // B. Hoa hong cong DV luy tien
+  const ythucOk=gi('ythuc_ok');
+  let hh=0, hhBonus=0;
+  const t1=10000000;
+  if(congDVTotal<=t1){
+    hh=congDVTotal*0.10;
+  } else if(congDVTotal<=t1*2){
+    hh=t1*0.10+(congDVTotal-t1)*0.15;
+    if(ythucOk) hhBonus=1000000;
+  } else {
+    hh=t1*0.10+t1*0.15+(congDVTotal-2*t1)*0.20;
+    if(ythucOk) hhBonus=1000000;
+  }
+  const hhTotal=hh+hhBonus;
+  // C. Thuong NS
+  const rw=gi('return_week'), rm=gi('return_month');
+  let bw=0, ww='', bm=0, wm='';
+  if(rw>0) ww='Co xe quay dau trong tuan → mat thuong tuan';
+  else{
+    if(congDVL>=3600000) bw+=200000;
+    if(congDVNL>=7000000) bw+=200000;
+    if(congDVTotal>=9000000) bw+=500000;
+  }
+  bw*=kc;
+  if(rm>2) wm='Vuot 2 xe quay dau → mat thuong thang';
+  else{
+    if(congDVTotal>=35000000) bm=2000000;
+    else if(congDVTotal>=30000000) bm=1000000;
+  }
+  bm*=kc;
+  const bonus=bw+bm, grand=p1+hhTotal+bonus;
+  document.getElementById('res-total').textContent=fm(grand);
+  const kb=document.getElementById('kpibadge');
+  kb.className='kpi-badge '+kpiClass(kc);
+  kb.textContent=kpiLabel(kc,kpiPct);
+  const w=document.getElementById('res-warns');
+  w.innerHTML='';
+  if(ww) w.innerHTML+='<div class="warn">&#9888; '+ww+'</div>';
+  if(wm) w.innerHTML+='<div class="warn">&#9888; '+wm+'</div>';
+  document.getElementById('res-rows').innerHTML=
+    '<tr class="sect"><td colspan="2">A. THU NHAP CO DINH (P1)</td></tr>'+
+    '<tr class="sub"><td>Luong co ban ('+wd+'/'+std+' ngay)</td><td>'+fm(base)+'d</td></tr>'+
+    '<tr class="sub"><td>PC xang xe</td><td>'+fm(xe)+'d</td></tr>'+
+    '<tr class="sub"><td>PC com trua</td><td>'+fm(com)+'d</td></tr>'+
+    '<tr class="sub"><td>Y thuc & trach nhiem (x'+kc+')</td><td>'+fm(ythuc)+'d</td></tr>'+
+    '<tr class="sub"><td>Vi tri & vai tro (x'+kc+')</td><td>'+fm(vitri)+'d</td></tr>'+
+    '<tr><td><b>Tong P1</b></td><td><b>'+fm(p1)+'d</b></td></tr>'+
+    '<tr class="sect"><td colspan="2">CONG DICH VU TINH DUOC</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Lap lop tai 12-16</td><td>'+fm(congLopTai16)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Lap lop tai 20</td><td>'+fm(congLopTai20)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Lap lop DL 14-16</td><td>'+fm(congLopDL16)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Lap lop DL >16</td><td>'+fm(congLopDLg16)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Bao duong (co dinh)</td><td>'+fm(congBD)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVL - Theo gia phieu DV</td><td>'+fm(congGiaPhieu)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong DVNL</td><td>'+fm(congDVNL)+'d</td></tr>'+
+    '<tr class="sub"><td>Cong LD</td><td>'+fm(congLD)+'d</td></tr>'+
+    '<tr><td><b>Tong cong DV ca nhan</b></td><td><b>'+fm(congDVTotal)+'d</b></td></tr>'+
+    '<tr class="sect"><td colspan="2">B. HOA HONG CONG DV (LUY TIEN)</td></tr>'+
+    '<tr class="sub"><td>HH muc 1 (=&lt;10tr: 10%)</td><td>'+fm(Math.min(congDVTotal,t1)*0.10+Math.max(0,Math.min(congDVTotal-t1,t1)*0.15))+'d</td></tr>'+
+    (hhBonus?'<tr class="sub"><td>Thuong them Muc 2 (dat 200 diem y thuc)</td><td>'+fm(hhBonus)+'d</td></tr>':'')+
+    '<tr><td><b>Tong hoa hong</b></td><td><b>'+fm(hhTotal)+'d</b></td></tr>'+
+    '<tr class="sect"><td colspan="2">C. THUONG NANG SUAT</td></tr>'+
+    '<tr class="sub"><td>Thuong tuan'+(rw?' (mat-co xe quay dau)':' cong DVL>=3.6tr+DVNL>=7tr+DV>=9tr')+'</td><td>'+fm(bw)+'d</td></tr>'+
+    '<tr class="sub"><td>Thuong thang'+(rm>2?' (mat-vuot 2 xe quay dau)':' cong DV tich luy')+'</td><td>'+fm(bm)+'d</td></tr>'+
+    '<tr><td><b>Tong thuong NS</b></td><td><b>'+fm(bonus)+'d</b></td></tr>'+
+    '<tr class="tr"><td>TONG LUONG</td><td>'+fm(grand)+'d</td></tr>';
+  document.getElementById('result').classList.add('show');
+  setTimeout(()=>document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+function renderCal(){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  document.getElementById('calmonth').textContent=(m+1)+'/'+y;
+  const days=new Date(y,m+1,0).getDate(),today=now.getDate();
+  const dn=['CN','T2','T3','T4','T5','T6','T7'];
+  let h='';
+  for(let d=1;d<=days;d++){
+    const dow=new Date(y,m,d).getDay(),off=dow===0,td=d===today;
+    const cls=td?'st':(off?'so':'sw');
+    const lbl=td?'HOM NAY':(off?'NGHI':'LAM');
+    h+='<div class="sch-cell"><div class="sch-dn">'+dn[dow]+'</div><div class="sch-d">'+d+'</div><div class="sch-s '+cls+'">'+lbl+'</div></div>';
+  }
+  document.getElementById('calgrid').innerHTML=h;
+}
+renderCal();
+</script>
+</body>
+</html>
