@@ -253,6 +253,14 @@ body{font-family:var(--f);background:var(--bg);color:var(--fg);font-size:15px;mi
     <div><div class="logo">PHI LONG <span>AUTO</span></div><div class="logo-sub">Bảng lương nhân sự</div></div>
     <div class="period"><label>Kỳ</label><input type="month" id="period" onchange="onPeriodChange()"></div>
   </div>
+  <div style="display:flex;gap:8px;padding:6px 0 2px">
+    <a href="sale.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:8px;color:#fff;font:700 12px/1 'Inter',sans-serif;text-decoration:none">
+      <i class="ti ti-chart-bar" style="font-size:15px"></i> Tính lương SALE
+    </a>
+    <a href="ktv.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,196,0,.2);border:1px solid rgba(255,196,0,.4);border-radius:999px;padding:8px;color:#FFC400;font:700 12px/1 'Inter',sans-serif;text-decoration:none">
+      <i class="ti ti-tool" style="font-size:15px"></i> Tính lương KTV
+    </a>
+  </div>
   <div class="tabs">
     <button class="tab act" id="tb-pay" onclick="goTab('pay')"><i class="ti ti-cash"></i>Bảng lương</button>
     <button class="tab" id="tb-entry" onclick="goTab('entry')"><i class="ti ti-report-money"></i>Kết quả</button>
