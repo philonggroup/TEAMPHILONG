@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+  <html lang="vi">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Phi Long Group — Nội bộ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+  :root{--green:#3E9950;--green-dark:#2E7D3C;--green-deep:#1E5A2A;--mint:#E8F5EA;--mint2:#D3EBD7;
+  --bg:#F4F8F4;--ink:#22302A;--muted:#6B7A70;--line:#E1EAE2;--red:#C0392B;--red-bg:#FDEDEB;
+  --amber:#B45309;--amber-bg:#FEF3E2;--ok-bg:#E8F5EA}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+input,select{font:inherit;width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(62,153,80,.15)}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:10px 0 5px}
+button{font:inherit;cursor:pointer;border:none}
+  .btn{display:block;width:100%;padding:13px;border-radius:13px;background:var(--green);color:#fff;font-weight:700;letter-spacing:.4px}
+.btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--green-dark);border:1.5px solid var(--mint2)}
+.btn.sm{width:auto;padding:8px 14px;font-size:13px;border-radius:10px}
+.btn.danger{background:var(--red)}
+.screen{display:none;min-height:100dvh}.screen.on{display:block}
+#login{display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(180deg,#EAF6EC,#F4F8F4)}
+#login.on{display:flex}
+.lcard{background:#fff;border-radius:24px;padding:22px;width:100%;max-width:420px;box-shadow:0 14px 40px rgba(46,125,60,.12)}
+.lcard h1{text-align:center;color:var(--green);font-size:26px;font-weight:800;letter-spacing:1px}
+.lcard .slg{text-align:center;color:var(--green-dark);font-size:12px;font-weight:700;letter-spacing:3px}
+.lcard .sub{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 14px}
+.err{color:var(--red);font-size:12.5px;text-align:center;margin-top:8px;min-height:18px}
+.mode{font-size:11.5px;text-align:center;color:var(--muted);margin-top:10px}
+.topbar{background:var(--green);color:#fff;padding:14px 18px 44px;border-radius:0 0 26px 26px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.topbar b{font-size:17px;display:block}.topbar span{font-size:12.5px;opacity:.85}
+.wrap{max-width:560px;margin:-28px auto 0;padding:0 14px 96px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:13px;box-shadow:0 2px 10px rgba(34,48,42,.04)}
+.card h3{font-size:14px;font-weight:700;color:var(--green-deep);margin-bottom:10px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.li:last-child{border-bottom:none}
+  .badge{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--green-dark)}.b-warn{background:var(--amber-bg);color:var(--amber)}.b-bad{background:var(--red-bg);color:var(--red)}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1;background:none;padding:10px 4px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabbar button.on{color:var(--green-dark)}
+.clock{text-align:center;font-size:38px;font-weight:800;color:var(--green-deep);font-variant-numeric:tabular-nums}
+.punch{width:150px;height:150px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;font-size:15px;margin:14px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 10px 26px rgba(62,153,80,.35)}
+.punch.out{background:var(--amber)}.punch:active{transform:scale(.96)}
+  .punch small{font-size:11px;font-weight:500;opacity:.9}
+.gps{font-size:12px;color:var(--muted);text-align:center;min-height:18px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:11.5px;color:var(--muted);margin-top:3px}
+.hero{background:var(--green-deep);color:#fff;border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
+.hero b{font-size:22px;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:92vw;text-align:center}
+.toast.show{opacity:1}
+</style>
+  </head>
+  <body>
+  <div class="screen on" id="login">
+  <div class="lcard">
+  <h1>PHI LONG GROUP</h1>
+  <p class="slg">ONE TEAM — ONE DREAM</p>
+  <p class="sub">Hệ thống nội bộ · Nhân sự & Chấm công & Lương</p>
+  <label>Email đăng nhập</label><input id="u" type="email" autocomplete="username" placeholder="ten@philong.vn">
+  <label>Mật khẩu</label><input id="p" type="password" autocomplete="current-password" placeholder="••••••••">
+  <div style="height:14px"></div>
+  <button class="btn" onclick="doLogin()">ĐĂNG NHẬP</button>
+  <p class="err" id="err"></p>
+  <p class="mode" id="mode"></p>
+  </div>
+  </div>
+  <div class="screen" id="app">
+  <div class="topbar">
+  <div><b id="hName">—</b><span id="hRole">—</span></div>
+  <button class="btn sm ghost" onclick="logout()">Đăng xuất</button>
+</div>
+<div class="wrap" id="view"></div>
+<nav class="tabbar" id="tabs"></nav>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+  const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";
+const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+const sb = LIVE ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+document.getElementById('mode').textContent = LIVE
+    ? '🔒 Đã kết nối máy chủ — chấm công kiểm tra GPS tại server'
+    : '⚠️ CHẾ ĐỘ DEMO — đăng nhập: demo@philong.vn / 123';
+const $=id=>document.getElementById(id);
+const vnd=n=>Math.round(n||0).toLocaleString('vi-VN')+' đ';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2600)}
+let me=null,tab='clock',D={cham:[],phep:[],luong:[]};
+let queue=[];
+window.addEventListener('online',flushQueue);
+async function flushQueue(){
+  while(LIVE&&queue.length&&navigator.onLine){
+    const q=queue[0];
+    try{const{data,error}=await sb.rpc('cham_cong_gps',q);if(error)throw error;
+    toast('🔄 Đã đồng bộ: '+(data.ok?data.gio:data.loi));queue.shift();}
+          catch(e){break}
+  }
+}
+async function doLogin(){
+  $('err').textContent='';
+      if(!LIVE){
+    if($('u').value.trim()==='demo@philong.vn'&&$('p').value==='123'){
+      me={id:'demo',ho_ten:'Nguyễn Văn A',chuc_danh:'Nhân viên',vai_tro:'nv',chi_nhanh:'CN1',ma_nv:'NV001'};
+      enter();return;
+      }
+    $('err').textContent='Demo: demo@philong.vn / 123';return;
+}
+  const{data,error}=await sb.auth.signInWithPassword({email:$('u').value.trim(),password:$('p').value});
+  if(error){$('err').textContent='Sai email hoặc mật khẩu.';return}
+  const{data:nv,error:e2}=await sb.from('nhan_vien').select('*,chi_nhanh(ten)').eq('id',data.user.id).single();
+  if(e2||!nv){$('err').textContent='Tài khoản chưa được gán hồ sơ — liên hệ quản lý.';await sb.auth.signOut();return}
+  me={...nv,chi_nhanh:nv.chi_nhanh?.ten||''};
+      enter();
+}
+function enter(){
+  $('login').classList.remove('on');$('app').classList.add('on');
+  $('hName').textContent=me.ho_ten;
+  $('hRole').textContent=(me.chuc_danh||'')+' · '+(me.chi_nhanh||'');
+  loadData().then(()=>{tab='clock';drawTabs();render()});
+}
+async function logout(){if(LIVE)await sb.auth.signOut();me=null;$('app').classList.remove('on');$('login').classList.add('on')}
+/* ===== TẢI DỮ LIỆU: CHỈ LẤY DỮ LIỆU CỦA NHÂN VIÊN ĐANG ĐĂNG NHẬP ===== */
+async function loadData(){
+  if(!LIVE){
+    D={
+      cham:[
+{id:1,ngay:today(),gio_vao:new Date().toISOString(),gio_ra:null,khoang_cach_m:12},
+{id:2,ngay:'2026-07-02',gio_vao:'2026-07-02T08:01:00.000Z',gio_ra:'2026-07-02T17:05:00.000Z',khoang_cach_m:8}
+      ],
+      phep:[
+{id:1,tu_ngay:'2026-07-10',den_ngay:'2026-07-11',ly_do:'Việc gia đình',trang_thai:'cho_duyet'}
+      ],
+      luong:[
+{ky:'2026-06',p1:4433846,p2:650000,p3:2991887,p4:2456040,thuc_linh:9812523,da_khoa:true,cong_thuc_te:26,cong_chuan:26}
+      ]
+};
+    return;
+}
+  /* LIVE mode: .eq('nv_id', me.id) đảm bảo nhân viên CHỈ thấy dữ liệu của chính mình */
+  const[c,p,l]=await Promise.all([
+    sb.from('cham_cong').select('*').eq('nv_id',me.id).order('ngay',{ascending:false}).limit(60),
+    sb.from('nghi_phep').select('*').eq('nv_id',me.id).order('tao_luc',{ascending:false}).limit(50),
+    sb.from('bang_luong').select('*').eq('nv_id',me.id).order('ky',{ascending:false}).limit(24)
+  ]);
+  D.cham=c.data||[];D.phep=p.data||[];D.luong=l.data||[];
+  }
+function drawTabs(){
+    const t=[['clock','⏱ Chấm công'],['phep','📅 Nghỉ phép'],['luong','💰 Lương'],['info','☰ Thông tin']];
+  $('tabs').innerHTML=t.map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';drawTabs();render()">${l}</button>`).join('');
+    }
+    let clockT=null;
+function render(){
+    const V=$('view');
+  if(tab==='clock'){
+    const myToday=D.cham.find(x=>x.ngay===today());
+    const st=!myToday?'in':(myToday.gio_ra?'done':'out');
+    V.innerHTML=`
+      <div class="card">
+      <p class="clock" id="lc">--:--:--</p>
+      <p style="text-align:center;font-size:13px;color:var(--muted)">${new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'numeric',month:'numeric',year:'numeric'})}</p>
+      ${st==='done'
+        ?`<p style="text-align:center;padding:12px"><span class="badge b-ok">✓ Hoàn tất công hôm nay</span></p>`
+  :`<button class="punch ${st==='out'?'out':''}" onclick="punch()">CHẤM CÔNG ${st==='in'?'VÀO':'RA'}<small>${LIVE?'Máy chủ kiểm tra GPS':'Demo — không kiểm tra thật'}</small></button>`}
+      <p class="gps" id="gps">${queue.length?'⏳ '+queue.length+' lượt chờ đồng bộ':'📍 Vị trí kiểm tra tại máy chủ khi bấm'}</p>
+      </div>
+      <div class="card"><h3>Chấm công của tôi</h3>
+      ${D.cham.slice(0,10).map(x=>`
+      <div class="li">
+      <div><b>${x.ngay}</b><div class="hint">${x.khoang_cach_m!=null?'Cách CN '+Math.round(x.khoang_cach_m)+'m':''}${x.dieu_chinh?' · <span style="color:var(--amber)">Đã điều chỉnh</span>':''}</div></div>
+      <span class="badge ${x.gio_ra?'b-ok':'b-warn'}">${hhmm(x.gio_vao)}${x.gio_ra?' → '+hhmm(x.gio_ra):' · Đang làm'}</span>
+    </div>`).join('')||'<p class="hint">Chưa có dữ liệu.</p>'}
+    </div>`;
+    clearInterval(clockT);const f=()=>{const e=$('lc');if(e)e.textContent=new Date().toLocaleTimeString('vi-VN')};f();clockT=setInterval(f,1000);
+                                                                                                                     }
+  else if(tab==='phep'){
+    V.innerHTML=`
+      <div class="card"><h3>Gửi yêu cầu nghỉ phép</h3>
+<div class="row2">
+<div><label>Từ ngày</label><input type="date" id="f1" value="${today()}"></div>
+      <div><label>Đến ngày</label><input type="date" id="f2" value="${today()}"></div>
+      </div>
+      <label>Lý do</label><input id="f3" placeholder="VD: việc gia đình, khám bệnh…">
+      <div style="height:12px"></div>
+      <button class="btn" onclick="sendPhep()">Gửi đơn</button>
+</div>
+<div class="card"><h3>Đơn nghỉ phép của tôi</h3>
+${D.phep.map(x=>`
+<div class="li">
+<div><b>${x.tu_ngay}${x.tu_ngay!==x.den_ngay?' → '+x.den_ngay:''}</b><div class="hint">${esc(x.ly_do)}</div></div>
+      <span class="badge ${x.trang_thai==='da_duyet'?'b-ok':x.trang_thai==='cho_duyet'?'b-warn':'b-bad'}">${{da_duyet:'Đã duyệt',cho_duyet:'Chờ duyệt',tu_choi:'Từ chối'}[x.trang_thai]||x.trang_thai}</span>
+      </div>`).join('')||'<p class="hint">Chưa có đơn nào.</p>'}
+      </div>`;
+                     }
+  else if(tab==='luong'){
+    V.innerHTML=`<div class="card"><h3>Phiếu lương của tôi</h3>
+      ${D.luong.map(b=>`
+      <div class="li"><b>Kỳ ${b.ky}</b><span class="badge ${b.da_khoa?'b-ok':'b-warn'}">${b.da_khoa?'Đã khoá sổ':'Tạm tính'}</span></div>
+      <div class="li"><span>P1 ngày công (${b.cong_thuc_te??''}/${b.cong_chuan??''})</span><b>${vnd(b.p1)}</b></div>
+      <div class="li"><span>P2 năng lực</span><b>${vnd(b.p2)}</b></div>
+      <div class="li"><span>P3 hiệu suất KPI</span><b>${vnd(b.p3)}</b></div>
+      <div class="li"><span>P4 partnership</span><b>${vnd(b.p4)}</b></div>
+      <div class="hero"><span>THỰC LĨNH</span><b>${vnd(b.thuc_linh)}</b></div>
+      <div style="height:16px"></div>`).join('')||'<p class="hint">Chưa có kỳ lương nào.</p>'}
+      </div>`;
+  }
+  else{
+    V.innerHTML=`
+      <div class="card"><h3>Thông tin cá nhân</h3>
+      <div class="li"><span>Họ tên</span><b>${esc(me.ho_ten)}</b></div>
+      <div class="li"><span>Mã NV</span><b>${esc(me.ma_nv||'—')}</b></div>
+      <div class="li"><span>Chức danh</span><b>${esc(me.chuc_danh||'—')}</b></div>
+      <div class="li"><span>Chi nhánh</span><b>${esc(me.chi_nhanh||'—')}</b></div>
+      <div class="li"><span>Quyền</span><span class="badge b-ok">Nhân viên</span></div>
+      </div>
+      <div class="card"><h3>Nội quy tóm tắt</h3>
+<div class="li"><span>Chấm công</span><b>GPS trong bán kính chi nhánh</b></div>
+<div class="li"><span>Nghỉ không phép >1 ngày</span><b>−20% · 2 ngày −30% · 3 ngày −50%</b></div>
+      <div class="li"><span>Đủ công chuyên cần</span><b>+200.000 đ</b></div>
+      <div class="li"><span>Khoá lương</span><b>Ngày 05 hàng tháng</b></div>
+</div>
+<p class="hint" style="text-align:center;margin-bottom:14px">Hỗ trợ: quản lý chi nhánh · PHI LONG GROUP</p>`;
+  }
+  }
+const hhmm=t=>t?new Date(t).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—';
+function punch(){
+    $('gps').textContent='📍 Đang lấy vị trí…';
+  if(!navigator.geolocation){toast('Thiết bị không hỗ trợ GPS');return}
+  navigator.geolocation.getCurrentPosition(async pos=>{
+        const args={p_lat:pos.coords.latitude,p_lng:pos.coords.longitude,p_acc:pos.coords.accuracy};
+        if(!LIVE){toast('✅ (Demo) Ghi nhận '+new Date().toLocaleTimeString('vi-VN').slice(0,5));D.cham.unshift({ngay:today(),gio_vao:new Date().toISOString(),khoang_cach_m:15});render();return}
+    if(!navigator.onLine){queue.push(args);toast('📡 Mất mạng — lưu chờ đồng bộ');render();return}
+    const{data,error}=await sb.rpc('cham_cong_gps',args);
+    if(error){toast('Lỗi: '+error.message);return}
+    if(data.ok){toast(`✅ Chấm ${data.loai==='vao'?'VÀO':'RA'} lúc ${data.gio} (cách CN ${data.khoang_cach_m}m)`)}
+    else{toast('⛔ '+data.loi)}
+    await loadData();render();
+},()=>{$('gps').textContent='Không lấy được vị trí — hãy bật GPS';toast('⚠️ Cần bật GPS để chấm công');},{enableHighAccuracy:true,timeout:8000});
+  }
+async function sendPhep(){
+  const f1=$('f1').value,f2=$('f2').value,ly=$('f3').value.trim();
+  if(!f1||!f2||!ly){toast('⚠️ Nhập đủ ngày và lý do');return}
+  if(f2<f1){toast('⚠️ Ngày kết thúc phải sau ngày bắt đầu');return}
+  if(!LIVE){D.phep.unshift({id:Date.now(),tu_ngay:f1,den_ngay:f2,ly_do:ly,trang_thai:'cho_duyet'});toast('✅ (Demo) Đã gửi đơn');render();return}
+  const{error}=await sb.from('nghi_phep').insert({nv_id:me.id,tu_ngay:f1,den_ngay:f2,ly_do:ly});
+  if(error){toast('Lỗi: '+error.message);return}
+  toast('✅ Đã gửi — chờ quản lý duyệt');await loadData();render();
+}
+</script>
+</body>
+</html>
