@@ -1,0 +1,905 @@
+<title>Đường Đua Thành Tích Phi Long</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;600;800&display=swap">
+<style>
+/* Layout: đường đua phối cảnh 3D chiếm hết bề ngang, bảng điện tử nằm ngay dưới mỗi đường đua */
+:root{
+  color-scheme: dark;
+  --nen:#070b18;          /* nền đêm */
+  --nen2:#0e1630;         /* mặt bảng */
+  --vien:#1e2b52;
+  --chu:#eaf0ff;
+  --chu-mo:#8ea0c8;
+  --neon:#19e3ff;         /* nhấn chính */
+  --vang:#ffc62e;         /* cúp vàng */
+  --duong:#ff8a1f;        /* mặt đường */
+  --duong2:#ffd45e;
+  --tot:#2fe08a;
+  --canh:#ff9f1a;
+  --xau:#ff4d6d;
+  --xanh:#2ea8ff; --hong:#ff3d9a; --vang-xe:#ffd12e; --tim:#a855f7;
+  --f-dis:'Oswald', 'Arial Narrow', sans-serif;
+  --f-body:'Be Vietnam Pro', system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #17224a 0%, transparent 60%),
+    linear-gradient(180deg,#070b18 0%, #0a1026 100%);
+  color:var(--chu); font-family:var(--f-body); -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 56px}
+h1,h2,h3{font-family:var(--f-dis);text-transform:uppercase;letter-spacing:.02em;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,6.4vw,62px);line-height:.98;font-weight:700}
+h2{font-size:clamp(20px,3.4vw,30px);font-weight:700}
+h3{font-size:15px;font-weight:600;letter-spacing:.09em;color:var(--chu-mo)}
+.num{font-family:var(--f-dis);font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ── HEADER ─────────────────────────────── */
+.top{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;
+  border:1px solid var(--vien);border-radius:18px;padding:20px;
+  background:linear-gradient(135deg,#101a3a 0%,#0a1026 70%);position:relative;overflow:hidden}
+.top::after{content:"";position:absolute;inset:auto -10% -60% 60%;height:220px;
+  background:radial-gradient(closest-side,rgba(25,227,255,.22),transparent);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-dis);font-size:12px;
+  letter-spacing:.18em;color:var(--neon);text-transform:uppercase;margin-bottom:8px}
+.eyebrow b{color:var(--vang)}
+.sub{color:var(--chu-mo);font-size:14px;margin-top:10px;max-width:60ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:flex;align-items:baseline;gap:6px;border:1px solid var(--vien);background:#0a142e;
+  border-radius:999px;padding:7px 13px;font-size:12px;color:var(--chu-mo)}
+.chip .num{font-size:16px;color:var(--chu)}
+.chip.vang{border-color:#6a4f12;background:#231a05}
+.chip.vang .num{color:var(--vang)}
+
+/* đồng hồ ngày tháng */
+.dialbox{display:grid;justify-items:center;gap:4px}
+.dial{width:190px;height:122px}
+.dial-cap{font-family:var(--f-dis);font-size:11px;letter-spacing:.16em;color:var(--chu-mo);text-transform:uppercase}
+
+/* ── CẢNH BÁO ───────────────────────────── */
+.canhbao{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:13px 16px;border-radius:14px;
+  border:1px solid #6a3a12;background:#241403;font-size:13.5px;line-height:1.5}
+.canhbao b{color:var(--canh)}
+
+/* ── KHỐI ĐƯỜNG ĐUA ─────────────────────── */
+section{margin-top:34px}
+.shead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs{display:flex;gap:6px;background:#0a142e;border:1px solid var(--vien);border-radius:999px;padding:4px}
+.tab{appearance:none;border:0;background:transparent;color:var(--chu-mo);font-family:var(--f-dis);
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:8px 15px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--neon);color:#04121a;font-weight:600}
+.tab:focus-visible{outline:2px solid var(--vang);outline-offset:2px}
+
+.scene{position:relative;border:1px solid var(--vien);border-radius:18px;overflow:hidden;
+  aspect-ratio:16/9.4;min-height:340px;background:#060a16}
+@media (max-width:640px){.scene{aspect-ratio:16/15}}
+.scene svg.road{position:absolute;inset:0;width:100%;height:100%}
+.layer{position:absolute;inset:0;pointer-events:none}
+.xe{position:absolute;transform-origin:50% 100%;will-change:transform;transition:left .6s ease,bottom .6s ease,transform .6s ease}
+.xe svg{display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+.nhan{position:absolute;display:flex;align-items:center;gap:7px;z-index:8;white-space:nowrap}
+.nhan.dao{flex-direction:row-reverse}
+.ten-xe{font-family:var(--f-dis);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
+  background:rgba(8,14,30,.85);color:#fff;border-radius:999px;padding:4px 13px;
+  border:1.5px solid rgba(8,14,30,.55);box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nhan svg{display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+.tram-lbl{position:absolute;transform:translate(-100%,-50%);margin-left:-8px;font-family:var(--f-dis);font-size:10.5px;
+  letter-spacing:.1em;color:#07121f;background:var(--duong2);border-radius:4px;padding:2px 7px;white-space:nowrap;font-weight:600}
+
+/* ── BẢNG ĐIỆN TỬ ───────────────────────── */
+.bang{margin-top:14px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13.5px}
+th{font-family:var(--f-dis);font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--chu-mo);
+  text-align:left;padding:11px 12px;border-bottom:1px solid var(--vien);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #15203f;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+.ten{display:flex;align-items:center;gap:9px;font-weight:600;white-space:nowrap}
+.dot{width:11px;height:11px;border-radius:3px;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.25) inset}
+.cn{font-size:10.5px;color:var(--chu-mo);border:1px solid var(--vien);border-radius:5px;padding:1px 6px;font-weight:600}
+.pill{display:inline-block;font-family:var(--f-dis);font-size:11px;letter-spacing:.07em;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.p-tot{background:#06301f;color:var(--tot);border:1px solid #11613f}
+.p-canh{background:#2b1b02;color:var(--canh);border:1px solid #6a4310}
+.p-xau{background:#2e0a14;color:var(--xau);border:1px solid #71202f}
+.p-xp{background:#11203f;color:var(--chu-mo);border:1px solid var(--vien)}
+.canhbao-ico{color:var(--canh);cursor:help}
+
+/* ── THẺ ───────────────────────────────── */
+.luoi{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));margin-top:14px}
+.the{border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:16px}
+.the h3{margin-bottom:9px}
+.the p{margin:0 0 8px;font-size:13.5px;line-height:1.6;color:#cfd9f2}
+.the ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#cfd9f2}
+.the.cup{border-color:#6a4f12;background:linear-gradient(160deg,#241a04,#121020)}
+.cup-ten{font-family:var(--f-dis);font-size:19px;text-transform:uppercase;color:var(--vang);margin-top:4px}
+.tram-list{display:grid;gap:6px;margin-top:10px}
+.tram-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 10px;border-radius:9px;background:#0a142e}
+.tram-row b{font-family:var(--f-dis);font-variant-numeric:tabular-nums}
+
+/* ── CẬP NHẬT SỐ ────────────────────────── */
+details.capnhat{margin-top:18px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:0 16px}
+details.capnhat summary{cursor:pointer;padding:14px 0;font-family:var(--f-dis);text-transform:uppercase;
+  letter-spacing:.09em;font-size:14px;color:var(--neon)}
+.form-luoi{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));padding-bottom:16px}
+.dong{display:grid;grid-template-columns:1fr 92px 92px;gap:8px;align-items:center;font-size:13px}
+.dong input{width:100%;background:#071022;border:1px solid var(--vien);color:var(--chu);border-radius:8px;
+  padding:7px 9px;font-family:var(--f-dis);font-variant-numeric:tabular-nums;text-align:right;font-size:14px}
+.dong input:focus{outline:2px solid var(--neon);outline-offset:1px}
+.nut{display:flex;gap:10px;flex-wrap:wrap;padding-bottom:18px}
+button.act{font-family:var(--f-dis);text-transform:uppercase;letter-spacing:.08em;font-size:13px;
+  border:0;border-radius:999px;padding:10px 20px;cursor:pointer;background:var(--neon);color:#04121a;font-weight:600}
+button.act.ghost{background:transparent;border:1px solid var(--vien);color:var(--chu-mo)}
+.ghi{font-size:12px;color:var(--chu-mo);margin-top:8px;line-height:1.6}
+footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-size:12px;color:var(--chu-mo);line-height:1.7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">PHI LONG GROUP · MINI GAME THÁNG 10 · <b>2 CÚP VÀNG XÉT LIVE</b></div>
+      <h1>Đường đua<br>thành tích</h1>
+      <p class="sub">Kilômét là doanh số. Cờ vẫy là các mức thưởng P3. Đồng hồ là ngày trong tháng.
+         Đua theo hiệu suất từng người — không phân biệt chi nhánh.</p>
+      <div class="chips">
+        <span class="chip">NGÀY <b class="num" id="c-ngay">—</b> / 31</span>
+        <span class="chip">CÒN <b class="num" id="c-con">—</b> NGÀY</span>
+        <span class="chip vang">GIẢI <b class="num">2</b> CÚP × 200K · XÉT LIVE</span>
+        <span class="chip" id="c-nguon">NGUỒN <b class="num">—</b></span>
+      </div>
+    </div>
+    <div class="dialbox">
+      <svg class="dial" viewBox="0 0 190 122" role="img" aria-label="Đồng hồ ngày trong tháng 10">
+        <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#19e3ff"/><stop offset=".6" stop-color="#ffc62e"/><stop offset="1" stop-color="#ff4d6d"/>
+        </linearGradient></defs>
+        <path d="M18 108 A77 77 0 0 1 172 108" fill="none" stroke="#17224a" stroke-width="13" stroke-linecap="round"/>
+        <path id="dial-arc" d="M18 108 A77 77 0 0 1 172 108" fill="none" stroke="url(#gd)" stroke-width="13" stroke-linecap="round"/>
+        <g id="dial-ticks"></g>
+        <line id="dial-kim" x1="95" y1="108" x2="95" y2="42" stroke="#eaf0ff" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="95" cy="108" r="7" fill="#eaf0ff"/>
+        <text x="95" y="90" text-anchor="middle" fill="#eaf0ff" font-family="Oswald,sans-serif" font-size="27" id="dial-so">11</text>
+        <text x="95" y="104" text-anchor="middle" fill="#8ea0c8" font-family="Oswald,sans-serif" font-size="10" letter-spacing="2">THÁNG 10</text>
+      </svg>
+      <div class="dial-cap">Quãng đường đã chạy</div>
+    </div>
+  </header>
+
+  <div class="canhbao">
+    <span style="font-size:18px;line-height:1">⚠</span>
+    <div><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Hiện CN2 tới 10/10, CN1 tới 11/10, CN3 mới tới 06/10 —
+      xe CN3 đang tụt vì thiếu 5 ngày số, không phải vì chạy chậm. Cột <b>NHỊP ĐỘ</b> đã quy về số ngày thực tế
+      của từng người, nhưng vị trí xe trên đường đua là số thô. Ngày nào 3 chi nhánh chưa nhập xong thì
+      thứ hạng trên bảng chưa phải thứ hạng thật.</div>
+  </div>
+
+  <!-- ── KINH DOANH ─────────────────────── -->
+  <section>
+    <div class="shead">
+      <h2>Đường đua kinh doanh</h2>
+      <div class="tabs" role="tablist" aria-label="Chỉ tiêu kinh doanh">
+        <button class="tab" role="tab" aria-selected="true" data-kd="lop">Doanh thu lốp</button>
+        <button class="tab" role="tab" aria-selected="false" data-kd="bdsc">KPI bảo dưỡng · sửa chữa</button>
+      </div>
+    </div>
+    <div class="scene" id="scene-kd"></div>
+    <div class="bang"><table id="bang-kd"></table></div>
+  </section>
+
+  <!-- ── KỸ THUẬT VIÊN ──────────────────── -->
+  <section>
+    <div class="shead">
+      <h2>Đường đua kỹ thuật viên</h2>
+      <div class="tabs" role="tablist" aria-label="Chỉ tiêu kỹ thuật viên">
+        <button class="tab" role="tab" aria-selected="true" data-kt="dt">Doanh thu trực tiếp</button>
+        <button class="tab" role="tab" aria-selected="false" data-kt="ld">KPI lưu động (CN2)</button>
+      </div>
+    </div>
+    <div class="scene" id="scene-kt"></div>
+    <div class="bang"><table id="bang-kt"></table></div>
+  </section>
+
+  <!-- ── THỂ LỆ ─────────────────────────── -->
+  <section>
+    <h2>Thể lệ &amp; các trạm</h2>
+    <div class="luoi">
+      <div class="the cup">
+        <h3>Giải thưởng</h3>
+        <p><b>2 cúp vàng trị giá 200.000đ</b>: một cho kinh doanh, một cho kỹ thuật viên.
+           Xét theo <b>hiện trạng live, bất kỳ thời điểm nào</b> — mở bảng ra là biết ai đang giữ cúp.</p>
+        <p>Không chốt theo tuần, không cán đích sớm. Ai đang dẫn đầu thì đang cầm cúp;
+           <b>hết 31 ngày ai còn đứng đầu thì cúp về tay người đó</b>.</p>
+        <div class="cup-ten">🏆 Đang giữ cúp</div>
+        <div class="tram-list" id="cup-box"></div>
+      </div>
+      <div class="the">
+        <h3>Trạm kinh doanh</h3>
+        <div class="tram-list">
+          <div class="tram-row"><span>Lốp xe · Trạm 1</span><b>350 tr</b></div>
+          <div class="tram-row"><span>Lốp xe · Trạm 2</span><b>700 tr</b></div>
+          <div class="tram-row"><span>Lốp xe · Trạm 3 (cuối đường)</span><b>1.050 tr</b></div>
+          <div class="tram-row"><span>BD–SC · Trạm 1 / 2 / 3</span><b>100 / 200 / 300 tr</b></div>
+        </div>
+        <p class="ghi">Bước nhảy bằng 100% mức 1 — mức 3 là phần luỹ tiến từ trạm 2 trở đi.</p>
+      </div>
+      <div class="the">
+        <h3>Trạm kỹ thuật viên</h3>
+        <div class="tram-list">
+          <div class="tram-row"><span>Doanh thu trực tiếp · Trạm 1</span><b>10 tr</b></div>
+          <div class="tram-row"><span>Trạm 2</span><b>20 tr</b></div>
+          <div class="tram-row"><span>Trạm 3 (cuối đường)</span><b>30 tr</b></div>
+          <div class="tram-row"><span>Lưu động CN2 · 1 / 2 / 3</span><b>10 / 20 / 30 tr</b></div>
+        </div>
+        <p class="ghi">Luỹ kế cả tháng. Với nhịp hiện tại (~1tr/ngày của KTV mạnh), trạm 3 là mốc
+           phải cố mới tới — đủ để đua hết 31 ngày.</p>
+      </div>
+      <div class="the">
+        <h3>4 nguyên tắc thực thi</h3>
+        <ul>
+          <li><b>Tập trung:</b> mỗi người chỉ nhìn 1 vạch — trạm kế tiếp của mình.</li>
+          <li><b>Chỉ số dẫn dắt:</b> phiếu ATX 3/ngày, lượt xe, cuộc gọi — nhiên liệu để chạy.</li>
+          <li><b>Bảng điểm sống:</b> trang này, cập nhật theo ngày, ai cũng thấy mình đang ở đâu.</li>
+          <li><b>Nhịp trách nhiệm:</b> mỗi sáng mở bảng 10 phút, ai tụt hạng nói 1 việc sẽ làm trong ngày.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRA SOÁT ───────────────────────── -->
+  <section>
+    <h2>Tra soát trước khi công bố</h2>
+    <div class="luoi" id="audit"></div>
+  </section>
+
+  <!-- ── CẬP NHẬT ───────────────────────── -->
+  <details class="capnhat">
+    <summary>⚙ Cập nhật số liệu (nhập triệu đồng)</summary>
+    <div class="form-luoi" id="form-kd"></div>
+    <div class="form-luoi" id="form-kt"></div>
+    <div style="padding-bottom:14px">
+      <h3>Kết nối số liệu trực tiếp</h3>
+      <p class="ghi">Dán link Apps Script (dạng .../exec) nếu đã triển khai; để trống thì trang tự thử đọc
+        thẳng 3 file Google Sheet — chỉ chạy được khi file đã mở quyền “bất kỳ ai có liên kết”.</p>
+      <input id="api-url" type="url" placeholder="https://script.google.com/.../exec"
+        style="width:100%;background:#071022;border:1px solid var(--vien);color:var(--chu);border-radius:8px;padding:9px 11px;font-size:13px;text-align:left">
+    </div>
+    <div class="nut">
+      <button class="act" id="btn-live">⟳ Kéo số trực tiếp</button>
+      <button class="act ghost" id="btn-luu">Lưu số nhập tay</button>
+      <button class="act ghost" id="btn-reset">Về số gốc</button>
+      <span class="ghi" id="trangthai"></span>
+    </div>
+  </details>
+
+  <footer>
+    Đường đua hiện 3 xe dẫn đầu toàn hệ thống, bảng điện tử liệt kê toàn bộ ·
+    vị trí xe được giãn so le cho dễ nhìn, số tiền trên biển số và % trong bảng là số thật ·
+    số gốc lấy từ 3 file KPI tuần: CN1 (tới 11/10), CN2 (tới 10/10), CN3 (tới 06/10) · cập nhật tay trong mục ⚙ ·
+    xe là hình minh hoạ xe thể thao vẽ riêng cho Phi Long.
+  </footer>
+</div>
+
+<script>
+/* ═══════ SỐ LIỆU GỐC (triệu đồng) ═══════ */
+var GOC = {
+  ngayCo: {CN1:11, CN2:10, CN3:6},
+  kd: [
+    {ten:'BÙI THỊ BÍCH PHƯỢNG', cn:'CN2', mau:'#ff3d9a', lop:230.0,  bdsc:53.9},
+    {ten:'PHAN XUÂN ĐỨC',       cn:'CN2', mau:'#2ea8ff', lop:111.9,  bdsc:28.6, canhbao:'Dòng của bạn này trong file CN2 lệch: cộng ngang 137,8tr nhưng cột tổng 111,9tr; ô 01/10 của dòng Tổng doanh thu là 103,3tr. Cần CN2 soát lại.'},
+    {ten:'NGỌC TRÂM',           cn:'CN3', mau:'#19e3ff', lop:56.1,   bdsc:15.7},
+    {ten:'LÊ THỊ LÀNH',         cn:'CN2', mau:'#ffd12e', lop:44.6,   bdsc:27.7},
+    {ten:'PHẠM CÔNG THÀNH',     cn:'CN3', mau:'#9ee04a', lop:0.7,    bdsc:3.7},
+    {ten:'NGUYỄN XUÂN VŨ',      cn:'CN3', mau:'#ff7a45', lop:0.5,    bdsc:0.2},
+    {ten:'HỨA THỊ PHƯƠNG VY',   cn:'CN2', mau:'#a855f7', lop:0,      bdsc:0, canhbao:'Chưa có tên trong file KPI CN2 lẫn danh sách nhân sự chuẩn — xe tím đang nằm ở vạch xuất phát chờ số.'}
+  ],
+  kt: [
+    {ten:'NGUYỄN HẠNH PHÚC',  cn:'CN2', mau:'#19e3ff', dt:10.05, ld:2.43},
+    {ten:'NGUYỄN CHÍ TÂM',    cn:'CN2', mau:'#ff3d9a', dt:9.83,  ld:0},
+    {ten:'LỤC VĂN BỘ',        cn:'CN2', mau:'#ffd12e', dt:8.87,  ld:0},
+    {ten:'TRẦN MINH QUANG',   cn:'CN1', mau:'#2ea8ff', dt:8.03,  ld:0},
+    {ten:'NGUYỄN MINH TRÍ',   cn:'CN2', mau:'#a855f7', dt:7.88,  ld:0},
+    {ten:'ĐỔ VĂN CAO',        cn:'CN2', mau:'#9ee04a', dt:7.85,  ld:1.18},
+    {ten:'PHẠM KIM PHƯƠNG',   cn:'CN1', mau:'#ff7a45', dt:6.20,  ld:0},
+    {ten:'TRẦN THANH DUY',    cn:'CN2', mau:'#ff9f1a', dt:5.40,  ld:0},
+    {ten:'NGUYỄN TẤN TÀI',    cn:'CN3', mau:'#7dd3fc', dt:4.65,  ld:0},
+    {ten:'TẤN NHỊN',          cn:'CN3', mau:'#f472b6', dt:3.65,  ld:0},
+    {ten:'TRẦN VĂN KHẢI',     cn:'CN2', mau:'#c4b5fd', dt:3.47,  ld:0},
+    {ten:'PHẠM CÔNG THÀNH',   cn:'CN3', mau:'#86efac', dt:3.37,  ld:0.80},
+    {ten:'HOÀNG VĂN NAM',     cn:'CN3', mau:'#fcd34d', dt:3.30,  ld:0},
+    {ten:'LÂN VĂN THÀNH',     cn:'CN1', mau:'#fdba74', dt:4.78,  ld:0},
+    {ten:'THÁI GIA HUY',      cn:'CN2', mau:'#94a3b8', dt:2.35,  ld:0, canhbao:'Dòng DVNL 0,37tr nhưng tổng doanh thu 2,35tr — file CN2 cộng chưa khớp.'},
+    {ten:'BÙI QUỐC PHÚ',      cn:'CN3', mau:'#a3e635', dt:2.05,  ld:0.30}
+  ]
+};
+var TRAM = { lop:[350,700,1050], bdsc:[100,200,300], dt:[10,20,30], ld:[10,20,30] };
+
+/* ═══════ NGUỒN LIVE ═══════ */
+var NGUON = {
+  CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'2029309149' },
+  CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'2124047691' },
+  CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'288637199'  }
+};
+var MAU_CHOT = {
+  'PHAN XUÂN ĐỨC':'#2ea8ff', 'NGUYỄN XUÂN ĐỨC':'#2ea8ff',
+  'BÙI THỊ BÍCH PHƯỢNG':'#ff3d9a', 'BÙI THỊ BÍCH PHƯƠNG':'#ff3d9a',
+  'LÊ THỊ LÀNH':'#ffd12e', 'HỨA THỊ PHƯƠNG VY':'#a855f7'
+};
+var MAU_DU = ['#19e3ff','#9ee04a','#ff7a45','#7dd3fc','#f472b6','#c4b5fd','#fcd34d','#86efac','#fdba74','#a3e635','#94a3b8','#ff9f1a'];
+
+function chuanTen(s){
+  return (s || '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
+}
+function tachCsv(t){
+  var rows = [], cur = [], f = '', q = false;
+  for (var i = 0; i < t.length; i++) {
+    var c = t[i];
+    if (q) { if (c === '"') { if (t[i+1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { cur.push(f); f = ''; }
+    else if (c === '\n') { cur.push(f); f = ''; rows.push(cur); cur = []; }
+    else if (c !== '\r') f += c;
+  }
+  if (f.length || cur.length) { cur.push(f); rows.push(cur); }
+  return rows;
+}
+function soVN(s){
+  s = (s || '').replace(/[\s.]/g, '').replace(',', '.');
+  return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
+}
+var NHAN = [
+  [/^Lốp Xe/i, 'lop'], [/Ngoài Lốp/i, 'bdsc'], [/Lưu Động/i, 'ld'],
+  [/Tổng Doanh Thu/i, 'tong'], [/^DVL$/i, 'dvl'], [/^DVNL$/i, 'dvnl']
+];
+var BO_QUA = /Tổng Lượt|Kiểm\s*Tra Xe|cuộc gọi|Tra HD|Chấm\s*KPI|Mã nhân viên|Tổng cộng|^TUẦN|^Ghi/i;
+
+/* Đọc 1 tab KPI tuần → { nguoi:{ten,cn,vai,lop,bdsc,dt,ld,...}, ngayCo:n } */
+function gomTab(csv, cn){
+  var rows = tachCsv(csv), cot = [], vai = null, ten = null, ra = {}, coSo = {};
+  rows.forEach(function (r0) {
+    var r = r0.map(function (x) { return (x || '').replace(/\s+/g, ' ').trim(); });
+    var ngay = [];
+    r.forEach(function (c, i) { if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(c)) ngay.push(i); });
+    if (ngay.length >= 3) { cot = ngay; return; }                 /* dòng tiêu đề ngày */
+    if (/KỸ THUẬT/i.test(r[0])) vai = 'kt';
+    else if (/KINH DOANH/i.test(r[0])) vai = 'kd';
+    for (var i = 0; i <= 2; i++) {
+      var c = r[i];
+      if (c && !/\d/.test(c) && c.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 && !BO_QUA.test(c) &&
+          !NHAN.some(function (n) { return n[0].test(c); })) { ten = chuanTen(c); break; }
+    }
+    var li = -1, truong = null;
+    r.forEach(function (c, i) {
+      if (li >= 0 || !c) return;
+      NHAN.forEach(function (n) { if (li < 0 && n[0].test(c)) { li = i; truong = n[1]; } });
+    });
+    if (li < 0 || !ten || !vai || !cot.length) return;
+    var s = 0, co = false;
+    cot.forEach(function (i) {
+      if (i <= li) return;
+      var v = soVN(r[i]);
+      if (v !== null) { s += v; if (v > 0) { co = true; coSo[i] = 1; } }
+    });
+    var k = ten + '|' + vai;
+    ra[k] = ra[k] || { ten:ten, cn:cn, vai:vai, lop:0, bdsc:0, ld:0, tong:0, dvl:0, dvnl:0 };
+    ra[k][truong] += s / 1e6;
+    if (co) ra[k].co = true;
+  });
+  return { nguoi:ra, ngayCo:Object.keys(coSo).length };
+}
+
+function mauCho(ten, i){ return MAU_CHOT[ten] || MAU_DU[i % MAU_DU.length]; }
+
+/* Gom 3 chi nhánh → cấu trúc D */
+function dungD(dsTab){
+  var kd = [], kt = [], ngayCo = {};
+  dsTab.forEach(function (t) {
+    ngayCo[t.cn] = t.ngayCo;
+    Object.keys(t.nguoi).forEach(function (k) {
+      var p = t.nguoi[k], canhbao = null;
+      if (p.vai === 'kd') {
+        var tong = p.tong, cong = p.lop + p.bdsc;
+        if (tong > 0 && Math.abs(cong - tong) > Math.max(1, tong * 0.01))
+          canhbao = 'File ' + p.cn + ': Lốp ' + tr(p.lop) + 'tr + Ngoài lốp ' + tr(p.bdsc) +
+                    'tr = ' + tr(cong) + 'tr nhưng dòng Tổng doanh thu ghi ' + tr(tong) + 'tr.';
+        if (p.lop + p.bdsc <= 0) return;
+        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, canhbao:canhbao });
+      } else {
+        var dt = p.tong;
+        if (dt + 0.001 < p.dvl + p.dvnl)
+          canhbao = 'File ' + p.cn + ': DVL ' + tr(p.dvl) + 'tr + DVNL ' + tr(p.dvnl) +
+                    'tr nhưng dòng Tổng doanh thu chỉ ' + tr(dt) + 'tr.';
+        if (dt <= 0 && p.ld <= 0) return;
+        kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, canhbao:canhbao });
+      }
+    });
+  });
+  kd.sort(function (a, b) { return b.lop - a.lop; });
+  kt.sort(function (a, b) { return b.dt - a.dt; });
+  kd.forEach(function (r, i) { r.mau = mauCho(r.ten, i); });
+  kt.forEach(function (r, i) { r.mau = mauCho(r.ten, i); });
+  /* giữ xe tím của Phương Vy ở vạch xuất phát nếu file chưa có dòng */
+  if (!kd.some(function (r) { return /PHƯƠNG VY/.test(r.ten); }))
+    kd.push({ ten:'HỨA THỊ PHƯƠNG VY', cn:'CN2', mau:'#a855f7', lop:0, bdsc:0,
+              canhbao:'Chưa có dòng dữ liệu trong file KPI — xe tím đang ở vạch xuất phát.' });
+  return { ngayCo:ngayCo, kd:kd, kt:kt };
+}
+
+function dauNguon(txt, ok){
+  var el = document.getElementById('c-nguon');
+  el.innerHTML = 'NGUỒN <b class="num" style="color:' + (ok ? 'var(--tot)' : 'var(--canh)') + '">' + txt + '</b>';
+}
+
+async function keoLive(tuTay){
+  var api = '';
+  try { api = localStorage.getItem('philong-duaxe-api') || ''; } catch (e) {}
+  dauNguon('ĐANG KÉO…', true);
+  try {
+    if (api) {
+      var j = await fetch(api, { cache:'no-store' }).then(function (r) { return r.json(); });
+      if (!j || !j.kd || !j.kt) throw new Error('JSON sai cấu trúc');
+      D = j;
+      try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
+      dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
+      veForm(); chay(); return true;
+    }
+    var tabs = await Promise.all(Object.keys(NGUON).map(async function (cn) {
+      var n = NGUON[cn];
+      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid;
+      var t = await fetch(u, { cache:'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error(cn + ' ' + r.status); return r.text();
+      });
+      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error(cn + ' chưa mở quyền xem');
+      var g = gomTab(t, cn); g.cn = cn; return g;
+    }));
+    D = dungD(tabs);
+    try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
+    dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
+    veForm(); chay(); return true;
+  } catch (e) {
+    dauNguon('SỐ LƯU', false);
+    if (tuTay) document.getElementById('trangthai').textContent =
+      'Chưa kéo được số trực tiếp (' + e.message + '). Trang đang dùng số đã lưu.';
+    return false;
+  }
+}
+var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', dt:'Doanh thu trực tiếp', ld:'KPI lưu động CN2' };
+var SO_NGAY = 31, LUU = 'philong-duaxe-t10';
+
+/* ═══════ TRẠNG THÁI ═══════ */
+var D = JSON.parse(JSON.stringify(GOC));
+try { var l = localStorage.getItem(LUU); if (l) { var o = JSON.parse(l); if (o && o.kd && o.kt) D = o; } } catch (e) {}
+var ct = { kd:'lop', kt:'dt' };
+
+/* ═══════ TIỆN ÍCH ═══════ */
+function tr(v){ return (Math.round(v*10)/10).toLocaleString('vi-VN'); }
+function ngayHomNay(){
+  var d = new Date();
+  if (d.getFullYear() === 2026 && d.getMonth() === 9) return d.getDate();
+  return 11;
+}
+var NGAY = ngayHomNay();
+var TUAN = Math.min(5, Math.ceil(NGAY / 7));
+
+/* xe thể thao vẽ riêng — nhìn từ phía sau */
+/* màu xe sáng hay tối → chọn màu chữ cho nhãn tên đọc được */
+function sangToi(hex){
+  var h = (hex || '#888888').replace('#', '');
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 150;
+}
+
+/* doanh thu viết tắt để gắn lên biển số: 230TR · 10TR · 4,7TR · 700K */
+function vietTat(v){
+  if (!v) return '—';
+  if (v >= 10) return Math.round(v) + 'TR';
+  if (v >= 1) return (Math.round(v * 10) / 10).toString().replace('.', ',') + 'TR';
+  return Math.round(v * 1000) + 'K';
+}
+
+/* xe thể thao vẽ riêng — nhìn từ phía sau: thân bo khối, kính phản quang, cánh gió, khuếch tán, lửa phản lực */
+function veXe(mau, w, id, bien){
+  var h = Math.round(w * 0.75);
+  return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 90" aria-hidden="true">' +
+    '<defs>' +
+      '<linearGradient id="th' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>' +
+        '<stop offset=".22" stop-color="' + mau + '"/>' +
+        '<stop offset=".72" stop-color="' + mau + '"/>' +
+        '<stop offset="1" stop-color="#000000" stop-opacity=".55"/></linearGradient>' +
+      '<linearGradient id="hong' + id + '" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0" stop-color="#000000" stop-opacity=".35"/>' +
+        '<stop offset=".5" stop-color="#ffffff" stop-opacity=".18"/>' +
+        '<stop offset="1" stop-color="#000000" stop-opacity=".35"/></linearGradient>' +
+      '<radialGradient id="lua' + id + '"><stop offset="0" stop-color="#ffffff"/>' +
+        '<stop offset=".35" stop-color="#8bebff"/><stop offset="1" stop-color="#1b7fff" stop-opacity="0"/></radialGradient>' +
+    '</defs>' +
+    /* bóng đổ dưới gầm */
+    '<ellipse cx="60" cy="81" rx="54" ry="7.5" fill="rgba(0,0,0,.42)"/>' +
+    '<ellipse cx="60" cy="79" rx="34" ry="4" fill="rgba(0,0,0,.5)"/>' +
+    /* lửa phản lực */
+    '<ellipse cx="41" cy="75" rx="16" ry="11" fill="url(#lua' + id + ')"/>' +
+    '<ellipse cx="79" cy="75" rx="16" ry="11" fill="url(#lua' + id + ')"/>' +
+    /* lốp sau */
+    '<path d="M2 50 h18 v22 q0 5 -6 5 h-6 q-6 0 -6 -5 Z" fill="#10151f"/>' +
+    '<path d="M100 50 h18 v22 q0 5 -6 5 h-6 q-6 0 -6 -5 Z" fill="#10151f"/>' +
+    '<rect x="4" y="54" width="14" height="4" rx="2" fill="#2c3648"/>' +
+    '<rect x="102" y="54" width="14" height="4" rx="2" fill="#2c3648"/>' +
+    /* cánh gió */
+    '<path d="M14 20 q46 -7 92 0 l0 6 q-46 -7 -92 0 Z" fill="' + mau + '"/>' +
+    '<path d="M14 20 q46 -7 92 0 l0 2 q-46 -7 -92 0 Z" fill="#ffffff" opacity=".45"/>' +
+    '<rect x="19" y="25" width="7" height="11" rx="2" fill="#141a28"/>' +
+    '<rect x="94" y="25" width="7" height="11" rx="2" fill="#141a28"/>' +
+    /* thân xe */
+    '<path d="M18 36 Q60 19 102 36 L113 56 Q114 69 101 69 L19 69 Q6 69 7 56 Z" fill="url(#th' + id + ')"/>' +
+    '<path d="M18 36 Q60 19 102 36 L113 56 Q114 69 101 69 L19 69 Q6 69 7 56 Z" fill="url(#hong' + id + ')"/>' +
+    /* gân hông + vòm bánh */
+    '<path d="M9 58 q22 -7 44 -7 q22 0 58 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" fill="none"/>' +
+    '<path d="M7 56 q6 -9 15 -9 l0 5 q-7 0 -11 7 Z" fill="#0d1526" opacity=".45"/>' +
+    '<path d="M113 56 q-6 -9 -15 -9 l0 5 q7 0 11 7 Z" fill="#0d1526" opacity=".45"/>' +
+    /* kính sau + phản quang */
+    '<path d="M32 36 Q60 24 88 36 L83 47 L37 47 Z" fill="#0a1222"/>' +
+    '<path d="M35 36 Q60 27 85 36 L83 39.5 L37 39.5 Z" fill="#bfe4ff" opacity=".32"/>' +
+    '<path d="M40 44 L52 37 L58 37 L44 44 Z" fill="#ffffff" opacity=".16"/>' +
+    /* đèn hậu */
+    '<rect x="11" y="49" width="25" height="8.5" rx="4" fill="#ff2742"/>' +
+    '<rect x="84" y="49" width="25" height="8.5" rx="4" fill="#ff2742"/>' +
+    '<rect x="14" y="51" width="19" height="3" rx="1.5" fill="#ffe0e6" opacity=".85"/>' +
+    '<rect x="87" y="51" width="19" height="3" rx="1.5" fill="#ffe0e6" opacity=".85"/>' +
+    '<rect x="36" y="52" width="48" height="2.4" rx="1.2" fill="#ff2742" opacity=".55"/>' +
+    /* biển số = doanh thu */
+    '<rect x="36" y="55" width="48" height="16" rx="3" fill="#f7faff" stroke="#0b111f" stroke-width="1.6"/>' +
+    '<text x="60" y="67.4" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" ' +
+      'font-size="13.5" fill="#0b111f">' + (bien || '') + '</text>' +
+    /* khuếch tán gầm */
+    '<path d="M20 73 h80 l-4 6 h-72 Z" fill="#0b111f"/>' +
+    '<path d="M34 73 v6 M48 73 v6 M72 73 v6 M86 73 v6" stroke="#38425a" stroke-width="1.1"/>' +
+    '</svg>';
+}
+
+/* huy hiệu túi số — hạng 1 vàng, 2 bạc, 3 đồng */
+function veHuyHieu(hang, w, id){
+  var bo = [['#ffe27a', '#f0a500', '#4a2f00'], ['#f2f6ff', '#9aabc4', '#1b2436'], ['#ffc49a', '#c06b32', '#3a1a00']][hang - 1];
+  return '<svg width="' + w + '" height="' + Math.round(w * 1.12) + '" viewBox="0 0 54 60" aria-label="Hạng ' + hang + '">' +
+    '<defs><linearGradient id="hh' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + bo[0] + '"/><stop offset="1" stop-color="' + bo[1] + '"/></linearGradient></defs>' +
+    '<path d="M19 6 L35 6 L33 13 L21 13 Z" fill="' + bo[1] + '"/>' +
+    '<rect x="17" y="3" width="20" height="5" rx="2.5" fill="' + bo[0] + '"/>' +
+    '<path d="M27 12 C44 12 50 24 50 36 C50 50 40 57 27 57 C14 57 4 50 4 36 C4 24 10 12 27 12 Z" fill="url(#hh' + id + ')"/>' +
+    '<path d="M27 16 C40 16 45 25 45 35 C45 46 38 52 27 52 C16 52 9 46 9 35 C9 25 14 16 27 16 Z" fill="rgba(255,255,255,.22)"/>' +
+    '<text x="27" y="46" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" font-size="30" fill="' + bo[2] + '">' + hang + '</text>' +
+    '</svg>';
+}
+
+/* phối cảnh: s = tỉ lệ thu nhỏ theo quãng đường đã chạy */
+function tile(p){ return 1 / (1 + 2.25 * Math.min(p, 1.02)); }
+
+function veDuong(sceneEl, ds, khoa){
+  var moc = TRAM[khoa], dich = moc[2];
+  /* ống kính bám xe dẫn đầu: giãn 3 xe ra cho dễ nhìn, cờ vẫy vẫn đúng vị trí thật */
+  var dan = ds.length ? Math.max.apply(null, ds.map(function (r) { return r.giatri / dich; })) : 0;
+  var tam = Math.min(1.02, Math.max(0.3, dan * 1.34));
+  function T(p){ return Math.min(1.02, p / tam); }
+  /* kéo toàn bộ cảnh về gần vạch xuất phát để xe to, biển số đọc được */
+  function G(t){ return 0.05 + 0.42 * t; }
+  var W = sceneEl.clientWidth || 900, H = sceneEl.clientHeight || 420;
+  var chanY = 0.965, troiY = 0.30;                 // % chiều cao: đáy đường ↔ chân trời
+  var nuaRong = 0.46;                               // nửa bề rộng mặt đường ở đáy
+  function Y(s){ return (chanY - (chanY - troiY) * (1 - s)) * H; }
+  function HW(s){ return nuaRong * s * W; }
+  var cx = W / 2;
+
+  /* ── nền + mặt đường (SVG) ── */
+  var svg = ['<svg class="road" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">'];
+  svg.push('<defs>' +
+    '<linearGradient id="sky' + khoa + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#0b5ea8"/><stop offset=".55" stop-color="#4bb8ef"/>' +
+      '<stop offset="1" stop-color="#cdeeff"/></linearGradient>' +
+    '<linearGradient id="bien' + khoa + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#1d93d2"/><stop offset="1" stop-color="#0e5f93"/></linearGradient>' +
+    '<linearGradient id="rd' + khoa + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#ffd45e"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient>' +
+    '<linearGradient id="mu' + khoa + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".6"/>' +
+      '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="toi' + khoa + '" cx=".5" cy=".58" r=".78">' +
+      '<stop offset=".55" stop-color="#000000" stop-opacity="0"/>' +
+      '<stop offset="1" stop-color="#000814" stop-opacity=".42"/></radialGradient>' +
+    '</defs>');
+  var s0 = tile(0), s1 = tile(1.02), yH = Y(s1);
+  /* trời – biển – đồi xa */
+  svg.push('<rect x="0" y="0" width="' + W + '" height="' + yH + '" fill="url(#sky' + khoa + ')"/>');
+  svg.push('<circle cx="' + (cx + W * 0.26) + '" cy="' + (yH - H * 0.3) + '" r="' + (H * 0.1) + '" fill="#fff6cf" opacity=".85"/>');
+  [[0.1, 0.055, 0.1], [0.3, 0.04, 0.07], [0.78, 0.05, 0.09]].forEach(function (m) {
+    svg.push('<ellipse cx="' + (W * m[0]) + '" cy="' + (yH - H * 0.22) + '" rx="' + (W * m[1] * 2.2) +
+             '" ry="' + (H * m[2] * 0.5) + '" fill="#ffffff" opacity=".55"/>');
+  });
+  svg.push('<rect x="0" y="' + (yH - H * 0.1) + '" width="' + W + '" height="' + (H * 0.1) + '" fill="url(#bien' + khoa + ')"/>');
+  svg.push('<path d="M' + (W * 0.62) + ' ' + yH + ' L' + (W * 0.75) + ' ' + (yH - H * 0.14) +
+           ' L' + (W * 0.84) + ' ' + (yH - H * 0.04) + ' L' + (W * 0.93) + ' ' + (yH - H * 0.12) +
+           ' L' + W + ' ' + yH + ' Z" fill="#b97a3d" opacity=".9"/>');
+  svg.push('<rect x="0" y="' + yH + '" width="' + W + '" height="' + (H - yH) + '" fill="#13306b"/>');
+
+  /* mặt đường + sọc dọc toả về điểm tụ */
+  var SOC = 14;
+  for (var k = 0; k < SOC; k++) {
+    var a = -1 + 2 * k / SOC, b = -1 + 2 * (k + 1) / SOC;
+    svg.push('<path d="M' + (cx + a * HW(s0)) + ' ' + Y(s0) + ' L' + (cx + a * HW(s1)) + ' ' + Y(s1) +
+             ' L' + (cx + b * HW(s1)) + ' ' + Y(s1) + ' L' + (cx + b * HW(s0)) + ' ' + Y(s0) +
+             ' Z" fill="' + (k % 2 ? '#ffb33d' : '#ff8f1f') + '"/>');
+  }
+  /* bóng mờ dần về xa cho có chiều sâu */
+  svg.push('<rect x="0" y="' + Y(s1) + '" width="' + W + '" height="' + (Y(0.42) - Y(s1)) +
+           '" fill="#ffffff" opacity=".16"/>');
+  /* lề đỏ trắng hai bên */
+  for (var k2 = 0; k2 < 22; k2++) {
+    var pa = k2 / 22 * 1.02, pb = (k2 + 1) / 22 * 1.02, sa = tile(pa), sb = tile(pb);
+    var mau = k2 % 2 ? '#ffffff' : '#e03a3a', day = 0.055;
+    [-1, 1].forEach(function (sg) {
+      svg.push('<path d="M' + (cx + sg * HW(sa)) + ' ' + Y(sa) +
+               ' L' + (cx + sg * HW(sb)) + ' ' + Y(sb) +
+               ' L' + (cx + sg * HW(sb) * (1 + day)) + ' ' + Y(sb) +
+               ' L' + (cx + sg * HW(sa) * (1 + day)) + ' ' + Y(sa) + ' Z" fill="' + mau + '"/>');
+    });
+  }
+  /* vạch chia làn đứt khúc */
+  for (var k3 = 0; k3 < 18; k3 += 2) {
+    var pc = k3 / 18 * 1.02, pd = (k3 + 1) / 18 * 1.02, sc = tile(pc), sd = tile(pd);
+    [-0.34, 0.34].forEach(function (o) {
+      svg.push('<path d="M' + (cx + o * HW(sc)) + ' ' + Y(sc) + ' L' + (cx + o * HW(sd)) + ' ' + Y(sd) +
+               '" stroke="rgba(255,255,255,.85)" stroke-width="' + Math.max(1, 5 * sc) + '" stroke-linecap="round"/>');
+    });
+  }
+  /* cờ vẫy tại mỗi trạm còn nằm trong tầm nhìn */
+  [0, 1, 2].forEach(function (i) {
+    if (moc[i] / dich > tam * 1.02) return;
+    var p = G(T(moc[i] / dich));
+    var s = tile(p), y = Y(s), hw = HW(s), co = s * 34;
+    ['-1', '1'].forEach(function (sg) {
+      var x = cx + Number(sg) * (hw + co * 0.3);
+      svg.push('<rect x="' + (x - 1.4 * s) + '" y="' + (y - co) + '" width="' + (2.8 * s) + '" height="' + co + '" fill="#e8eefc"/>');
+      svg.push('<path d="M' + x + ' ' + (y - co) + ' h' + (Number(sg) * co * 0.8) + ' v' + (co * 0.46) + ' h' + (-Number(sg) * co * 0.8) + ' Z" fill="#f4f7ff"/>');
+      for (var a = 0; a < 4; a++) for (var b = 0; b < 2; b++) {
+        if ((a + b) % 2) continue;
+        svg.push('<rect x="' + (Number(sg) > 0 ? x + a * co * 0.2 : x - (a + 1) * co * 0.2) + '" y="' + (y - co + b * co * 0.23) +
+                 '" width="' + (co * 0.2) + '" height="' + (co * 0.23) + '" fill="#0b1020"/>');
+      }
+    });
+    svg.push('<line x1="' + (cx - hw) + '" y1="' + y + '" x2="' + (cx + hw) + '" y2="' + y +
+             '" stroke="rgba(255,255,255,.9)" stroke-width="' + Math.max(1.2, 3.4 * s) + '" stroke-dasharray="' + (10 * s) + ' ' + (8 * s) + '"/>');
+  });
+  /* sương mù chân trời + tối góc cho có chiều sâu */
+  svg.push('<rect x="0" y="' + yH + '" width="' + W + '" height="' + (H * 0.09) + '" fill="url(#mu' + khoa + ')"/>');
+  svg.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="url(#toi' + khoa + ')"/>');
+  svg.push('</svg>');
+
+  /* ── xe + biển tên ── */
+  var lop = ['<div class="layer">'];
+  /* giãn so le: xe cuối bám vạch xuất phát (to nhất), mỗi xe trước cách tối thiểu 24% khung hình */
+  var vt = ds.map(function (r) { return G(T(r.giatri / dich)); });
+  if (vt.length) {
+    vt[vt.length - 1] = Math.max(vt[vt.length - 1], 0.03);
+    for (var q = vt.length - 2; q >= 0; q--) vt[q] = Math.min(0.62, Math.max(vt[q], vt[q + 1] + 0.16));
+  }
+  var LAN = [0.0, -0.6, 0.6], xeInfo = [];
+  ds.forEach(function (r, i) {
+    var p = vt[i], s = tile(p), y = Y(s), hw = HW(s);
+    var x = cx + (LAN[i] || 0) * hw * 0.95;
+    var w = Math.max(70, W * 0.40 * s), h = w * 0.75;
+    lop.push('<div class="xe" style="left:' + (x / W * 100) + '%;bottom:' + ((H - y) / H * 100) +
+        '%;transform:translateX(-50%);z-index:' + (i + 2) + '">' +
+      veXe(r.mau, w, khoa + i, vietTat(r.giatri)) + '</div>');
+    xeInfo.push({ i:i, x:x, y:y, w:w, h:h, s:s, ten:r.ngan, mau:r.mau });
+  });
+  /* nhãn tên đặt cạnh xe, tự lật vào trong nếu chạm mép khung — không xe nào bị che */
+  var hopXe = xeInfo.map(function (e) {
+    return { l:e.x - e.w / 2 - 3, r:e.x + e.w / 2 + 3, t:e.y - e.h - 3, b:e.y + 3 };
+  });
+  function cham(b){
+    for (var k = 0; k < hopXe.length; k++) {
+      var o = hopXe[k];
+      if (b.l < o.r && b.r > o.l && b.t < o.b && b.b > o.t) return o;
+    }
+    return null;
+  }
+  var sanTruoc = -1e6;
+  xeInfo.forEach(function (e) {
+    var fsMax = Math.round(Math.max(11, Math.min(17, 16 * e.s + 6)) * 2) / 2;
+    function co(fs){
+      var bw = Math.max(22, fs * 2.3);
+      return { fs:fs, bw:bw, lw:bw + 7 + e.ten.length * fs * 0.6 + 21, lh:Math.max(bw * 1.12, fs + 12) };
+    }
+    var ben = e.i === 1 ? 'trai' : e.i === 2 ? 'phai' : 'tren', k = co(fsMax), left;
+    if (ben !== 'tren') {
+      /* thu nhỏ nhãn cho vừa lề trống thay vì lật lên nóc xe */
+      var cho = ben === 'trai' ? (e.x - e.w / 2 - 10 - 6) : (W - 6 - (e.x + e.w / 2 + 10));
+      var fs = fsMax;
+      while (fs > 9 && co(fs).lw > cho) fs -= 0.5;
+      k = co(fs);
+      if (k.lw > cho) { ben = 'tren'; k = co(fsMax); }
+      else left = ben === 'trai' ? (e.x - e.w / 2 - 10 - k.lw) : (e.x + e.w / 2 + 10);
+    }
+    if (ben === 'tren') left = Math.min(Math.max(6, e.x - k.lw / 2), Math.max(6, W - k.lw - 6));
+    var b = { l:left, r:left + k.lw };
+    b.t = ben === 'tren' ? (e.y - e.h - 12 - k.lh) : (e.y - e.h * 0.5 - k.lh / 2);
+    /* thứ hạng quyết định độ cao: hạng 1 trên cùng, rồi 2, rồi 3 */
+    b.t = Math.max(b.t, sanTruoc + 10, 4);
+    b.b = b.t + k.lh;
+    /* chạm xe thì né NGANG (giữ nguyên độ cao), hết chỗ ngang mới hạ xuống */
+    for (var n = 0; n < 10; n++) {
+      var o = cham(b); if (!o) break;
+      var ung = [o.l - 8 - k.lw, o.r + 8].filter(function (v) { return v >= 6 && v + k.lw <= W - 6; });
+      var xong = false;
+      for (var m = 0; m < ung.length; m++) {
+        var thu = { l:ung[m], r:ung[m] + k.lw, t:b.t, b:b.b };
+        if (!cham(thu)) { b = thu; xong = true; break; }
+      }
+      if (xong) break;
+      b.t += 12; b.b = b.t + k.lh;
+    }
+    if (b.b > H - 4) { b.t = H - 4 - k.lh; b.b = H - 4; }
+    sanTruoc = b.b;
+    lop.push('<div class="nhan' + (ben === 'trai' ? ' dao' : '') + '" style="left:' + b.l + 'px;top:' + b.t + 'px">' +
+      veHuyHieu(e.i + 1, k.bw, khoa + e.i) +
+      '<div class="ten-xe" style="font-size:' + k.fs + 'px;background:' + e.mau +
+        ';color:' + (sangToi(e.mau) ? '#0d1526' : '#ffffff') + '">' + e.ten + '</div></div>');
+  });
+  /* nhãn trạm — xếp ngoài lề trái để không đè lên xe */
+  [0, 1, 2].forEach(function (i) {
+    var thuc = moc[i] / dich;
+    if (thuc > tam * 1.02) return;
+    var s = tile(G(T(thuc))), y = Y(s), hw = HW(s);
+    lop.push('<div class="tram-lbl" style="left:' + ((cx - hw) / W * 100) + '%;top:' + (y / H * 100) + '%">' +
+      (i === 2 ? '🏁 ĐÍCH · ' : '🚩 TRẠM ' + (i + 1) + ' · ') + moc[i].toLocaleString('vi-VN') + 'TR</div>');
+  });
+  lop.push('</div>');
+  sceneEl.innerHTML = svg.join('') + lop.join('');
+}
+
+/* ═══════ BẢNG ĐIỆN TỬ ═══════ */
+function veBang(el, ds, khoa){
+  var moc = TRAM[khoa], dich = moc[2];
+  var h = ['<thead><tr><th>#</th><th>Tay đua</th><th class="r">KM (' + TEN_CT[khoa] + ')</th>' +
+    '<th class="r">% đường đua</th><th>Trạm</th><th class="r">Còn tới trạm kế</th>' +
+    '<th class="r">Cần / ngày</th><th>Nhịp độ</th></tr></thead><tbody>'];
+  ds.forEach(function (r, i) {
+    var trm = r.giatri >= moc[2] ? 3 : r.giatri >= moc[1] ? 2 : r.giatri >= moc[0] ? 1 : 0;
+    var ke = trm < 3 ? moc[trm] : null;
+    var con = ke ? ke - r.giatri : 0;
+    var conNgay = Math.max(1, SO_NGAY - NGAY);
+    var ngayCo = D.ngayCo[r.cn] || NGAY;
+    var nhip = r.giatri / ngayCo * SO_NGAY;              // tốc độ hiện tại → dự phóng cả tháng
+    var pill = trm === 3 ? '<span class="pill p-tot">🏁 Cán đích</span>'
+      : nhip >= moc[Math.min(trm, 2)] ? '<span class="pill p-tot">Đúng nhịp trạm ' + (trm + 1) + '</span>'
+      : nhip >= moc[0] * 0.75 ? '<span class="pill p-canh">Sau nhịp</span>'
+      : r.giatri === 0 ? '<span class="pill p-xp">Vạch xuất phát</span>'
+      : '<span class="pill p-xau">Hụt nhịp</span>';
+    h.push('<tr><td class="num">' + (i + 1) + '</td>' +
+      '<td><span class="ten"><span class="dot" style="background:' + r.mau + '"></span>' + r.ten +
+        ' <span class="cn">' + r.cn + '</span>' +
+        (r.canhbao ? ' <span class="canhbao-ico" title="' + r.canhbao.replace(/"/g, '') + '">⚠</span>' : '') + '</span></td>' +
+      '<td class="r num">' + tr(r.giatri) + ' tr</td>' +
+      '<td class="r num">' + Math.round(r.giatri / dich * 100) + '%</td>' +
+      '<td>' + (trm ? '🚩 ' + trm : '—') + '</td>' +
+      '<td class="r num">' + (ke ? tr(con) + ' tr' : '—') + '</td>' +
+      '<td class="r num">' + (ke ? tr(con / conNgay) + ' tr' : '—') + '</td>' +
+      '<td>' + pill + '</td></tr>');
+  });
+  el.innerHTML = h.join('') + '</tbody>';
+}
+
+/* ═══════ DỰNG DỮ LIỆU ═══════ */
+function lay(nhom, khoa){
+  return D[nhom].map(function (r) {
+    return { ten:r.ten, cn:r.cn, mau:r.mau, canhbao:r.canhbao, giatri:Number(r[khoa]) || 0,
+             ngan:r.ten.split(' ').slice(-2).join(' ') };
+  }).sort(function (a, b) { return b.giatri - a.giatri; });
+}
+
+function chay(){
+  var kd = lay('kd', ct.kd), kt = lay('kt', ct.kt);
+  veDuong(document.getElementById('scene-kd'), kd.slice(0, 3), ct.kd);
+  veBang(document.getElementById('bang-kd'), kd, ct.kd);
+  veDuong(document.getElementById('scene-kt'), kt.slice(0, 3), ct.kt);
+  veBang(document.getElementById('bang-kt'), kt, ct.kt);
+  document.getElementById('cup-box').innerHTML =
+    '<div class="tram-row"><span>🏆 Kinh doanh</span><b>' + (kd[0] ? kd[0].ngan + ' · ' + tr(kd[0].giatri) + 'tr' : '—') + '</b></div>' +
+    '<div class="tram-row"><span>🏆 Kỹ thuật viên</span><b>' + (kt[0] ? kt[0].ngan + ' · ' + tr(kt[0].giatri) + 'tr' : '—') + '</b></div>' +
+    '<div class="tram-row"><span>Xét lúc</span><b>' +
+      new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>';
+}
+
+/* ═══════ ĐỒNG HỒ ═══════ */
+function dongHo(){
+  document.getElementById('c-ngay').textContent = NGAY;
+  document.getElementById('c-con').textContent = SO_NGAY - NGAY;
+  document.getElementById('dial-so').textContent = NGAY;
+  var arc = document.getElementById('dial-arc'), L = arc.getTotalLength();
+  arc.style.strokeDasharray = L; arc.style.strokeDashoffset = L * (1 - NGAY / SO_NGAY);
+  var goc = -180 + 180 * (NGAY / SO_NGAY), rad = goc * Math.PI / 180;
+  var kim = document.getElementById('dial-kim');
+  kim.setAttribute('x2', 95 + 62 * Math.cos(rad)); kim.setAttribute('y2', 108 + 62 * Math.sin(rad));
+  var t = [];
+  for (var i = 0; i <= 31; i += 1) {
+    var g = (-180 + 180 * (i / 31)) * Math.PI / 180, dai = i % 5 === 0 ? 10 : 5;
+    t.push('<line x1="' + (95 + 70 * Math.cos(g)) + '" y1="' + (108 + 70 * Math.sin(g)) +
+           '" x2="' + (95 + (70 - dai) * Math.cos(g)) + '" y2="' + (108 + (70 - dai) * Math.sin(g)) +
+           '" stroke="#4a5c8c" stroke-width="1.3"/>');
+  }
+  document.getElementById('dial-ticks').innerHTML = t.join('');
+}
+
+/* ═══════ TRA SOÁT ═══════ */
+function traSoat(){
+  var ds = [
+    ['Lệch ngày giữa 3 file', 'CN3 mới có số tới 06/10 (1 tuần), CN1 tới 11/10, CN2 tới 10/10. Xe CN3 đang bị tụt lại vì thiếu số, không phải vì chạy chậm.'],
+    ['Dòng Phan Xuân Đức (CN2)', 'Cộng ngang các ngày ra 137,8tr lốp nhưng cột tổng của file là 111,9tr; ô 01/10 dòng Tổng doanh thu ghi 103,3tr — nhiều khả năng dán nhầm số tháng. Trang đang lấy 111,9tr theo cột tổng.'],
+    ['Hứa Thị Phương Vy', 'Không có trong file KPI CN2 và cũng không có trong tab NHÂN SỰ chuẩn. Xe tím đang ở vạch xuất phát.'],
+    ['Mốc đã chốt', 'Bước nhảy bằng 100% mức 1: lốp 350/700/1.050tr · BD–SC 100/200/300tr · KTV 10/20/30tr. Không cán đích sớm — hết 31 ngày ai đi xa nhất thì thắng.'],
+    ['Nhịp hiện tại so với trạm', 'Bích Phượng đang trên đà ~713tr lốp cả tháng (qua trạm 2). Xuân Đức ~347tr, sát trạm 1. Lành ~138tr. KTV mạnh nhất trên đà ~31tr, vừa đủ chạm trạm 3.'],
+    ['Kinh doanh CN1 chưa có số', 'Trần Thị Dung và Thành Luân 0đ doanh thu ở cả 2 tuần nên chưa lên đường đua. Nếu là vai trò quản lý/CSKH thì nên tách hẳn khỏi hạng mục kinh doanh.']
+  ];
+  document.getElementById('audit').innerHTML = ds.map(function (x) {
+    return '<div class="the"><h3>' + x[0] + '</h3><p>' + x[1] + '</p></div>';
+  }).join('');
+}
+
+/* ═══════ FORM CẬP NHẬT ═══════ */
+function veForm(){
+  function khoi(nhom, c1, c2, l1, l2){
+    var h = ['<div style="grid-column:1/-1"><h3>' + (nhom === 'kd' ? 'Kinh doanh' : 'Kỹ thuật viên') +
+             ' — ' + l1 + ' / ' + l2 + '</h3></div>'];
+    D[nhom].forEach(function (r, i) {
+      h.push('<div class="dong"><label for="' + nhom + i + 'a">' + r.ten + '</label>' +
+        '<input id="' + nhom + i + 'a" type="number" step="0.1" value="' + r[c1] + '" data-n="' + nhom + '" data-i="' + i + '" data-c="' + c1 + '">' +
+        '<input id="' + nhom + i + 'b" type="number" step="0.1" value="' + r[c2] + '" data-n="' + nhom + '" data-i="' + i + '" data-c="' + c2 + '"></div>');
+    });
+    return h.join('');
+  }
+  document.getElementById('form-kd').innerHTML = khoi('kd', 'lop', 'bdsc', 'Lốp', 'BD–SC');
+  document.getElementById('form-kt').innerHTML = khoi('kt', 'dt', 'ld', 'Doanh thu', 'Lưu động');
+}
+
+document.getElementById('btn-luu').addEventListener('click', function(){
+  document.querySelectorAll('.dong input').forEach(function (inp) {
+    D[inp.dataset.n][inp.dataset.i][inp.dataset.c] = Number(inp.value) || 0;
+  });
+  try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
+  document.getElementById('trangthai').textContent = 'Đã lưu lúc ' + new Date().toLocaleTimeString('vi-VN');
+  chay();
+});
+document.getElementById('btn-reset').addEventListener('click', function(){
+  D = JSON.parse(JSON.stringify(GOC));
+  try { localStorage.removeItem(LUU); } catch (e) {}
+  veForm(); chay();
+  document.getElementById('trangthai').textContent = 'Đã về số gốc.';
+});
+document.querySelectorAll('.tab').forEach(function (b) {
+  b.addEventListener('click', function(){
+    var nhom = b.dataset.kd ? 'kd' : 'kt';
+    b.parentNode.querySelectorAll('.tab').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+    b.setAttribute('aria-selected', 'true');
+    ct[nhom] = b.dataset.kd || b.dataset.kt;
+    chay();
+  });
+});
+document.getElementById('btn-live').addEventListener('click', function(){
+  var u = document.getElementById('api-url').value.trim();
+  try { u ? localStorage.setItem('philong-duaxe-api', u) : localStorage.removeItem('philong-duaxe-api'); } catch (e) {}
+  document.getElementById('trangthai').textContent = '';
+  keoLive(true);
+});
+var hen; window.addEventListener('resize', function(){ clearTimeout(hen); hen = setTimeout(chay, 180); });
+
+dongHo(); traSoat(); veForm(); chay();
+try {
+  var apiLuu = localStorage.getItem('philong-duaxe-api');
+  if (apiLuu) document.getElementById('api-url').value = apiLuu;
+} catch (e) {}
+keoLive(false);
+setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
+</script>
