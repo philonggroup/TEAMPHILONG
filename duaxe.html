@@ -67,7 +67,7 @@ h3{font-size:15px;font-weight:600;letter-spacing:.09em;color:var(--chu-mo)}
 /* ── KHỐI ĐƯỜNG ĐUA ─────────────────────── */
 section{margin-top:34px}
 .shead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-.tabs{display:flex;gap:6px;background:#0a142e;border:1px solid var(--vien);border-radius:999px;padding:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:#0a142e;border:1px solid var(--vien);border-radius:999px;padding:4px}
 .tab{appearance:none;border:0;background:transparent;color:var(--chu-mo);font-family:var(--f-dis);
   font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:8px 15px;border-radius:999px;cursor:pointer}
 .tab[aria-selected="true"]{background:var(--neon);color:#04121a;font-weight:600}
@@ -88,6 +88,9 @@ section{margin-top:34px}
 .nhan svg{display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
 .tram-lbl{position:absolute;transform:translate(-100%,-50%);margin-left:-8px;font-family:var(--f-dis);font-size:10.5px;
   letter-spacing:.1em;color:#07121f;background:var(--duong2);border-radius:4px;padding:2px 7px;white-space:nowrap;font-weight:600}
+.ghi-dua{position:absolute;left:10px;top:10px;font-family:var(--f-dis);font-size:10.5px;letter-spacing:.1em;
+  color:#eaf0ff;background:rgba(7,18,31,.72);border:1px solid rgba(255,255,255,.2);border-radius:999px;
+  padding:3px 10px;white-space:nowrap;font-weight:600}
 
 /* ── BẢNG ĐIỆN TỬ ───────────────────────── */
 .bang{margin-top:14px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);overflow-x:auto}
@@ -125,6 +128,9 @@ details.capnhat summary{cursor:pointer;padding:14px 0;font-family:var(--f-dis);t
   letter-spacing:.09em;font-size:14px;color:var(--neon)}
 .form-luoi{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));padding-bottom:16px}
 .dong{display:grid;grid-template-columns:1fr 92px 92px;gap:8px;align-items:center;font-size:13px}
+.form-luoi.rong{grid-template-columns:repeat(auto-fit,minmax(400px,1fr))}
+.dong.bon{grid-template-columns:1fr 74px 74px 74px 74px}
+@media (max-width:460px){.dong.bon{grid-template-columns:1fr 1fr 1fr 1fr 1fr}.dong.bon label{grid-column:1/-1}}
 .dong input{width:100%;background:#071022;border:1px solid var(--vien);color:var(--chu);border-radius:8px;
   padding:7px 9px;font-family:var(--f-dis);font-variant-numeric:tabular-nums;text-align:right;font-size:14px}
 .dong input:focus{outline:2px solid var(--neon);outline-offset:1px}
@@ -182,8 +188,9 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
     <div class="shead">
       <h2>Đường đua kinh doanh</h2>
       <div class="tabs" role="tablist" aria-label="Chỉ tiêu kinh doanh">
-        <button class="tab" role="tab" aria-selected="true" data-kd="lop">Doanh thu lốp</button>
-        <button class="tab" role="tab" aria-selected="false" data-kd="bdsc">KPI bảo dưỡng · sửa chữa</button>
+        <button class="tab" role="tab" aria-selected="true" data-kd="lop">1 · Doanh thu lốp</button>
+        <button class="tab" role="tab" aria-selected="false" data-kd="bdsc">2 · KPI bảo dưỡng · sửa chữa</button>
+        <button class="tab" role="tab" aria-selected="false" data-kd="tong">3 · 🏆 Tổng doanh thu</button>
       </div>
     </div>
     <div class="scene" id="scene-kd"></div>
@@ -195,12 +202,15 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
     <div class="shead">
       <h2>Đường đua kỹ thuật viên</h2>
       <div class="tabs" role="tablist" aria-label="Chỉ tiêu kỹ thuật viên">
-        <button class="tab" role="tab" aria-selected="true" data-kt="dt">Doanh thu trực tiếp</button>
-        <button class="tab" role="tab" aria-selected="false" data-kt="ld">KPI lưu động (CN2)</button>
+        <button class="tab" role="tab" aria-selected="false" data-kt="dvl">1 · DVL</button>
+        <button class="tab" role="tab" aria-selected="false" data-kt="dvnl">2 · DVNL</button>
+        <button class="tab" role="tab" aria-selected="true" data-kt="dt">3 · 🏆 Tổng doanh thu</button>
+        <button class="tab" role="tab" aria-selected="false" data-kt="ld">4 · KPI lưu động (CN2)</button>
       </div>
     </div>
     <div class="scene" id="scene-kt"></div>
     <div class="bang"><table id="bang-kt"></table></div>
+    <div class="canhbao" id="tt-ct" style="display:none"></div>
   </section>
 
   <!-- ── THỂ LỆ ─────────────────────────── -->
@@ -209,7 +219,8 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
     <div class="luoi">
       <div class="the cup">
         <h3>Giải thưởng</h3>
-        <p><b>2 cúp vàng trị giá 200.000đ</b>: một cho kinh doanh, một cho kỹ thuật viên.
+        <p><b>2 cúp vàng trị giá 200.000đ</b>: một cho kinh doanh, một cho kỹ thuật viên — cả hai
+           <b>xét theo đường đua TỔNG DOANH THU</b> của khối đó.
            Xét theo <b>hiện trạng live, bất kỳ thời điểm nào</b> — mở bảng ra là biết ai đang giữ cúp.</p>
         <p>Không chốt theo tuần, không cán đích sớm. Ai đang dẫn đầu thì đang cầm cúp;
            <b>hết 31 ngày ai còn đứng đầu thì cúp về tay người đó</b>.</p>
@@ -223,19 +234,23 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
           <div class="tram-row"><span>Lốp xe · Trạm 2</span><b>700 tr</b></div>
           <div class="tram-row"><span>Lốp xe · Trạm 3 (cuối đường)</span><b>1.050 tr</b></div>
           <div class="tram-row"><span>BD–SC · Trạm 1 / 2 / 3</span><b>100 / 200 / 300 tr</b></div>
+          <div class="tram-row"><span>🏆 Tổng DT (lốp + BD–SC)</span><b>Không trạm · đua theo doanh số</b></div>
         </div>
-        <p class="ghi">Bước nhảy bằng 100% mức 1 — mức 3 là phần luỹ tiến từ trạm 2 trở đi.</p>
+        <p class="ghi">Bước nhảy bằng 100% mức 1 — mức 3 là phần luỹ tiến từ trạm 2 trở đi.
+           Đường đua 3 (tổng doanh thu) không tính trạm: xếp theo doanh số đóng góp, vạch đích là xe dẫn đầu —
+           và <b>cúp vàng kinh doanh xét theo đường đua này</b>.</p>
       </div>
       <div class="the">
         <h3>Trạm kỹ thuật viên</h3>
         <div class="tram-list">
-          <div class="tram-row"><span>Doanh thu trực tiếp · Trạm 1</span><b>10 tr</b></div>
-          <div class="tram-row"><span>Trạm 2</span><b>20 tr</b></div>
-          <div class="tram-row"><span>Trạm 3 (cuối đường)</span><b>30 tr</b></div>
-          <div class="tram-row"><span>Lưu động CN2 · 1 / 2 / 3</span><b>10 / 20 / 30 tr</b></div>
+          <div class="tram-row"><span>1 · DVL</span><b>Không trạm · theo doanh số</b></div>
+          <div class="tram-row"><span>2 · DVNL</span><b>Không trạm · theo doanh số</b></div>
+          <div class="tram-row"><span>🏆 3 · Tổng DT</span><b>Không trạm · mốc thưởng 10 / 20 / 30 tr</b></div>
+          <div class="tram-row"><span>4 · Lưu động CN2 · 1 / 2 / 3</span><b>10 / 20 / 30 tr</b></div>
         </div>
-        <p class="ghi">Luỹ kế cả tháng. Với nhịp hiện tại (~1tr/ngày của KTV mạnh), trạm 3 là mốc
-           phải cố mới tới — đủ để đua hết 31 ngày.</p>
+        <p class="ghi">Luỹ kế cả tháng. Ba đường đầu xếp theo doanh số (vạch đích là xe dẫn đầu);
+           mốc thưởng 10/20/30tr của tổng doanh thu vẫn hiện thành cột trong bảng, chỉ không còn cờ trạm trên đường.
+           <b>Cúp vàng KTV xét theo đường đua tổng doanh thu.</b></p>
       </div>
       <div class="the">
         <h3>4 nguyên tắc thực thi</h3>
@@ -259,7 +274,7 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
   <details class="capnhat">
     <summary>⚙ Cập nhật số liệu (nhập triệu đồng)</summary>
     <div class="form-luoi" id="form-kd"></div>
-    <div class="form-luoi" id="form-kt"></div>
+    <div class="form-luoi rong" id="form-kt"></div>
     <div style="padding-bottom:14px">
       <h3>Kết nối số liệu trực tiếp</h3>
       <p class="ghi">Dán link Apps Script (dạng .../exec) nếu đã triển khai; để trống thì trang tự thử đọc
@@ -315,7 +330,12 @@ var GOC = {
     {ten:'BÙI QUỐC PHÚ',      cn:'CN3', mau:'#a3e635', dt:2.05,  ld:0.30}
   ]
 };
-var TRAM = { lop:[350,700,1050], bdsc:[100,200,300], dt:[10,20,30], ld:[10,20,30] };
+/* Trạm (cờ vẫy trên đường) chỉ còn ở 3 đường đua có mốc chốt:
+   lốp, BD–SC (kinh doanh) và lưu động CN2 (KTV).
+   TỔNG DOANH THU · DVL · DVNL đua theo doanh số — không mốc trạm. */
+var TRAM = { lop:[350,700,1050], bdsc:[100,200,300], ld:[10,20,30] };
+/* đường đua không trạm nhưng vẫn có mốc thưởng → hiện thành 1 cột trong bảng */
+var MOC_THUONG = { dt:[10,20,30] };
 
 /* ═══════ NGUỒN LIVE ═══════ */
 var NGUON = {
@@ -368,7 +388,10 @@ function gomTab(csv, cn){
     else if (/KINH DOANH/i.test(r[0])) vai = 'kd';
     for (var i = 0; i <= 2; i++) {
       var c = r[i];
+      /* bỏ qua ô tiêu đề khối (KỸ THUẬT VIÊN / KINH DOANH) — nếu không, người đầu mỗi khối
+         bị gán tên là chính dòng tiêu đề và mất số DVL/DVNL */
       if (c && !/\d/.test(c) && c.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 && !BO_QUA.test(c) &&
+          !/KỸ THUẬT|KINH DOANH/i.test(c) &&
           !NHAN.some(function (n) { return n[0].test(c); })) { ten = chuanTen(c); break; }
     }
     var li = -1, truong = null;
@@ -413,7 +436,7 @@ function dungD(dsTab){
           canhbao = 'File ' + p.cn + ': DVL ' + tr(p.dvl) + 'tr + DVNL ' + tr(p.dvnl) +
                     'tr nhưng dòng Tổng doanh thu chỉ ' + tr(dt) + 'tr.';
         if (dt <= 0 && p.ld <= 0) return;
-        kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, canhbao:canhbao });
+        kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, dvl:p.dvl, dvnl:p.dvnl, canhbao:canhbao });
       }
     });
   });
@@ -433,6 +456,45 @@ function dauNguon(txt, ok){
   el.innerHTML = 'NGUỒN <b class="num" style="color:' + (ok ? 'var(--tot)' : 'var(--canh)') + '">' + txt + '</b>';
 }
 
+/* bỏ dấu để ghép tên giữa 2 nguồn (file KPI và Apps Script viết tên lệch dấu) */
+function boDau(s){
+  return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D').toUpperCase().replace(/\s+/g, ' ').trim();
+}
+
+/* ═══════ BỔ SUNG DVL / DVNL ═══════
+   Apps Script chỉ trả về tổng doanh thu trực tiếp (dt) và lưu động (ld) cho KTV.
+   DVL và DVNL chỉ có trong 3 file KPI tuần → đọc thêm bằng CSV rồi ghép theo tên.
+   File nào chưa mở quyền "bất kỳ ai có liên kết" thì 2 đường đua đó đứng ở vạch xuất phát. */
+var TT_CT = { ok:[], loi:[], xong:false };
+async function boSungChiTiet(){
+  var ok = [], loi = [];
+  await Promise.all(Object.keys(NGUON).map(async function (cn) {
+    var n = NGUON[cn];
+    try {
+      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid;
+      var t = await fetch(u, { cache:'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status); return r.text();
+      });
+      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error('chưa mở quyền xem');
+      var g = gomTab(t, cn), dem = 0;
+      Object.keys(g.nguoi).forEach(function (k) {
+        var pp = g.nguoi[k];
+        if (pp.vai !== 'kt') return;
+        var hang = (D.kt || []).filter(function (r) {
+          return r.cn === cn && (chuanTen(r.ten) === chuanTen(pp.ten) || boDau(r.ten) === boDau(pp.ten));
+        })[0];
+        if (!hang) return;
+        hang.dvl = pp.dvl; hang.dvnl = pp.dvnl; dem++;
+      });
+      ok.push(cn + ' (' + dem + ' KTV)');
+    } catch (e) { loi.push(cn + ': ' + e.message); }
+  }));
+  TT_CT = { ok:ok, loi:loi, xong:true };
+  try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
+  chay();
+}
+
 async function keoLive(tuTay){
   var api = '';
   try { api = localStorage.getItem('philong-duaxe-api') || ''; } catch (e) {}
@@ -444,7 +506,9 @@ async function keoLive(tuTay){
       D = j;
       try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
       dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
-      veForm(); chay(); return true;
+      veForm(); chay();
+      boSungChiTiet().catch(function (e) { TT_CT = { ok:[], loi:['không đọc được file KPI: ' + e.message], xong:true }; chay(); });
+      return true;
     }
     var tabs = await Promise.all(Object.keys(NGUON).map(async function (cn) {
       var n = NGUON[cn];
@@ -458,6 +522,7 @@ async function keoLive(tuTay){
     D = dungD(tabs);
     try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
     dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
+    TT_CT = { ok:Object.keys(NGUON), loi:[], xong:true };
     veForm(); chay(); return true;
   } catch (e) {
     dauNguon('SỐ LƯU', false);
@@ -466,7 +531,8 @@ async function keoLive(tuTay){
     return false;
   }
 }
-var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', dt:'Doanh thu trực tiếp', ld:'KPI lưu động CN2' };
+var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', tong:'Tổng doanh thu',
+               dvl:'DVL', dvnl:'DVNL', dt:'Tổng doanh thu', ld:'KPI lưu động CN2' };
 var SO_NGAY = 31, LUU = 'philong-duaxe-t10';
 
 /* ═══════ TRẠNG THÁI ═══════ */
@@ -579,7 +645,10 @@ function veHuyHieu(hang, w, id){
 function tile(p){ return 1 / (1 + 2.25 * Math.min(p, 1.02)); }
 
 function veDuong(sceneEl, ds, khoa){
-  var moc = TRAM[khoa], dich = moc[2];
+  var moc = TRAM[khoa] || null;
+  /* đường đua không trạm: vạch đích chính là xe dẫn đầu, xe sau đo % so với xe dẫn */
+  var dinh = ds.length ? Math.max.apply(null, ds.map(function (r) { return r.giatri; })) : 0;
+  var dich = moc ? moc[2] : Math.max(dinh, 1);
   /* ống kính bám xe dẫn đầu: giãn 3 xe ra cho dễ nhìn, cờ vẫy vẫn đúng vị trí thật */
   var dan = ds.length ? Math.max.apply(null, ds.map(function (r) { return r.giatri / dich; })) : 0;
   var tam = Math.min(1.02, Math.max(0.3, dan * 1.34));
@@ -656,7 +725,7 @@ function veDuong(sceneEl, ds, khoa){
   }
   /* cờ vẫy tại mỗi trạm còn nằm trong tầm nhìn */
   [0, 1, 2].forEach(function (i) {
-    if (moc[i] / dich > tam * 1.02) return;
+    if (!moc || moc[i] / dich > tam * 1.02) return;
     var p = G(T(moc[i] / dich));
     var s = tile(p), y = Y(s), hw = HW(s), co = s * 34;
     ['-1', '1'].forEach(function (sg) {
@@ -750,18 +819,69 @@ function veDuong(sceneEl, ds, khoa){
   });
   /* nhãn trạm — xếp ngoài lề trái để không đè lên xe */
   [0, 1, 2].forEach(function (i) {
+    if (!moc) return;
     var thuc = moc[i] / dich;
     if (thuc > tam * 1.02) return;
     var s = tile(G(T(thuc))), y = Y(s), hw = HW(s);
     lop.push('<div class="tram-lbl" style="left:' + ((cx - hw) / W * 100) + '%;top:' + (y / H * 100) + '%">' +
       (i === 2 ? '🏁 ĐÍCH · ' : '🚩 TRẠM ' + (i + 1) + ' · ') + moc[i].toLocaleString('vi-VN') + 'TR</div>');
   });
+  /* đường đua không trạm: nói rõ xe dẫn đầu là mốc so sánh */
+  if (!moc) lop.push('<div class="ghi-dua">⚡ ĐUA THEO DOANH SỐ · KHÔNG MỐC TRẠM · XE DẪN ĐẦU ' +
+    (dinh ? vietTat(dinh) : '—') + '</div>');
   lop.push('</div>');
   sceneEl.innerHTML = svg.join('') + lop.join('');
 }
 
 /* ═══════ BẢNG ĐIỆN TỬ ═══════ */
 function veBang(el, ds, khoa){
+  if (TRAM[khoa]) return veBangTram(el, ds, khoa);
+  return veBangDoanhSo(el, ds, khoa);
+}
+
+/* bảng cho đường đua KHÔNG trạm: TỔNG DOANH THU · DVL · DVNL — xếp theo doanh số */
+function veBangDoanhSo(el, ds, khoa){
+  var dan = ds.length ? ds[0].giatri : 0;
+  var tongHe = 0; ds.forEach(function (r) { tongHe += r.giatri; });
+  var mocT = MOC_THUONG[khoa] || null;
+  var ct2 = khoa === 'tong' ? ['lop', 'bdsc', 'Lốp / BD–SC']
+          : khoa === 'dt'   ? ['dvl', 'dvnl', 'DVL / DVNL'] : null;
+  var h = ['<thead><tr><th>#</th><th>Tay đua</th><th class="r">' + TEN_CT[khoa] + '</th>' +
+    '<th class="r">% so xe dẫn</th><th class="r">Cách hạng trên</th>' +
+    (ct2 ? '<th class="r">' + ct2[2] + '</th>' : '') +
+    '<th class="r">Đóng góp hệ thống</th>' +
+    (mocT ? '<th>Mốc thưởng</th>' : '') +
+    '<th class="r">Dự phóng cả tháng</th></tr></thead><tbody>'];
+  ds.forEach(function (r, i) {
+    var ngayCo = D.ngayCo[r.cn] || NGAY;
+    var nhip = ngayCo ? r.giatri / ngayCo * SO_NGAY : 0;
+    var mt = '';
+    if (mocT) {
+      var b = r.giatri >= mocT[2] ? 3 : r.giatri >= mocT[1] ? 2 : r.giatri >= mocT[0] ? 1 : 0;
+      mt = '<td>' + (b ? '<span class="pill p-tot">Mức ' + b + ' · ' + mocT[b - 1] + 'tr</span>'
+                       : r.giatri === 0 ? '<span class="pill p-xp">Chưa có số</span>'
+                       : '<span class="pill p-canh">Còn ' + tr(mocT[0] - r.giatri) + 'tr tới mức 1</span>') + '</td>';
+    }
+    var canh = '';
+    if (r.canhbao) canh += ' <span class="canhbao-ico" title="' + r.canhbao.replace(/"/g, '') + '">⚠</span>';
+    if (r.thieu > 0 && (khoa === 'dvl' || khoa === 'dvnl' || khoa === 'dt'))
+      canh += ' <span class="canhbao-ico" title="Tổng doanh thu ' + tr(r.dt) + 'tr nhưng DVL+DVNL chỉ ' +
+              tr(r.dvl + r.dvnl) + 'tr — còn ' + tr(r.thieu) + 'tr chưa tách dòng DVL/DVNL trong file KPI.">◑</span>';
+    h.push('<tr><td class="num">' + (i + 1) + '</td>' +
+      '<td><span class="ten"><span class="dot" style="background:' + r.mau + '"></span>' + r.ten +
+        ' <span class="cn">' + r.cn + '</span>' + canh + '</span></td>' +
+      '<td class="r num">' + tr(r.giatri) + ' tr</td>' +
+      '<td class="r num">' + (dan ? Math.round(r.giatri / dan * 100) : 0) + '%</td>' +
+      '<td class="r num">' + (r.giatri <= 0 ? '—' : i === 0 ? '🏆 đang dẫn' : tr(ds[i - 1].giatri - r.giatri) + ' tr') + '</td>' +
+      (ct2 ? '<td class="r num">' + tr(Number(r[ct2[0]]) || 0) + ' / ' + tr(Number(r[ct2[1]]) || 0) + '</td>' : '') +
+      '<td class="r num">' + (tongHe ? Math.round(r.giatri / tongHe * 100) : 0) + '%</td>' + mt +
+      '<td class="r num">' + tr(nhip) + ' tr</td></tr>');
+  });
+  el.innerHTML = h.join('') + '</tbody>';
+}
+
+/* bảng cho đường đua CÓ trạm — giữ nguyên cách đọc cũ */
+function veBangTram(el, ds, khoa){
   var moc = TRAM[khoa], dich = moc[2];
   var h = ['<thead><tr><th>#</th><th>Tay đua</th><th class="r">KM (' + TEN_CT[khoa] + ')</th>' +
     '<th class="r">% đường đua</th><th>Trạm</th><th class="r">Còn tới trạm kế</th>' +
@@ -795,7 +915,15 @@ function veBang(el, ds, khoa){
 /* ═══════ DỰNG DỮ LIỆU ═══════ */
 function lay(nhom, khoa){
   return D[nhom].map(function (r) {
-    return { ten:r.ten, cn:r.cn, mau:r.mau, canhbao:r.canhbao, giatri:Number(r[khoa]) || 0,
+    var lop = Number(r.lop) || 0, bdsc = Number(r.bdsc) || 0;
+    var dvl = Number(r.dvl) || 0, dvnl = Number(r.dvnl) || 0, dt = Number(r.dt) || 0;
+    /* TỔNG DOANH THU kinh doanh = lốp + BD–SC (tự cộng, không nhập tay) */
+    var gt = khoa === 'tong' ? lop + bdsc : Number(r[khoa]) || 0;
+    /* KTV: có ngày chỉ nhập dòng Tổng doanh thu mà không tách DVL/DVNL → DVL+DVNL hụt so với tổng */
+    var thieu = (nhom === 'kt' && dt > 0 && (dvl + dvnl) > 0 &&
+                 dt - (dvl + dvnl) > Math.max(0.1, dt * 0.01)) ? dt - (dvl + dvnl) : 0;
+    return { ten:r.ten, cn:r.cn, mau:r.mau, canhbao:r.canhbao, giatri:gt,
+             lop:lop, bdsc:bdsc, dvl:dvl, dvnl:dvnl, dt:dt, thieu:thieu,
              ngan:r.ten.split(' ').slice(-2).join(' ') };
   }).sort(function (a, b) { return b.giatri - a.giatri; });
 }
@@ -806,11 +934,33 @@ function chay(){
   veBang(document.getElementById('bang-kd'), kd, ct.kd);
   veDuong(document.getElementById('scene-kt'), kt.slice(0, 3), ct.kt);
   veBang(document.getElementById('bang-kt'), kt, ct.kt);
+  /* cúp vàng xét theo đường đua TỔNG DOANH THU của từng khối, không phụ thuộc tab đang mở */
+  var kdT = lay('kd', 'tong'), ktT = lay('kt', 'dt');
   document.getElementById('cup-box').innerHTML =
-    '<div class="tram-row"><span>🏆 Kinh doanh</span><b>' + (kd[0] ? kd[0].ngan + ' · ' + tr(kd[0].giatri) + 'tr' : '—') + '</b></div>' +
-    '<div class="tram-row"><span>🏆 Kỹ thuật viên</span><b>' + (kt[0] ? kt[0].ngan + ' · ' + tr(kt[0].giatri) + 'tr' : '—') + '</b></div>' +
+    '<div class="tram-row"><span>🏆 Kinh doanh · tổng DT</span><b>' + (kdT[0] ? kdT[0].ngan + ' · ' + tr(kdT[0].giatri) + 'tr' : '—') + '</b></div>' +
+    '<div class="tram-row"><span>🏆 Kỹ thuật viên · tổng DT</span><b>' + (ktT[0] ? ktT[0].ngan + ' · ' + tr(ktT[0].giatri) + 'tr' : '—') + '</b></div>' +
     '<div class="tram-row"><span>Xét lúc</span><b>' +
       new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>';
+  veTinhTrangCT(ktT);
+}
+
+/* ô cảnh báo: nguồn DVL/DVNL và các dòng chưa tách đủ */
+function veTinhTrangCT(ktT){
+  var box = document.getElementById('tt-ct');
+  if (!box) return;
+  var y = [];
+  if (TT_CT.loi.length)
+    y.push('<b>Chưa đọc được DVL / DVNL từ ' + TT_CT.loi.length + ' file KPI:</b> ' + TT_CT.loi.join(' · ') +
+           '. Đường đua 1 (DVL) và 2 (DVNL) của các chi nhánh này đang ở vạch xuất phát — ' +
+           'mở quyền “bất kỳ ai có liên kết · chỉ xem” cho file KPI, hoặc bổ sung dvl/dvnl vào Apps Script là có số ngay.');
+  var thieu = (ktT || []).filter(function (r) { return r.thieu > 0; });
+  if (thieu.length)
+    y.push('<b>' + thieu.length + ' KTV có ngày chỉ nhập dòng Tổng doanh thu mà không tách DVL / DVNL</b> — ' +
+           'nên 2 đường đua đó đang thấp hơn thực tế: ' +
+           thieu.slice(0, 5).map(function (r) { return r.ngan + ' thiếu ' + tr(r.thieu) + 'tr'; }).join(' · ') +
+           (thieu.length > 5 ? ' …' : '') + '.');
+  box.style.display = y.length ? '' : 'none';
+  box.innerHTML = y.length ? '<span style="font-size:18px;line-height:1">⚠</span><div>' + y.join('<br><br>') + '</div>' : '';
 }
 
 /* ═══════ ĐỒNG HỒ ═══════ */
@@ -841,6 +991,8 @@ function traSoat(){
     ['Hứa Thị Phương Vy', 'Không có trong file KPI CN2 và cũng không có trong tab NHÂN SỰ chuẩn. Xe tím đang ở vạch xuất phát.'],
     ['Mốc đã chốt', 'Bước nhảy bằng 100% mức 1: lốp 350/700/1.050tr · BD–SC 100/200/300tr · KTV 10/20/30tr. Không cán đích sớm — hết 31 ngày ai đi xa nhất thì thắng.'],
     ['Nhịp hiện tại so với trạm', 'Bích Phượng đang trên đà ~713tr lốp cả tháng (qua trạm 2). Xuân Đức ~347tr, sát trạm 1. Lành ~138tr. KTV mạnh nhất trên đà ~31tr, vừa đủ chạm trạm 3.'],
+    ['Nguồn DVL / DVNL (KTV)', 'File live Apps Script chỉ trả về tổng doanh thu trực tiếp và lưu động, không có DVL/DVNL tách riêng. Hai đường đua này đọc thêm trực tiếp từ 3 file KPI tuần — file nào chưa mở quyền “bất kỳ ai có liên kết · chỉ xem” thì xe đứng ở vạch xuất phát. Tình trạng thực tế hiện ngay dưới bảng KTV.'],
+    ['DVL + DVNL vs tổng doanh thu', 'Trong file KPI có ngày nhân sự chỉ nhập dòng Tổng doanh thu mà bỏ trống DVL/DVNL, nên cộng 2 dòng đó sẽ hụt so với tổng. Vì vậy đường đua 3 lấy đúng dòng Tổng doanh thu của file, không tự cộng DVL+DVNL; dòng nào lệch có dấu ◑ trong bảng.'],
     ['Kinh doanh CN1 chưa có số', 'Trần Thị Dung và Thành Luân 0đ doanh thu ở cả 2 tuần nên chưa lên đường đua. Nếu là vai trò quản lý/CSKH thì nên tách hẳn khỏi hạng mục kinh doanh.']
   ];
   document.getElementById('audit').innerHTML = ds.map(function (x) {
@@ -850,18 +1002,30 @@ function traSoat(){
 
 /* ═══════ FORM CẬP NHẬT ═══════ */
 function veForm(){
-  function khoi(nhom, c1, c2, l1, l2){
-    var h = ['<div style="grid-column:1/-1"><h3>' + (nhom === 'kd' ? 'Kinh doanh' : 'Kỹ thuật viên') +
-             ' — ' + l1 + ' / ' + l2 + '</h3></div>'];
+  function khoi(nhom, cot, tieu, ghi){
+    var h = ['<div style="grid-column:1/-1"><h3>' + tieu + '</h3>' +
+             '<p class="ghi">' + ghi + '</p></div>'];
     D[nhom].forEach(function (r, i) {
-      h.push('<div class="dong"><label for="' + nhom + i + 'a">' + r.ten + '</label>' +
-        '<input id="' + nhom + i + 'a" type="number" step="0.1" value="' + r[c1] + '" data-n="' + nhom + '" data-i="' + i + '" data-c="' + c1 + '">' +
-        '<input id="' + nhom + i + 'b" type="number" step="0.1" value="' + r[c2] + '" data-n="' + nhom + '" data-i="' + i + '" data-c="' + c2 + '"></div>');
+      var o = ['<div class="dong' + (cot.length > 2 ? ' bon' : '') + '">' +
+               '<label for="' + nhom + i + '0">' + r.ten + '</label>'];
+      cot.forEach(function (f, k) {
+        o.push('<input id="' + nhom + i + k + '" type="number" step="0.1" title="' + f[1] + '" ' +
+          'aria-label="' + r.ten + ' — ' + f[1] + '" value="' + (Number(r[f[0]]) || 0) + '" ' +
+          'data-n="' + nhom + '" data-i="' + i + '" data-c="' + f[0] + '">');
+      });
+      h.push(o.join('') + '</div>');
     });
     return h.join('');
   }
-  document.getElementById('form-kd').innerHTML = khoi('kd', 'lop', 'bdsc', 'Lốp', 'BD–SC');
-  document.getElementById('form-kt').innerHTML = khoi('kt', 'dt', 'ld', 'Doanh thu', 'Lưu động');
+  document.getElementById('form-kd').innerHTML = khoi('kd',
+    [['lop', 'Lốp'], ['bdsc', 'BD–SC']],
+    'Kinh doanh — Lốp / BD–SC',
+    'Thứ tự ô: lốp · BD–SC. Đường đua 3 (tổng doanh thu) tự cộng 2 ô này, không nhập tay.');
+  document.getElementById('form-kt').innerHTML = khoi('kt',
+    [['dvl', 'DVL'], ['dvnl', 'DVNL'], ['dt', 'Tổng doanh thu'], ['ld', 'Lưu động CN2']],
+    'Kỹ thuật viên — DVL / DVNL / Tổng DT / Lưu động',
+    'Thứ tự ô: DVL · DVNL · tổng doanh thu · lưu động CN2. Tổng doanh thu lấy đúng dòng “Tổng doanh thu” của file KPI, ' +
+    'không tự cộng DVL+DVNL — vì có ngày nhân sự chỉ nhập dòng tổng.');
 }
 
 document.getElementById('btn-luu').addEventListener('click', function(){
