@@ -937,6 +937,7 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
 
   function ve(j){
     if(!j||!j.kd) return;
+    try{ capNhatCanhBao(j); }catch(e){}
     j.kd.forEach(function(x){ x._v2=(x.lop2||0)+(x.bdsc2||0); });
     j.kt.forEach(function(x){ x._v2=(x.dt2||0)+(x.ld2||0); });
     var hn=j.haiNgay||{}, mo=[];
@@ -959,6 +960,34 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
      +'</div>';
   }
 
+  function hai(n){ return (n<10?"0":"")+n; }
+
+  function capNhatCanhBao(j){
+    var hn=j.ngayCo||{}, cn=Object.keys(hn).filter(function(c){ return hn[c]>0; });
+    if(!cn.length) return;
+    var th=hai(new Date().getMonth()+1);
+    var max=0; cn.forEach(function(c){ if(hn[c]>max) max=hn[c]; });
+    var sau=cn.filter(function(c){ return hn[c]<max; });
+    var el=null, all=document.querySelectorAll("div,p,section");
+    for(var i=all.length-1;i>=0;i--){
+      var t=all[i].textContent||"";
+      if(t.indexOf("nh\u1EADp c\u00F9ng nh\u1ECBp")>-1 && all[i].children.length<=4){ el=all[i]; break; }
+    }
+    if(!el) return;
+    var s;
+    if(!sau.length){
+      s = "<b>C\u1EA3 "+cn.length+" chi nh\u00E1nh \u0111\u00E3 nh\u1EADp t\u1EDBi ng\u00E0y "+hai(max)+"/"+th+".</b> "
+        + "B\u1EA3ng x\u1EBFp h\u1EA1ng \u0111ang so tr\u00EAn c\u00F9ng s\u1ED1 ng\u00E0y \u2014 th\u1EE9 h\u1EA1ng hi\u1EC7n t\u1EA1i l\u00E0 th\u1EE9 h\u1EA1ng th\u1EADt.";
+      el.style.borderColor="rgba(74,222,128,.45)";
+    } else {
+      var ds=sau.map(function(c){ return c+" m\u1EDBi t\u1EDBi "+hai(hn[c])+"/"+th+" (thi\u1EBFu "+(max-hn[c])+" ng\u00E0y)"; }).join(", ");
+      var du=cn.filter(function(c){ return hn[c]===max; }).join(", ");
+      s = "<b>S\u1ED1 li\u1EC7u ch\u01B0a c\u00F9ng nh\u1ECBp.</b> "+ds+"; "+du+" \u0111\u00E3 t\u1EDBi "+hai(max)+"/"+th+". "
+        + "Xe c\u1EE7a chi nh\u00E1nh nh\u1EADp ch\u1EADm \u0111ang t\u1EE5t v\u00EC thi\u1EBFu s\u1ED1, kh\u00F4ng ph\u1EA3i v\u00EC ch\u1EA1y ch\u1EADm \u2014 ch\u01B0a n\u00EAn ch\u1ED1t th\u1EE9 h\u1EA1ng.";
+      el.style.borderColor="";
+    }
+    el.innerHTML = s;
+  }
   function tai(){ fetch(U,{cache:"no-store"}).then(function(r){return r.json();}).then(ve).catch(function(){}); }
   if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",function(){setTimeout(tai,600);}); }
   else { setTimeout(tai,600); }
