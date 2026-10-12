@@ -276,14 +276,13 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
     <div class="form-luoi" id="form-kd"></div>
     <div class="form-luoi rong" id="form-kt"></div>
     <div style="padding-bottom:14px">
-      <h3>Kết nối số liệu trực tiếp</h3>
-      <p class="ghi">Dán link Apps Script (dạng .../exec) nếu đã triển khai; để trống thì trang tự thử đọc
-        thẳng 3 file Google Sheet — chỉ chạy được khi file đã mở quyền “bất kỳ ai có liên kết”.</p>
-      <input id="api-url" type="url" placeholder="https://script.google.com/.../exec"
-        style="width:100%;background:#071022;border:1px solid var(--vien);color:var(--chu);border-radius:8px;padding:9px 11px;font-size:13px;text-align:left">
+      <h3>Nguồn số</h3>
+      <p class="ghi">Trang đọc thẳng tab KPI của 3 file (CN1 · CN2 · CN3) và chỉ cộng ngang các cột ngày —
+        không lấy cột tổng tuần / tổng tháng. Số nhập tay bên trên chỉ để thử, bấm “Đọc lại file” là về đúng số file.
+        Tab xuất app chỉ dùng để đối chiếu xem có ai bị thiếu khối dòng trong tab KPI.</p>
     </div>
     <div class="nut">
-      <button class="act" id="btn-live">⟳ Kéo số trực tiếp</button>
+      <button class="act" id="btn-live">⟳ Đọc lại file KPI</button>
       <button class="act ghost" id="btn-luu">Lưu số nhập tay</button>
       <button class="act ghost" id="btn-reset">Về số gốc</button>
       <span class="ghi" id="trangthai"></span>
@@ -338,10 +337,15 @@ var TRAM = { lop:[350,700,1050], bdsc:[100,200,300], ld:[10,20,30] };
 var MOC_THUONG = { dt:[10,20,30] };
 
 /* ═══════ NGUỒN LIVE ═══════ */
+/* NGUỒN DUY NHẤT = tab KPI của 3 file (gid). 'app' là tab dán xuất app, chỉ dùng
+   để ĐỐI CHIẾU DANH SÁCH: ai có doanh thu trên app mà thiếu khối dòng trong tab KPI. */
 var NGUON = {
-  CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'2029309149' },
-  CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'2124047691' },
-  CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'288637199'  }
+  CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'2029309149',
+        app:'KTBH DUNG - APP - KPI KẾT QUẢ CN1 T10' },
+  CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'2124047691',
+        app:'LÊ LÀNH  APP - KPI KẾT QUẢ CN2 T10' },
+  CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'288637199',
+        app:'KT PHƯƠNG- APP - KPI KẾT QUẢ CN3 T10' }
 };
 var MAU_CHOT = {
   'PHAN XUÂN ĐỨC':'#2ea8ff', 'NGUYỄN XUÂN ĐỨC':'#2ea8ff',
@@ -370,57 +374,74 @@ function soVN(s){
   s = (s || '').replace(/[\s.]/g, '').replace(',', '.');
   return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
 }
+/* nhãn dòng trong tab KPI → trường dữ liệu · hệ số (1e6 = tiền quy ra triệu, 1 = đếm) */
 var NHAN = [
-  [/^Lốp Xe/i, 'lop'], [/Ngoài Lốp/i, 'bdsc'], [/Lưu Động/i, 'ld'],
-  [/Tổng Doanh Thu/i, 'tong'], [/^DVL$/i, 'dvl'], [/^DVNL$/i, 'dvnl']
+  [/^Lốp Xe/i, 'lop', 1e6], [/Ngoài Lốp/i, 'bdsc', 1e6], [/Lưu Động/i, 'ld', 1e6],
+  [/Tổng Doanh Thu/i, 'tong', 1e6], [/^DVL$/i, 'dvl', 1e6], [/^DVNL$/i, 'dvnl', 1e6],
+  [/Phiếu\s*Kiểm\s*Tra\s*Xe/i, 'pkt', 1], [/cuộc gọi/i, 'goi', 1], [/Tổng Lượt xe/i, 'luot', 1]
 ];
 var BO_QUA = /Tổng Lượt|Kiểm\s*Tra Xe|cuộc gọi|Tra HD|Chấm\s*KPI|Mã nhân viên|Tổng cộng|^TUẦN|^Ghi/i;
 
-/* Đọc 1 tab KPI tuần → { nguoi:{ten,cn,vai,lop,bdsc,dt,ld,...}, ngayCo:n } */
+/* Đọc 1 tab KPI → { nguoi:{...,ngay:{truong:[theo từng cột ngày]}}, ngayCo, coSo, ngayLbl }
+   Quy tắc đọc: CHỈ cộng ngang các cột ngày — không lấy cột tổng tuần / tổng tháng,
+   nên cột tổng có sai công thức cũng không ảnh hưởng đường đua. */
 function gomTab(csv, cn){
-  var rows = tachCsv(csv), cot = [], vai = null, ten = null, ra = {}, coSo = {};
+  var rows = tachCsv(csv), cot = [], ngayLbl = [], vai = null, ten = null, ra = {}, coSo = {};
   rows.forEach(function (r0) {
     var r = r0.map(function (x) { return (x || '').replace(/\s+/g, ' ').trim(); });
     var ngay = [];
     r.forEach(function (c, i) { if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(c)) ngay.push(i); });
-    if (ngay.length >= 3) { cot = ngay; return; }                 /* dòng tiêu đề ngày */
+    if (ngay.length >= 3) {                                        /* dòng tiêu đề ngày */
+      cot = ngay; ngayLbl = ngay.map(function (i) { return r[i]; }); return;
+    }
     if (/KỸ THUẬT/i.test(r[0])) vai = 'kt';
     else if (/KINH DOANH/i.test(r[0])) vai = 'kd';
     for (var i = 0; i <= 2; i++) {
       var c = r[i];
-      /* bỏ qua ô tiêu đề khối (KỸ THUẬT VIÊN / KINH DOANH) — nếu không, người đầu mỗi khối
-         bị gán tên là chính dòng tiêu đề và mất số DVL/DVNL */
-      if (c && !/\d/.test(c) && c.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 && !BO_QUA.test(c) &&
+      /* tên người: ≥4 chữ cái, tối đa 2 chữ số (cho phép 'THÀNH LUÂN -CN1'),
+         bỏ ô tiêu đề khối (KỸ THUẬT VIÊN / KINH DOANH) và các nhãn dòng */
+      if (c && (c.match(/\d/g) || []).length <= 2 && c.indexOf('%') < 0 &&
+          c.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 && !BO_QUA.test(c) &&
           !/KỸ THUẬT|KINH DOANH/i.test(c) &&
           !NHAN.some(function (n) { return n[0].test(c); })) { ten = chuanTen(c); break; }
     }
-    var li = -1, truong = null;
+    var li = -1, truong = null, hs = 1;
     r.forEach(function (c, i) {
       if (li >= 0 || !c) return;
-      NHAN.forEach(function (n) { if (li < 0 && n[0].test(c)) { li = i; truong = n[1]; } });
+      NHAN.forEach(function (n) { if (li < 0 && n[0].test(c)) { li = i; truong = n[1]; hs = n[2]; } });
     });
     if (li < 0 || !ten || !vai || !cot.length) return;
-    var s = 0, co = false;
-    cot.forEach(function (i) {
+    var k = ten + '|' + vai;
+    var p = ra[k] = ra[k] || { ten:ten, cn:cn, vai:vai, lop:0, bdsc:0, ld:0, tong:0,
+                               dvl:0, dvnl:0, pkt:0, goi:0, luot:0, ngay:{} };
+    var arr = p.ngay[truong] = p.ngay[truong] || [];
+    cot.forEach(function (i, k2) {
       if (i <= li) return;
       var v = soVN(r[i]);
-      if (v !== null) { s += v; if (v > 0) { co = true; coSo[i] = 1; } }
+      if (v === null) return;
+      p[truong] += v / hs;
+      arr[k2] = (arr[k2] || 0) + v / hs;
+      if (v > 0) { p.co = true; if (hs > 1) coSo[k2] = 1; }        /* ngày có số = ngày có tiền */
     });
-    var k = ten + '|' + vai;
-    ra[k] = ra[k] || { ten:ten, cn:cn, vai:vai, lop:0, bdsc:0, ld:0, tong:0, dvl:0, dvnl:0 };
-    ra[k][truong] += s / 1e6;
-    if (co) ra[k].co = true;
   });
-  return { nguoi:ra, ngayCo:Object.keys(coSo).length };
+  return { nguoi:ra, ngayCo:Object.keys(coSo).length,
+           coSo:Object.keys(coSo).map(Number).sort(function (a, b) { return a - b; }),
+           ngayLbl:ngayLbl };
 }
 
 function mauCho(ten, i){ return MAU_CHOT[ten] || MAU_DU[i % MAU_DU.length]; }
 
 /* Gom 3 chi nhánh → cấu trúc D */
 function dungD(dsTab){
-  var kd = [], kt = [], ngayCo = {};
+  var kd = [], kt = [], ngayCo = {}, haiNgay = {};
   dsTab.forEach(function (t) {
     ngayCo[t.cn] = t.ngayCo;
+    var hai = t.coSo.slice(-2);                     /* 2 ngày có số gần nhất của chi nhánh */
+    haiNgay[t.cn] = hai.map(function (i) { return Number((t.ngayLbl[i] || '').split('/')[0]) || 0; });
+    function s2(p, f){
+      var a = p.ngay[f] || [];
+      return hai.reduce(function (s, i) { return s + (a[i] || 0); }, 0);
+    }
     Object.keys(t.nguoi).forEach(function (k) {
       var p = t.nguoi[k], canhbao = null;
       if (p.vai === 'kd') {
@@ -428,15 +449,20 @@ function dungD(dsTab){
         if (tong > 0 && Math.abs(cong - tong) > Math.max(1, tong * 0.01))
           canhbao = 'File ' + p.cn + ': Lốp ' + tr(p.lop) + 'tr + Ngoài lốp ' + tr(p.bdsc) +
                     'tr = ' + tr(cong) + 'tr nhưng dòng Tổng doanh thu ghi ' + tr(tong) + 'tr.';
-        if (p.lop + p.bdsc <= 0) return;
-        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, canhbao:canhbao });
+        if (p.lop + p.bdsc <= 0 && tong <= 0) return;
+        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tongFile:tong,
+                  pkt:p.pkt, goi:p.goi, lop2:s2(p, 'lop'), bdsc2:s2(p, 'bdsc'),
+                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao });
       } else {
         var dt = p.tong;
         if (dt + 0.001 < p.dvl + p.dvnl)
           canhbao = 'File ' + p.cn + ': DVL ' + tr(p.dvl) + 'tr + DVNL ' + tr(p.dvnl) +
                     'tr nhưng dòng Tổng doanh thu chỉ ' + tr(dt) + 'tr.';
-        if (dt <= 0 && p.ld <= 0) return;
-        kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, dvl:p.dvl, dvnl:p.dvnl, canhbao:canhbao });
+        if (dt <= 0 && p.ld <= 0 && p.dvl + p.dvnl <= 0) return;
+        kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, dvl:p.dvl, dvnl:p.dvnl,
+                  pkt:p.pkt, goi:p.goi, dt2:s2(p, 'tong'), ld2:s2(p, 'ld'),
+                  dvl2:s2(p, 'dvl'), dvnl2:s2(p, 'dvnl'),
+                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao });
       }
     });
   });
@@ -448,7 +474,7 @@ function dungD(dsTab){
   if (!kd.some(function (r) { return /PHƯƠNG VY/.test(r.ten); }))
     kd.push({ ten:'HỨA THỊ PHƯƠNG VY', cn:'CN2', mau:'#a855f7', lop:0, bdsc:0,
               canhbao:'Chưa có dòng dữ liệu trong file KPI — xe tím đang ở vạch xuất phát.' });
-  return { ngayCo:ngayCo, kd:kd, kt:kt };
+  return { ngayCo:ngayCo, haiNgay:haiNgay, kd:kd, kt:kt };
 }
 
 function dauNguon(txt, ok){
@@ -462,54 +488,58 @@ function boDau(s){
     .replace(/đ/g, 'd').replace(/Đ/g, 'D').toUpperCase().replace(/\s+/g, ' ').trim();
 }
 
-/* ═══════ BỔ SUNG DVL / DVNL ═══════
-   Apps Script chỉ trả về tổng doanh thu trực tiếp (dt) và lưu động (ld) cho KTV.
-   DVL và DVNL chỉ có trong 3 file KPI tuần → đọc thêm bằng CSV rồi ghép theo tên.
-   File nào chưa mở quyền "bất kỳ ai có liên kết" thì 2 đường đua đó đứng ở vạch xuất phát. */
-var TT_CT = { ok:[], loi:[], xong:false };
-async function boSungChiTiet(){
-  var ok = [], loi = [];
+/* ═══════ ĐỐI CHIẾU DANH SÁCH VỚI TAB XUẤT APP ═══════
+   Tab KPI là nguồn số duy nhất, nhưng ai không được tạo khối dòng trong đó thì
+   biến mất khỏi đường đua. Nên đọc thêm 3 cột của tab xuất app (L: sale, M: KTV,
+   J: thành tiền) để chỉ ra người có doanh thu trên app mà thiếu dòng trong tab KPI. */
+var TT_APP = { xong:false, thieu:[], loi:[] };
+async function doiChieuApp(){
+  var thieu = [], loi = [];
   await Promise.all(Object.keys(NGUON).map(async function (cn) {
     var n = NGUON[cn];
+    if (!n.app) return;
     try {
-      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid;
+      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&sheet=' +
+              encodeURIComponent(n.app) + '&tq=' + encodeURIComponent('select L,M,J');
       var t = await fetch(u, { cache:'no-store' }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status); return r.text();
       });
-      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error('chưa mở quyền xem');
-      var g = gomTab(t, cn), dem = 0;
-      Object.keys(g.nguoi).forEach(function (k) {
-        var pp = g.nguoi[k];
-        if (pp.vai !== 'kt') return;
-        var hang = (D.kt || []).filter(function (r) {
-          return r.cn === cn && (chuanTen(r.ten) === chuanTen(pp.ten) || boDau(r.ten) === boDau(pp.ten));
-        })[0];
-        if (!hang) return;
-        hang.dvl = pp.dvl; hang.dvnl = pp.dvnl; dem++;
+      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error('chưa đọc được tab xuất app');
+      var tien = {};
+      tachCsv(t).forEach(function (r) {
+        var v = soVN((r[2] || '').trim());
+        if (v === null || v <= 0) return;
+        [[0, 'kd'], [1, 'kt']].forEach(function (x) {
+          var ds = (r[x[0]] || '').split(/[,;]/).map(chuanTen)
+                     .filter(function (nm) {
+                       return nm.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 &&
+                              !/KỸ THUẬT|SALE|CVDV|TỔNG|TÊN/.test(nm);
+                     });
+          if (!ds.length) return;
+          ds.forEach(function (nm) {                       /* 1 dòng chia đều cho các tên */
+            var k = x[1] + '|' + nm;
+            tien[k] = (tien[k] || 0) + v / ds.length / 1e6;
+          });
+        });
       });
-      ok.push(cn + ' (' + dem + ' KTV)');
+      Object.keys(tien).forEach(function (k) {
+        var vai = k.split('|')[0], nm = k.split('|')[1];
+        var co = (D[vai] || []).some(function (r) {
+          return r.cn === cn && (chuanTen(r.ten) === nm || boDau(r.ten) === boDau(nm));
+        });
+        if (!co && tien[k] >= 1) thieu.push({ cn:cn, vai:vai, ten:nm, tien:tien[k] });
+      });
     } catch (e) { loi.push(cn + ': ' + e.message); }
   }));
-  TT_CT = { ok:ok, loi:loi, xong:true };
-  try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
+  thieu.sort(function (a, b) { return b.tien - a.tien; });
+  TT_APP = { xong:true, thieu:thieu, loi:loi };
   chay();
 }
 
+/* ═══════ ĐỌC SỐ: 3 TAB KPI LÀ NGUỒN DUY NHẤT ═══════ */
 async function keoLive(tuTay){
-  var api = '';
-  try { api = localStorage.getItem('philong-duaxe-api') || ''; } catch (e) {}
-  dauNguon('ĐANG KÉO…', true);
+  dauNguon('ĐANG ĐỌC FILE…', true);
   try {
-    if (api) {
-      var j = await fetch(api, { cache:'no-store' }).then(function (r) { return r.json(); });
-      if (!j || !j.kd || !j.kt) throw new Error('JSON sai cấu trúc');
-      D = j;
-      try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
-      dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
-      veForm(); chay();
-      boSungChiTiet().catch(function (e) { TT_CT = { ok:[], loi:['không đọc được file KPI: ' + e.message], xong:true }; chay(); });
-      return true;
-    }
     var tabs = await Promise.all(Object.keys(NGUON).map(async function (cn) {
       var n = NGUON[cn];
       var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid;
@@ -521,13 +551,16 @@ async function keoLive(tuTay){
     }));
     D = dungD(tabs);
     try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
-    dauNguon('LIVE ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
-    TT_CT = { ok:Object.keys(NGUON), loi:[], xong:true };
-    veForm(); chay(); return true;
+    dauNguon('FILE KPI ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
+    veForm(); chay();
+    doiChieuApp().catch(function (e) {
+      TT_APP = { xong:true, thieu:[], loi:['không đối chiếu được xuất app: ' + e.message] }; chay();
+    });
+    return true;
   } catch (e) {
     dauNguon('SỐ LƯU', false);
     if (tuTay) document.getElementById('trangthai').textContent =
-      'Chưa kéo được số trực tiếp (' + e.message + '). Trang đang dùng số đã lưu.';
+      'Chưa đọc được file KPI (' + e.message + '). Trang đang dùng số đã lưu.';
     return false;
   }
 }
@@ -942,6 +975,7 @@ function chay(){
     '<div class="tram-row"><span>Xét lúc</span><b>' +
       new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>';
   veTinhTrangCT(ktT);
+  if (window.__vePhuLuc) window.__vePhuLuc();
 }
 
 /* ô cảnh báo: nguồn DVL/DVNL và các dòng chưa tách đủ */
@@ -949,10 +983,15 @@ function veTinhTrangCT(ktT){
   var box = document.getElementById('tt-ct');
   if (!box) return;
   var y = [];
-  if (TT_CT.loi.length)
-    y.push('<b>Chưa đọc được DVL / DVNL từ ' + TT_CT.loi.length + ' file KPI:</b> ' + TT_CT.loi.join(' · ') +
-           '. Đường đua 1 (DVL) và 2 (DVNL) của các chi nhánh này đang ở vạch xuất phát — ' +
-           'mở quyền “bất kỳ ai có liên kết · chỉ xem” cho file KPI, hoặc bổ sung dvl/dvnl vào Apps Script là có số ngay.');
+  if (TT_APP.thieu.length)
+    y.push('<b>' + TT_APP.thieu.length + ' người có doanh thu trên xuất app nhưng CHƯA có khối dòng trong tab KPI</b> — ' +
+           'nên chưa lên đường đua: ' +
+           TT_APP.thieu.slice(0, 5).map(function (x) {
+             return x.ten + ' (' + x.cn + ' · ' + (x.vai === 'kd' ? 'kinh doanh' : 'KTV') + ' ~' + tr(x.tien) + 'tr)';
+           }).join(' · ') + (TT_APP.thieu.length > 5 ? ' …' : '') +
+           '. Chi nhánh cần thêm đủ khối dòng (tên ở cột B + các dòng DVL / DVNL / Tổng doanh thu hoặc Lốp Xe / SP Ngoài Lốp / Tổng doanh thu) thì trang tự có số.');
+  if (TT_APP.loi.length)
+    y.push('<b>Chưa đối chiếu được với tab xuất app:</b> ' + TT_APP.loi.join(' · ') + '.');
   var thieu = (ktT || []).filter(function (r) { return r.thieu > 0; });
   if (thieu.length)
     y.push('<b>' + thieu.length + ' KTV có ngày chỉ nhập dòng Tổng doanh thu mà không tách DVL / DVNL</b> — ' +
@@ -1052,28 +1091,21 @@ document.querySelectorAll('.tab').forEach(function (b) {
   });
 });
 document.getElementById('btn-live').addEventListener('click', function(){
-  var u = document.getElementById('api-url').value.trim();
-  try { u ? localStorage.setItem('philong-duaxe-api', u) : localStorage.removeItem('philong-duaxe-api'); } catch (e) {}
   document.getElementById('trangthai').textContent = '';
   keoLive(true);
 });
 var hen; window.addEventListener('resize', function(){ clearTimeout(hen); hen = setTimeout(chay, 180); });
 
 dongHo(); traSoat(); veForm(); chay();
-try {
-  var apiLuu = localStorage.getItem('philong-duaxe-api');
-  if (apiLuu) document.getElementById('api-url').value = apiLuu;
-} catch (e) {}
+try { localStorage.removeItem('philong-duaxe-api'); } catch (e) {}
 keoLive(false);
 setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
 </script>
 
 <script>
-/* ===== Phi Long: nguon du lieu live + bang but toc 2 ngay ===== */
+/* ===== Phi Long: bang but toc 2 ngay + chi so dan dat =====
+   Du lieu lay thang tu D (3 tab KPI) — khong goi nguon ngoai nao khac. */
 (function(){
-  var K="philong-duaxe-api", U="https://script.google.com/macros/s/AKfycbzO0IaEfblMT4YWzp2m6H_5YA3LjYRZJXW5_bhQkkgTn1A921bVCMR5rE3GTKTWF9ZygA/exec";
-  try{ if(localStorage.getItem(K)!==U){ localStorage.setItem(K,U); }
-       if(typeof keoLive==="function"){ setTimeout(keoLive,300); } }catch(e){}
 
   function s(v){ v=Math.round((v||0)*10)/10; return v.toLocaleString("vi-VN"); }
   function hang(arr,key){ var m={}; arr.slice().sort(function(a,b){return b[key]-a[key];})
@@ -1110,8 +1142,7 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
     if(!box){
       box=document.createElement("div"); box.id="bt48";
       box.style.cssText="max-width:1100px;margin:18px auto;padding:16px 18px;border:1px solid #1e2a44;border-radius:16px;background:linear-gradient(180deg,#0d1424,#0a0f1b)";
-      var neo=null, all=document.querySelectorAll("section,div,h2,h3");
-      for(var i=0;i<all.length;i++){ if((all[i].textContent||"").trim().indexOf("KET NOI SO LIEU")===0||(all[i].textContent||"").trim().indexOf("K\u1EBeT N\u1ED0I S\u1ED0 LI\u1EC6U")===0){ neo=all[i]; break; } }
+      var neo=document.querySelector("details.capnhat");
       if(neo&&neo.parentNode){ neo.parentNode.insertBefore(box,neo); } else { document.body.appendChild(box); }
     }
     box.innerHTML=
@@ -1206,9 +1237,12 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
       +'<div>'+cot(all,"goi","goi2","CU\u1ED8C G\u1ECCI NH\u1EACN","&#128222;","#19e3ff","Ch\u01B0a ai nh\u1EADp cu\u1ED9c g\u1ECDi nh\u1EADn \u2014 \u00F4 n\u00E0y nh\u1EADp tay trong tab KPI ng\u00E0y, hi\u1EC7n \u0111ang b\u1ECF tr\u1ED1ng.",mucGoi,"so v\u1EDBi ng\u01B0\u1EDDi cao nh\u1EA5t")+'</div>'
       +'</div></div>';
   }
-  function tai(){ fetch(U,{cache:"no-store"}).then(function(r){return r.json();}).then(ve).catch(function(){}); }
+  function tai(){
+    if(typeof D==="undefined" || !D || !D.kd) return;
+    try{ ve({ ngayCo:D.ngayCo, haiNgay:D.haiNgay, kd:D.kd, kt:D.kt }); }catch(e){}
+  }
+  window.__vePhuLuc = tai;
   if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",function(){setTimeout(tai,600);}); }
   else { setTimeout(tai,600); }
-  setInterval(tai, 120000);
 })();
 </script>
