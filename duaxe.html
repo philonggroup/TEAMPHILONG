@@ -60,6 +60,16 @@ h3{font-size:15px;font-weight:600;letter-spacing:.09em;color:var(--chu-mo)}
 .dial-cap{font-family:var(--f-dis);font-size:11px;letter-spacing:.16em;color:var(--chu-mo);text-transform:uppercase}
 
 /* ── CẢNH BÁO ───────────────────────────── */
+.locngay{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;padding:10px 14px;
+  border:1px solid var(--vien);border-radius:14px;background:var(--nen2);font-size:13px}
+.locngay b{font-family:var(--f-dis);font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--chu-mo)}
+.locngay button{appearance:none;border:1px solid var(--vien);background:transparent;color:var(--chu-mo);
+  font-family:var(--f-dis);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 12px;border-radius:999px;cursor:pointer}
+.locngay button[aria-pressed="true"]{background:var(--neon);border-color:var(--neon);color:#04121a;font-weight:600}
+.locngay input{width:62px;background:#071022;border:1px solid var(--vien);color:var(--chu);border-radius:8px;
+  padding:5px 8px;font-family:var(--f-dis);font-variant-numeric:tabular-nums;text-align:center;font-size:14px}
+.locngay .mo{color:var(--vang);font-weight:600}
 .canhbao{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:13px 16px;border-radius:14px;
   border:1px solid #6a3a12;background:#241403;font-size:13.5px;line-height:1.5}
 .canhbao b{color:var(--canh)}
@@ -174,6 +184,21 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
       <div class="dial-cap">Quãng đường đã chạy</div>
     </div>
   </header>
+
+  <div class="locngay" role="group" aria-label="Chọn khoảng ngày">
+    <b>Khoảng ngày</b>
+    <button data-loc="thang" aria-pressed="true">Cả tháng</button>
+    <button data-loc="homnay" aria-pressed="false">Hôm nay</button>
+    <button data-loc="homqua" aria-pressed="false">Hôm qua</button>
+    <button data-loc="7ngay" aria-pressed="false">7 ngày gần nhất</button>
+    <button data-loc="tuan" aria-pressed="false">Tuần này</button>
+    <span style="color:var(--chu-mo)">· tự chọn:</span>
+    <label for="loc-tu" style="color:var(--chu-mo)">từ ngày</label>
+    <input id="loc-tu" type="number" min="1" max="31" step="1" inputmode="numeric">
+    <label for="loc-den" style="color:var(--chu-mo)">đến</label>
+    <input id="loc-den" type="number" min="1" max="31" step="1" inputmode="numeric">
+    <span class="mo" id="loc-mo"></span>
+  </div>
 
   <div class="canhbao">
     <span style="font-size:18px;line-height:1">⚠</span>
@@ -445,6 +470,19 @@ function dungD(dsTab){
       var a = p.ngay[f] || [];
       return hai.reduce(function (s, i) { return s + (a[i] || 0); }, 0);
     }
+    /* đổi mảng theo cột → mảng theo ngày trong tháng, để lọc khoảng ngày */
+    function theoNgay(p, cap){
+      var o = {};
+      Object.keys(cap).forEach(function (dich) {
+        var a = p.ngay[cap[dich]] || [], m = [];
+        a.forEach(function (v, i) {
+          var d = Number((t.ngayLbl[i] || '').split('/')[0]) || 0;
+          if (d) m[d] = (m[d] || 0) + (v || 0);
+        });
+        o[dich] = m;
+      });
+      return o;
+    }
     Object.keys(t.nguoi).forEach(function (k) {
       var p = t.nguoi[k], canhbao = null;
       soFile[t.cn + '|' + khoaTen(p.ten)] = { vai:p.vai, ten:p.ten,
@@ -457,7 +495,8 @@ function dungD(dsTab){
         if (p.lop + p.bdsc <= 0 && tong <= 0) return;
         kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tongFile:tong,
                   pkt:p.pkt, goi:p.goi, lop2:s2(p, 'lop'), bdsc2:s2(p, 'bdsc'),
-                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao });
+                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao,
+                  theo:theoNgay(p, { lop:'lop', bdsc:'bdsc', pkt:'pkt', goi:'goi' }) });
       } else {
         var dt = p.tong;
         if (dt + 0.001 < p.dvl + p.dvnl)
@@ -467,7 +506,8 @@ function dungD(dsTab){
         kt.push({ ten:p.ten, cn:p.cn, dt:dt, ld:p.ld, dvl:p.dvl, dvnl:p.dvnl,
                   pkt:p.pkt, goi:p.goi, dt2:s2(p, 'tong'), ld2:s2(p, 'ld'),
                   dvl2:s2(p, 'dvl'), dvnl2:s2(p, 'dvnl'),
-                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao });
+                  pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao,
+                  theo:theoNgay(p, { dt:'tong', dvl:'dvl', dvnl:'dvnl', ld:'ld', pkt:'pkt', goi:'goi' }) });
       }
     });
   });
@@ -598,6 +638,25 @@ async function keoLive(tuTay){
 var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', tong:'Tổng doanh thu',
                dvl:'DVL', dvnl:'DVNL', dt:'Tổng doanh thu', ld:'KPI lưu động CN2' };
 var SO_NGAY = 31, LUU = 'philong-duaxe-t10';
+
+/* ═══════ LỌC KHOẢNG NGÀY ═══════
+   LOC = null → cả tháng (số gốc). Khác → cộng lại từ số của từng ngày. */
+var LOC = null;
+function caThang(){ return !LOC || (LOC.tu <= 1 && LOC.den >= SO_NGAY); }
+function soNgayLoc(){ return caThang() ? SO_NGAY : (LOC.den - LOC.tu + 1); }
+function congKhoang(r, f){
+  if (caThang()) return Number(r[f]) || 0;         /* cả tháng → dùng tổng gốc, nhập tay vẫn chạy */
+  var a = r.theo && r.theo[f];
+  if (!a) return 0;
+  var s = 0;
+  for (var d = LOC.tu; d <= LOC.den; d++) s += a[d] || 0;
+  return s;
+}
+function nhanLoc(){
+  if (caThang()) return 'Cả tháng 10 · 1 → ' + SO_NGAY;
+  return LOC.tu === LOC.den ? ('Chỉ ngày ' + LOC.tu + '/10')
+       : ('Từ ' + LOC.tu + '/10 đến ' + LOC.den + '/10 · ' + soNgayLoc() + ' ngày');
+}
 
 /* ═══════ TRẠNG THÁI ═══════ */
 var D = JSON.parse(JSON.stringify(GOC));
@@ -921,10 +980,11 @@ function veBangDoanhSo(el, ds, khoa){
     (ct2 ? '<th class="r">' + ct2[2] + '</th>' : '') +
     '<th class="r">Đóng góp hệ thống</th>' +
     (mocT ? '<th>Mốc thưởng</th>' : '') +
-    '<th class="r">Dự phóng cả tháng</th></tr></thead><tbody>'];
+    '<th class="r">' + (caThang() ? 'Dự phóng cả tháng' : 'TB / ngày') + '</th></tr></thead><tbody>'];
   ds.forEach(function (r, i) {
     var ngayCo = D.ngayCo[r.cn] || NGAY;
-    var nhip = ngayCo ? r.giatri / ngayCo * SO_NGAY : 0;
+    var nhip = caThang() ? (ngayCo ? r.giatri / ngayCo * SO_NGAY : 0)
+                         : r.giatri / Math.max(1, soNgayLoc());
     var mt = '';
     if (mocT) {
       var b = r.giatri >= mocT[2] ? 3 : r.giatri >= mocT[1] ? 2 : r.giatri >= mocT[0] ? 1 : 0;
@@ -985,15 +1045,16 @@ function veBangTram(el, ds, khoa){
 /* ═══════ DỰNG DỮ LIỆU ═══════ */
 function lay(nhom, khoa){
   return D[nhom].map(function (r) {
-    var lop = Number(r.lop) || 0, bdsc = Number(r.bdsc) || 0;
-    var dvl = Number(r.dvl) || 0, dvnl = Number(r.dvnl) || 0, dt = Number(r.dt) || 0;
+    var lop = congKhoang(r, 'lop'), bdsc = congKhoang(r, 'bdsc');
+    var dvl = congKhoang(r, 'dvl'), dvnl = congKhoang(r, 'dvnl'), dt = congKhoang(r, 'dt');
     /* TỔNG DOANH THU kinh doanh = lốp + BD–SC (tự cộng, không nhập tay) */
-    var gt = khoa === 'tong' ? lop + bdsc : Number(r[khoa]) || 0;
+    var gt = khoa === 'tong' ? lop + bdsc : congKhoang(r, khoa);
     /* KTV: có ngày chỉ nhập dòng Tổng doanh thu mà không tách DVL/DVNL → DVL+DVNL hụt so với tổng */
     var thieu = (nhom === 'kt' && dt > 0 && (dvl + dvnl) > 0 &&
                  dt - (dvl + dvnl) > Math.max(0.1, dt * 0.01)) ? dt - (dvl + dvnl) : 0;
     return { ten:r.ten, cn:r.cn, mau:r.mau, canhbao:r.canhbao, giatri:gt,
              lop:lop, bdsc:bdsc, dvl:dvl, dvnl:dvnl, dt:dt, thieu:thieu,
+             ld:congKhoang(r, 'ld'), pkt:congKhoang(r, 'pkt'), goi:congKhoang(r, 'goi'),
              ngan:r.ten.split(' ').slice(-2).join(' ') };
   }).sort(function (a, b) { return b.giatri - a.giatri; });
 }
@@ -1012,8 +1073,49 @@ function chay(){
     '<div class="tram-row"><span>Xét lúc</span><b>' +
       new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>';
   veTinhTrangCT(ktT);
+  veLoc();
   if (window.__vePhuLuc) window.__vePhuLuc();
 }
+
+/* ═══════ THANH LỌC NGÀY ═══════ */
+function veLoc(){
+  var mo = document.getElementById('loc-mo');
+  if (mo) mo.textContent = nhanLoc() + (caThang() ? '' : ' — mốc trạm vẫn là mốc cả tháng, chỉ để tham chiếu');
+  var tu = document.getElementById('loc-tu'), den = document.getElementById('loc-den');
+  if (tu && document.activeElement !== tu) tu.value = caThang() ? 1 : LOC.tu;
+  if (den && document.activeElement !== den) den.value = caThang() ? SO_NGAY : LOC.den;
+}
+function datLoc(tu, den, nut){
+  if (tu === null) LOC = null;
+  else {
+    tu = Math.min(SO_NGAY, Math.max(1, Math.round(tu)));
+    den = Math.min(SO_NGAY, Math.max(1, Math.round(den)));
+    if (tu > den) { var x = tu; tu = den; den = x; }
+    LOC = { tu:tu, den:den };
+  }
+  document.querySelectorAll('.locngay button').forEach(function (b) {
+    b.setAttribute('aria-pressed', String(b.dataset.loc === nut));
+  });
+  chay();
+}
+document.querySelectorAll('.locngay button').forEach(function (b) {
+  b.addEventListener('click', function(){
+    var k = b.dataset.loc;
+    if (k === 'thang') return datLoc(null, null, 'thang');
+    if (k === 'homnay') return datLoc(NGAY, NGAY, 'homnay');
+    if (k === 'homqua') return datLoc(Math.max(1, NGAY - 1), Math.max(1, NGAY - 1), 'homqua');
+    if (k === '7ngay') return datLoc(Math.max(1, NGAY - 6), NGAY, '7ngay');
+    if (k === 'tuan') return datLoc(Math.max(1, NGAY - ((new Date().getDay() + 6) % 7)), NGAY, 'tuan');
+  });
+});
+['loc-tu', 'loc-den'].forEach(function (id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', function(){
+    datLoc(Number(document.getElementById('loc-tu').value) || 1,
+           Number(document.getElementById('loc-den').value) || SO_NGAY, 'tay');
+  });
+});
 
 /* ô cảnh báo: nguồn DVL/DVNL và các dòng chưa tách đủ */
 function veTinhTrangCT(ktT){
