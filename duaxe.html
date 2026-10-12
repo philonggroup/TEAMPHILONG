@@ -989,23 +989,48 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
     }
     el.innerHTML = s;
   }
-  function cot(ds,k,k2,nhan,ic,mau,ghi){
-    var top=ds.slice().filter(function(x){return x[k]>0;}).sort(function(a,b){return b[k]-a[k];}).slice(0,6);
-    var h='<div style="margin-bottom:6px;font:800 11px/1.4 system-ui;letter-spacing:1.6px;color:'+mau+'">'+ic+" "+nhan+'</div>';
-    if(!top.length) return h+'<div style="color:#64748b;font:500 11.5px/1.6 system-ui;padding:8px 0">'+ghi+'</div>';
+  function thanh(pct, mau){
+    return '<span style="position:relative;display:inline-block;width:100%;height:11px;border-radius:6px;'
+      +'background:#0b1322;border:1px solid rgba(255,255,255,.10);overflow:hidden;vertical-align:middle">'
+      +'<i style="display:block;height:100%;width:'+pct+'%;background:linear-gradient(90deg,'+mau+'99,'+mau+');'
+      +'box-shadow:0 0 8px '+mau+'66"></i>'
+      +'<i style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(255,255,255,.18)"></i>'
+      +'<i style="position:absolute;top:0;bottom:0;left:80%;width:1px;background:rgba(255,255,255,.28)"></i>'
+      +'</span>';
+  }
+
+  function cot(ds,k,k2,nhan,ic,mau,ghi,muc,chuMuc){
+    var top=ds.slice().sort(function(a,b){return (b[k]||0)-(a[k]||0);}).slice(0,6);
+    var h='<div style="margin-bottom:8px;font:800 11px/1.4 system-ui;letter-spacing:1.6px;color:'+mau+'">'+ic+" "+nhan
+      +'<span style="float:right;color:#64748b;font-weight:700;letter-spacing:.3px">'+chuMuc+'</span></div>';
+    if(!top.length || !top[0][k]) return h+'<div style="color:#64748b;font:500 11.5px/1.6 system-ui;padding:8px 0">'+ghi+'</div>';
     top.forEach(function(x,i){
-      var th=x[k2]>0?'<span style="color:#4ade80">+'+x[k2]+' trong 2 ng\u00E0y</span>':'<span style="color:#64748b">0 trong 2 ng\u00E0y</span>';
-      h+='<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.07)">'
-       +'<b style="width:18px;text-align:right;font:900 13px system-ui;color:'+(i?"#94a3b8":mau)+'">'+(i+1)+'</b>'
-       +'<span style="flex:1;min-width:0;font:700 12px system-ui;color:#e8eefc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+x.ten+' <span style="color:#64748b;font-weight:600">'+x.cn+'</span></span>'
-       +'<span style="font:900 14px system-ui;color:'+mau+'">'+x[k]+'</span>'
-       +'<span style="width:110px;text-align:right;font:700 10.5px system-ui">'+th+'</span></div>';
+      var m=muc(x)||0, val=x[k]||0;
+      var pct = m>0 ? Math.min(100, Math.round(val/m*100)) : 0;
+      var c = pct>=80 ? "#22e37a" : (pct>=50 ? "#ffd12e" : "#ff4d4d");
+      var them = x[k2]>0 ? '<span style="color:#22e37a">+'+x[k2]+'</span>' : '<span style="color:#475569">+0</span>';
+      h+='<div style="padding:7px 0;border-top:1px solid rgba(255,255,255,.07)">'
+       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+         +'<b style="width:16px;text-align:right;font:900 12px system-ui;color:#94a3b8">'+(i+1)+'</b>'
+         +'<span style="flex:1;min-width:0;font:700 12px system-ui;color:#e8eefc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+x.ten+' <span style="color:#64748b;font-weight:600">'+x.cn+'</span></span>'
+         +'<span style="font:900 13px system-ui;color:'+c+'">'+val+'</span>'
+         +'<span style="font:700 10.5px system-ui;color:#64748b">/'+(m||"-")+'</span>'
+         +'<span style="width:34px;text-align:right;font:700 10.5px system-ui">'+them+'</span>'
+       +'</div>'
+       +'<div style="display:flex;align-items:center;gap:8px">'
+         +'<span style="width:16px"></span>'
+         +'<span style="flex:1">'+thanh(pct,c)+'</span>'
+         +'<span style="width:38px;text-align:right;font:900 10.5px system-ui;color:'+c+'">'+pct+'%</span>'
+       +'</div></div>';
     });
     return h;
   }
-
   function dan(j){
     var all=(j.kd||[]).concat(j.kt||[]);
+    var ng=j.ngayCo||{};
+    var mucPkt=function(x){ return 3*(ng[x.cn]||0); };
+    var caoNhat=0; all.forEach(function(x){ if((x.goi||0)>caoNhat) caoNhat=x.goi; });
+    var mucGoi=function(){ return caoNhat; };
     var tong=function(k){ var s=0; all.forEach(function(x){ s+=(x[k]||0); }); return s; };
     return '<div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.14)">'
       +'<div style="font:900 13px/1.3 system-ui;color:#fff;letter-spacing:.3px">&#128203; CH\u1EC8 S\u1ED0 D\u1EAAN D\u1EAET</div>'
@@ -1013,8 +1038,8 @@ setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
       +'Hai con s\u1ED1 n\u00E0y l\u00E0 vi\u1EC7c l\u00E0m m\u1ED7i ng\u00E0y t\u1EA1o ra doanh s\u1ED1 \u2014 ch\u1EA1y ch\u1EC9 s\u1ED1 d\u1EABn d\u1EAFt th\u00EC km t\u1EF1 l\u00EAn. '
       +'To\u00E0n h\u1EC7 th\u1ED1ng th\u00E1ng n\u00E0y: <b style="color:#fff">'+tong("pkt")+'</b> phi\u1EBFu ki\u1EC3m tra xe \u00B7 <b style="color:#fff">'+tong("goi")+'</b> cu\u1ED9c g\u1ECDi nh\u1EADn.</div>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px">'
-      +'<div>'+cot(all,"pkt","pkt2","PHI\u1EBEU KI\u1EC2M TRA XE","&#128203;","#ffd12e","Ch\u01B0a ai nh\u1EADp phi\u1EBFu ki\u1EC3m tra xe th\u00E1ng n\u00E0y.")+'</div>'
-      +'<div>'+cot(all,"goi","goi2","CU\u1ED8C G\u1ECCI NH\u1EACN","&#128222;","#19e3ff","Ch\u01B0a ai nh\u1EADp cu\u1ED9c g\u1ECDi nh\u1EADn \u2014 \u00F4 n\u00E0y nh\u1EADp tay trong tab KPI ng\u00E0y, hi\u1EC7n \u0111ang b\u1ECF tr\u1ED1ng.")+'</div>'
+      +'<div>'+cot(all,"pkt","pkt2","PHI\u1EBEU KI\u1EC2M TRA XE","&#128203;","#ffd12e","Ch\u01B0a ai nh\u1EADp phi\u1EBFu ki\u1EC3m tra xe th\u00E1ng n\u00E0y.",mucPkt,"m\u1EE5c ti\u00EAu 3 phi\u1EBFu/ng\u00E0y")+'</div>'
+      +'<div>'+cot(all,"goi","goi2","CU\u1ED8C G\u1ECCI NH\u1EACN","&#128222;","#19e3ff","Ch\u01B0a ai nh\u1EADp cu\u1ED9c g\u1ECDi nh\u1EADn \u2014 \u00F4 n\u00E0y nh\u1EADp tay trong tab KPI ng\u00E0y, hi\u1EC7n \u0111ang b\u1ECF tr\u1ED1ng.",mucGoi,"so v\u1EDBi ng\u01B0\u1EDDi cao nh\u1EA5t")+'</div>'
       +'</div></div>';
   }
   function tai(){ fetch(U,{cache:"no-store"}).then(function(r){return r.json();}).then(ve).catch(function(){}); }
