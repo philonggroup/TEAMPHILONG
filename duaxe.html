@@ -200,6 +200,15 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
     <span class="mo" id="loc-mo"></span>
   </div>
 
+  <div class="locngay" role="group" aria-label="Chọn chi nhánh">
+    <b>Chi nhánh</b>
+    <button data-cn="" aria-pressed="true">Tất cả 3 CN</button>
+    <button data-cn="CN1" aria-pressed="false">CN1</button>
+    <button data-cn="CN2" aria-pressed="false">CN2</button>
+    <button data-cn="CN3" aria-pressed="false">CN3</button>
+    <span class="mo" id="cn-mo"></span>
+  </div>
+
   <div class="canhbao">
     <span style="font-size:18px;line-height:1">⚠</span>
     <div><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Hiện CN2 tới 10/10, CN1 tới 11/10, CN3 mới tới 06/10 —
@@ -464,7 +473,7 @@ function dungD(dsTab){
   var kd = [], kt = [], ngayCo = {}, haiNgay = {}, soFile = {};
   dsTab.forEach(function (t) {
     ngayCo[t.cn] = t.ngayCo;
-    var hai = t.coSo.slice(-2);                     /* 2 ngày có số gần nhất của chi nhánh */
+    var hai = t.coSo.slice(-1);                     /* ngày có số gần nhất của chi nhánh */
     haiNgay[t.cn] = hai.map(function (i) { return Number((t.ngayLbl[i] || '').split('/')[0]) || 0; });
     function s2(p, f){
       var a = p.ngay[f] || [];
@@ -642,6 +651,9 @@ var SO_NGAY = 31, LUU = 'philong-duaxe-t10';
 /* ═══════ LỌC KHOẢNG NGÀY ═══════
    LOC = null → cả tháng (số gốc). Khác → cộng lại từ số của từng ngày. */
 var LOC = null;
+/* lọc chi nhánh: null = cả 3 chi nhánh */
+var CN_LOC = null;
+function hopCN(r){ return !CN_LOC || r.cn === CN_LOC; }
 function caThang(){ return !LOC || (LOC.tu <= 1 && LOC.den >= SO_NGAY); }
 function soNgayLoc(){ return caThang() ? SO_NGAY : (LOC.den - LOC.tu + 1); }
 function congKhoang(r, f){
@@ -1043,8 +1055,8 @@ function veBangTram(el, ds, khoa){
 }
 
 /* ═══════ DỰNG DỮ LIỆU ═══════ */
-function lay(nhom, khoa){
-  return D[nhom].map(function (r) {
+function lay(nhom, khoa, toanHeThong){
+  return D[nhom].filter(function (r) { return toanHeThong || hopCN(r); }).map(function (r) {
     var lop = congKhoang(r, 'lop'), bdsc = congKhoang(r, 'bdsc');
     var dvl = congKhoang(r, 'dvl'), dvnl = congKhoang(r, 'dvnl'), dt = congKhoang(r, 'dt');
     /* TỔNG DOANH THU kinh doanh = lốp + BD–SC (tự cộng, không nhập tay) */
@@ -1066,14 +1078,15 @@ function chay(){
   veDuong(document.getElementById('scene-kt'), kt.slice(0, 3), ct.kt);
   veBang(document.getElementById('bang-kt'), kt, ct.kt);
   /* cúp vàng xét theo đường đua TỔNG DOANH THU của từng khối, không phụ thuộc tab đang mở */
-  var kdT = lay('kd', 'tong'), ktT = lay('kt', 'dt');
+  var kdT = lay('kd', 'tong', true), ktT = lay('kt', 'dt', true);   /* cúp luôn xét toàn hệ thống */
   document.getElementById('cup-box').innerHTML =
     '<div class="tram-row"><span>🏆 Kinh doanh · tổng DT</span><b>' + (kdT[0] ? kdT[0].ngan + ' · ' + tr(kdT[0].giatri) + 'tr' : '—') + '</b></div>' +
     '<div class="tram-row"><span>🏆 Kỹ thuật viên · tổng DT</span><b>' + (ktT[0] ? ktT[0].ngan + ' · ' + tr(ktT[0].giatri) + 'tr' : '—') + '</b></div>' +
     '<div class="tram-row"><span>Xét lúc</span><b>' +
-      new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>';
+      new Date().toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' }) + '</b></div>' +
+    (CN_LOC ? '<p class="ghi">Đang xem riêng ' + CN_LOC + ' — cúp vàng vẫn xét toàn hệ thống, không phân biệt chi nhánh.</p>' : '');
   veTinhTrangCT(ktT);
-  veLoc(); dongHo();
+  veLoc(); veLocCN(); dongHo();
   if (window.__vePhuLuc) window.__vePhuLuc();
 }
 
@@ -1085,6 +1098,23 @@ function veLoc(){
   if (tu && document.activeElement !== tu) tu.value = caThang() ? 1 : LOC.tu;
   if (den && document.activeElement !== den) den.value = caThang() ? SO_NGAY : LOC.den;
 }
+function veLocCN(){
+  var mo = document.getElementById('cn-mo');
+  if (!mo) return;
+  var kd = D.kd.filter(hopCN).length, kt = D.kt.filter(hopCN).length;
+  mo.textContent = (CN_LOC ? 'Chỉ ' + CN_LOC : 'Cả 3 chi nhánh') + ' · ' + kd + ' kinh doanh · ' + kt + ' KTV';
+}
+function datCN(cn){
+  CN_LOC = cn || null;
+  document.querySelectorAll('.locngay button[data-cn]').forEach(function (b) {
+    b.setAttribute('aria-pressed', String((b.dataset.cn || '') === (CN_LOC || '')));
+  });
+  chay();
+}
+document.querySelectorAll('.locngay button[data-cn]').forEach(function (b) {
+  b.addEventListener('click', function(){ datCN(b.dataset.cn); });
+});
+
 function datLoc(tu, den, nut){
   if (tu === null) LOC = null;
   else {
@@ -1093,12 +1123,12 @@ function datLoc(tu, den, nut){
     if (tu > den) { var x = tu; tu = den; den = x; }
     LOC = { tu:tu, den:den };
   }
-  document.querySelectorAll('.locngay button').forEach(function (b) {
+  document.querySelectorAll('.locngay button[data-loc]').forEach(function (b) {
     b.setAttribute('aria-pressed', String(b.dataset.loc === nut));
   });
   chay();
 }
-document.querySelectorAll('.locngay button').forEach(function (b) {
+document.querySelectorAll('.locngay button[data-loc]').forEach(function (b) {
   b.addEventListener('click', function(){
     var k = b.dataset.loc;
     if (k === 'thang') return datLoc(null, null, 'thang');
@@ -1274,7 +1304,7 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
 </script>
 
 <script>
-/* ===== Phi Long: bang but toc 2 ngay + chi so dan dat =====
+/* ===== Phi Long: bang but toc ngay gan nhat + chi so dan dat =====
    Du lieu lay thang tu D (3 tab KPI) — khong goi nguon ngoai nao khac. */
 (function(){
 
@@ -1286,7 +1316,7 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
     var r2=hang(ds,"_v2"), r1=hang(ds,k1);
     var top=ds.slice().sort(function(a,b){return b._v2-a._v2;}).slice(0,6);
     var h='<div style="margin-bottom:6px;font:800 11px/1.4 system-ui;letter-spacing:1.6px;color:'+mau+'">'+tieu+'</div>';
-    if(!top.length||!top[0]._v2){ return h+'<div style="color:#64748b;font:500 12px system-ui;padding:10px 0">Chua co phat sinh trong 2 ngay nay.</div>'; }
+    if(!top.length||!top[0]._v2){ return h+'<div style="color:#64748b;font:500 12px system-ui;padding:10px 0">Chua co phat sinh trong ngay nay.</div>'; }
     top.forEach(function(x,i){
       var kk=x.ten+"|"+x.cn, dl=r1[kk]-r2[kk];
       var mui = dl>0 ? '<span style="color:#4ade80">&#9650;'+dl+'</span>' : (dl<0 ? '<span style="color:#f87171">&#9660;'+(-dl)+'</span>' : '<span style="color:#64748b">&#8212;</span>');
@@ -1309,6 +1339,7 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
     j.kt.forEach(function(x){ x._v2=(x.dt2||0)+(x.ld2||0); });
     var hn=j.haiNgay||{}, mo=[];
     Object.keys(hn).forEach(function(c){ if(hn[c]&&hn[c].length) mo.push(c+" ngay "+hn[c].slice().sort(function(a,b){return a-b;}).join("+")); });
+    if(typeof CN_LOC!=="undefined" && CN_LOC) mo=mo.filter(function(x){ return x.indexOf(CN_LOC)===0; });
     var box=document.getElementById("bt48");
     if(!box){
       box=document.createElement("div"); box.id="bt48";
@@ -1317,9 +1348,9 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
       if(neo&&neo.parentNode){ neo.parentNode.insertBefore(box,neo); } else { document.body.appendChild(box); }
     }
     box.innerHTML=
-      '<div style="font:900 15px/1.3 system-ui;color:#fff;letter-spacing:.4px">&#9889; B&#7912;T T&#7888;C 2 NG&#192;Y G&#7846;N NH&#7844;T</div>'
-     +'<div style="font:600 11.5px/1.6 system-ui;color:#8296b8;margin:4px 0 12px">Doanh s&#7889; ph&#225;t sinh trong 2 ng&#224;y c&#243; s&#7889; g&#7847;n nh&#7845;t &#8212; '+(mo.join(" &#183; ")||"chua co du lieu")+'. '
-     +'C&#7897;t % l&#224; ph&#7847;n \u0111&#243;ng g&#243;p v&#224;o t&#7893;ng th&#225;ng c&#7911;a ch&#237;nh ng&#432;&#7901;i \u0111&#243;; m&#361;i t&#234;n l&#224; th&#7913; h&#7841;ng 2 ng&#224;y so v&#7899;i th&#7913; h&#7841;ng c&#7843; th&#225;ng.</div>'
+      '<div style="font:900 15px/1.3 system-ui;color:#fff;letter-spacing:.4px">&#9889; B&#7912;T T&#7888;C NG&#192;Y G&#7846;N NH&#7844;T</div>'
+     +'<div style="font:600 11.5px/1.6 system-ui;color:#8296b8;margin:4px 0 12px">Doanh s&#7889; ph&#225;t sinh trong 1 ng&#224;y c&#243; s&#7889; g&#7847;n nh&#7845;t &#8212; '+(mo.join(" &#183; ")||"chua co du lieu")+'. '
+     +'C&#7897;t % l&#224; ph&#7847;n \u0111&#243;ng g&#243;p v&#224;o t&#7893;ng th&#225;ng c&#7911;a ch&#237;nh ng&#432;&#7901;i \u0111&#243;; m&#361;i t&#234;n l&#224; th&#7913; h&#7841;ng ng&#224;y đ&#243; so v&#7899;i th&#7913; h&#7841;ng c&#7843; th&#225;ng.</div>'
      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px">'
      +'<div>'+khoi("KINH DOANH &#183; L&#7888;P + BD-SC", j.kd, "lop2","bdsc2","lop","#ff3d9a")+'</div>'
      +'<div>'+khoi("KỸ THUẬT VIÊN · DV + LƯU ĐỘNG", j.kt, "dt2","ld2","dt","#19e3ff")+'</div>'
@@ -1410,7 +1441,8 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
   }
   function tai(){
     if(typeof D==="undefined" || !D || !D.kd) return;
-    try{ ve({ ngayCo:D.ngayCo, haiNgay:D.haiNgay, kd:D.kd, kt:D.kt }); }catch(e){}
+    var loc = function(r){ return (typeof hopCN==="function") ? hopCN(r) : true; };
+    try{ ve({ ngayCo:D.ngayCo, haiNgay:D.haiNgay, kd:D.kd.filter(loc), kt:D.kt.filter(loc) }); }catch(e){}
   }
   window.__vePhuLuc = tai;
   if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",function(){setTimeout(tai,600);}); }
