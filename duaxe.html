@@ -280,6 +280,9 @@ footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-si
       <p class="ghi">Trang đọc thẳng tab KPI của 3 file (CN1 · CN2 · CN3) và chỉ cộng ngang các cột ngày —
         không lấy cột tổng tuần / tổng tháng. Số nhập tay bên trên chỉ để thử, bấm “Đọc lại file” là về đúng số file.
         Tab xuất app chỉ dùng để đối chiếu xem có ai bị thiếu khối dòng trong tab KPI.</p>
+      <p class="ghi">Trang tự đọc lại <b>mỗi 5 phút</b>, đọc ngay khi mở lại tab hoặc có mạng trở lại,
+        và thử lại sau 1 phút nếu lỗi. Huy hiệu NGUỒN trên đầu trang hiện giờ đọc gần nhất và số đã cũ bao lâu —
+        <b>xanh</b> dưới 15 phút, <b>vàng</b> dưới 35 phút, <b>đỏ</b> là số đã cũ, cần bấm “Đọc lại file KPI”.</p>
     </div>
     <div class="nut">
       <button class="act" id="btn-live">⟳ Đọc lại file KPI</button>
@@ -480,10 +483,24 @@ function dungD(dsTab){
   return { ngayCo:ngayCo, haiNgay:haiNgay, kd:kd, kt:kt, soFile:soFile };
 }
 
+var LAN_CUOI = 0, LAN_APP = 0, HEN_LAI = null;
+function gioVN(t){ return new Date(t).toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }); }
 function dauNguon(txt, ok){
   var el = document.getElementById('c-nguon');
+  if (!el) return;
   el.innerHTML = 'NGUỒN <b class="num" style="color:' + (ok ? 'var(--tot)' : 'var(--canh)') + '">' + txt + '</b>';
 }
+/* huy hiệu nguồn tự đếm tuổi số: xanh ≤15 phút · vàng ≤35 phút · đỏ hơn nữa */
+function veNguon(){
+  if (!LAN_CUOI) return;
+  var phut = Math.floor((Date.now() - LAN_CUOI) / 60000);
+  var mau = phut <= 15 ? 'var(--tot)' : phut <= 35 ? 'var(--canh)' : 'var(--xau)';
+  var el = document.getElementById('c-nguon');
+  if (el) el.innerHTML = 'NGUỒN <b class="num" style="color:' + mau + '">FILE KPI ' + gioVN(LAN_CUOI) +
+    (phut < 1 ? ' · vừa xong' : ' · ' + phut + ' phút trước') + '</b>';
+}
+/* hẹn lần đọc kế tiếp — đọc lại sau 5 phút, nếu lỗi thì thử lại sau 1 phút */
+function henDoc(ms){ clearTimeout(HEN_LAI); HEN_LAI = setTimeout(function(){ keoLive(false); }, ms); }
 
 /* bỏ dấu để ghép tên giữa 2 nguồn (tab KPI và tab xuất app viết tên lệch dấu) */
 function boDau(s){
@@ -549,7 +566,8 @@ async function keoLive(tuTay){
   try {
     var tabs = await Promise.all(Object.keys(NGUON).map(async function (cn) {
       var n = NGUON[cn];
-      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid;
+      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid +
+              '&_=' + Date.now();                      /* chống cache: luôn lấy số mới nhất */
       var t = await fetch(u, { cache:'no-store' }).then(function (r) {
         if (!r.ok) throw new Error(cn + ' ' + r.status); return r.text();
       });
@@ -558,16 +576,22 @@ async function keoLive(tuTay){
     }));
     D = dungD(tabs);
     try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
-    dauNguon('FILE KPI ' + new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }), true);
+    LAN_CUOI = Date.now();
+    capNhatNgay(); veNguon();
     veForm(); chay();
-    doiChieuApp().catch(function (e) {
-      TT_APP = { xong:true, thieu:[], loi:['không đối chiếu được xuất app: ' + e.message] }; chay();
-    });
+    henDoc(5 * 60 * 1000);                              /* nhịp đọc lại: 5 phút */
+    if (Date.now() - LAN_APP > 30 * 60 * 1000) {        /* đối chiếu xuất app: 30 phút/lần */
+      LAN_APP = Date.now();
+      doiChieuApp().catch(function (e) {
+        TT_APP = { xong:true, thieu:[], chua:[], loi:['không đối chiếu được xuất app: ' + e.message] }; chay();
+      });
+    }
     return true;
   } catch (e) {
-    dauNguon('SỐ LƯU', false);
+    dauNguon(LAN_CUOI ? 'MẤT KẾT NỐI · số lúc ' + gioVN(LAN_CUOI) : 'SỐ LƯU', false);
+    henDoc(60 * 1000);                                  /* lỗi thì thử lại sau 1 phút */
     if (tuTay) document.getElementById('trangthai').textContent =
-      'Chưa đọc được file KPI (' + e.message + '). Trang đang dùng số đã lưu.';
+      'Chưa đọc được file KPI (' + e.message + '). Trang đang dùng số đã lưu, sẽ tự thử lại.';
     return false;
   }
 }
@@ -585,9 +609,15 @@ function tr(v){ return (Math.round(v*10)/10).toLocaleString('vi-VN'); }
 function ngayHomNay(){
   var d = new Date();
   if (d.getFullYear() === 2026 && d.getMonth() === 9) return d.getDate();
-  return 11;
+  return (d.getTime() > new Date(2026, 9, 31, 23, 59).getTime()) ? 31 : 1;
 }
 var NGAY = ngayHomNay();
+/* trang mở xuyên đêm vẫn phải sang ngày mới, không treo ở ngày lúc mở */
+function capNhatNgay(){
+  var n = ngayHomNay();
+  if (n === NGAY) return false;
+  NGAY = n; TUAN = Math.min(5, Math.ceil(NGAY / 7)); dongHo(); return true;
+}
 var TUAN = Math.min(5, Math.ceil(NGAY / 7));
 
 /* xe thể thao vẽ riêng — nhìn từ phía sau */
@@ -1112,7 +1142,19 @@ var hen; window.addEventListener('resize', function(){ clearTimeout(hen); hen = 
 dongHo(); traSoat(); veForm(); chay();
 try { localStorage.removeItem('philong-duaxe-api'); } catch (e) {}
 keoLive(false);
-setInterval(function(){ keoLive(false); }, 10 * 60 * 1000);
+/* ═══════ GIỮ CHO TRANG LUÔN LIVE ═══════
+   1) đọc lại mỗi 5 phút · lỗi thì thử lại sau 1 phút
+   2) mở lại tab (điện thoại khoá màn hình, chuyển tab) mà số đã quá 2 phút → đọc ngay
+   3) có mạng trở lại → đọc ngay
+   4) mỗi 30 giây cập nhật tuổi của số và ngày trên đồng hồ */
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && Date.now() - LAN_CUOI > 2 * 60 * 1000) keoLive(false);
+});
+window.addEventListener('focus', function(){
+  if (Date.now() - LAN_CUOI > 2 * 60 * 1000) keoLive(false);
+});
+window.addEventListener('online', function(){ keoLive(false); });
+setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
 </script>
 
 <script>
