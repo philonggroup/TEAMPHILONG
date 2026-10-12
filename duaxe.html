@@ -433,7 +433,7 @@ function mauCho(ten, i){ return MAU_CHOT[ten] || MAU_DU[i % MAU_DU.length]; }
 
 /* Gom 3 chi nhánh → cấu trúc D */
 function dungD(dsTab){
-  var kd = [], kt = [], ngayCo = {}, haiNgay = {};
+  var kd = [], kt = [], ngayCo = {}, haiNgay = {}, soFile = {};
   dsTab.forEach(function (t) {
     ngayCo[t.cn] = t.ngayCo;
     var hai = t.coSo.slice(-2);                     /* 2 ngày có số gần nhất của chi nhánh */
@@ -444,6 +444,8 @@ function dungD(dsTab){
     }
     Object.keys(t.nguoi).forEach(function (k) {
       var p = t.nguoi[k], canhbao = null;
+      soFile[t.cn + '|' + khoaTen(p.ten)] = { vai:p.vai, ten:p.ten,
+        tien: p.vai === 'kd' ? Math.max(p.lop + p.bdsc, p.tong) : Math.max(p.tong, p.dvl + p.dvnl) };
       if (p.vai === 'kd') {
         var tong = p.tong, cong = p.lop + p.bdsc;
         if (tong > 0 && Math.abs(cong - tong) > Math.max(1, tong * 0.01))
@@ -472,9 +474,10 @@ function dungD(dsTab){
   kt.forEach(function (r, i) { r.mau = mauCho(r.ten, i); });
   /* giữ xe tím của Phương Vy ở vạch xuất phát nếu file chưa có dòng */
   if (!kd.some(function (r) { return /PHƯƠNG VY/.test(r.ten); }))
-    kd.push({ ten:'HỨA THỊ PHƯƠNG VY', cn:'CN2', mau:'#a855f7', lop:0, bdsc:0,
+    kd.push({ ten:'HỨA THỊ PHƯƠNG VY', cn:'CN2', mau:'#a855f7', lop:0, bdsc:0, pkt:0, goi:0,
+              lop2:0, bdsc2:0, pkt2:0, goi2:0,
               canhbao:'Chưa có dòng dữ liệu trong file KPI — xe tím đang ở vạch xuất phát.' });
-  return { ngayCo:ngayCo, haiNgay:haiNgay, kd:kd, kt:kt };
+  return { ngayCo:ngayCo, haiNgay:haiNgay, kd:kd, kt:kt, soFile:soFile };
 }
 
 function dauNguon(txt, ok){
@@ -482,19 +485,27 @@ function dauNguon(txt, ok){
   el.innerHTML = 'NGUỒN <b class="num" style="color:' + (ok ? 'var(--tot)' : 'var(--canh)') + '">' + txt + '</b>';
 }
 
-/* bỏ dấu để ghép tên giữa 2 nguồn (file KPI và Apps Script viết tên lệch dấu) */
+/* bỏ dấu để ghép tên giữa 2 nguồn (tab KPI và tab xuất app viết tên lệch dấu) */
 function boDau(s){
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'd').replace(/Đ/g, 'D').toUpperCase().replace(/\s+/g, ' ').trim();
+}
+/* khoá ghép tên: bỏ dấu + bỏ mọi ký tự không phải chữ → 'THÀNH LUÂN -CN1' = 'THANH_LUAN_CN1' */
+function khoaTen(s){ return boDau(s).replace(/[^A-Z]/g, ''); }
+/* lọc các ô không phải tên người trong cột sale / KTV của xuất app */
+function laNguoi(nm){
+  if (!nm || nm.indexOf('+') >= 0) return false;
+  if (/GIAO|MUA|MANG V|TH\u1EE2 NGO\u00C0I|NGOÀI|TĂNG CA|KHO|NỘI BỘ|KHÁCH|CÔNG TY|TỔNG|TÊN|SALE|CVDV|KỸ THUẬT/i.test(nm)) return false;
+  return nm.trim().split(' ').length >= 2 && nm.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 8;
 }
 
 /* ═══════ ĐỐI CHIẾU DANH SÁCH VỚI TAB XUẤT APP ═══════
    Tab KPI là nguồn số duy nhất, nhưng ai không được tạo khối dòng trong đó thì
    biến mất khỏi đường đua. Nên đọc thêm 3 cột của tab xuất app (L: sale, M: KTV,
    J: thành tiền) để chỉ ra người có doanh thu trên app mà thiếu dòng trong tab KPI. */
-var TT_APP = { xong:false, thieu:[], loi:[] };
+var TT_APP = { xong:false, thieu:[], chua:[], loi:[] };
 async function doiChieuApp(){
-  var thieu = [], loi = [];
+  var thieu = [], chua = [], loi = [];
   await Promise.all(Object.keys(NGUON).map(async function (cn) {
     var n = NGUON[cn];
     if (!n.app) return;
@@ -510,11 +521,7 @@ async function doiChieuApp(){
         var v = soVN((r[2] || '').trim());
         if (v === null || v <= 0) return;
         [[0, 'kd'], [1, 'kt']].forEach(function (x) {
-          var ds = (r[x[0]] || '').split(/[,;]/).map(chuanTen)
-                     .filter(function (nm) {
-                       return nm.replace(/[^A-Za-zÀ-ỹ]/g, '').length >= 4 &&
-                              !/KỸ THUẬT|SALE|CVDV|TỔNG|TÊN/.test(nm);
-                     });
+          var ds = (r[x[0]] || '').split(/[,;]/).map(chuanTen).filter(laNguoi);
           if (!ds.length) return;
           ds.forEach(function (nm) {                       /* 1 dòng chia đều cho các tên */
             var k = x[1] + '|' + nm;
@@ -524,15 +531,15 @@ async function doiChieuApp(){
       });
       Object.keys(tien).forEach(function (k) {
         var vai = k.split('|')[0], nm = k.split('|')[1];
-        var co = (D[vai] || []).some(function (r) {
-          return r.cn === cn && (chuanTen(r.ten) === nm || boDau(r.ten) === boDau(nm));
-        });
-        if (!co && tien[k] >= 1) thieu.push({ cn:cn, vai:vai, ten:nm, tien:tien[k] });
+        var f = (D.soFile || {})[cn + '|' + khoaTen(nm)];
+        if (!f) { if (tien[k] >= 3) thieu.push({ cn:cn, vai:vai, ten:nm, tien:tien[k] }); }
+        else if (f.tien <= 0.001 && tien[k] >= 5) chua.push({ cn:cn, vai:f.vai, ten:f.ten, tien:tien[k] });
       });
     } catch (e) { loi.push(cn + ': ' + e.message); }
   }));
   thieu.sort(function (a, b) { return b.tien - a.tien; });
-  TT_APP = { xong:true, thieu:thieu, loi:loi };
+  chua.sort(function (a, b) { return b.tien - a.tien; });
+  TT_APP = { xong:true, thieu:thieu, chua:chua, loi:loi };
   chay();
 }
 
@@ -990,6 +997,12 @@ function veTinhTrangCT(ktT){
              return x.ten + ' (' + x.cn + ' · ' + (x.vai === 'kd' ? 'kinh doanh' : 'KTV') + ' ~' + tr(x.tien) + 'tr)';
            }).join(' · ') + (TT_APP.thieu.length > 5 ? ' …' : '') +
            '. Chi nhánh cần thêm đủ khối dòng (tên ở cột B + các dòng DVL / DVNL / Tổng doanh thu hoặc Lốp Xe / SP Ngoài Lốp / Tổng doanh thu) thì trang tự có số.');
+  if (TT_APP.chua.length)
+    y.push('<b>' + TT_APP.chua.length + ' người CÓ khối dòng trong tab KPI nhưng chưa nhập số ngày nào</b>, ' +
+           'trong khi xuất app có doanh thu đứng tên họ: ' +
+           TT_APP.chua.slice(0, 5).map(function (x) {
+             return x.ten + ' (' + x.cn + ' · ~' + tr(x.tien) + 'tr trên app)';
+           }).join(' · ') + (TT_APP.chua.length > 5 ? ' …' : '') + '. Xe của họ đang nằm ở vạch xuất phát.');
   if (TT_APP.loi.length)
     y.push('<b>Chưa đối chiếu được với tab xuất app:</b> ' + TT_APP.loi.join(' · ') + '.');
   var thieu = (ktT || []).filter(function (r) { return r.thieu > 0; });
