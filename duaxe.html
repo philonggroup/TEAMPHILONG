@@ -703,7 +703,7 @@ function sangToi(hex){
 /* doanh thu viết tắt để gắn lên biển số: 230TR · 10TR · 4,7TR · 700K */
 function vietTat(v){
   if (!v) return '—';
-  if (v >= 10) return Math.round(v) + 'TR';
+  if (v >= 10) return (Math.round(v * 10) / 10).toLocaleString('vi-VN') + 'TR';
   if (v >= 1) return (Math.round(v * 10) / 10).toString().replace('.', ',') + 'TR';
   return Math.round(v * 1000) + 'K';
 }
@@ -761,7 +761,7 @@ function veXe(mau, w, id, bien){
     /* biển số = doanh thu */
     '<rect x="36" y="55" width="48" height="16" rx="3" fill="#f7faff" stroke="#0b111f" stroke-width="1.6"/>' +
     '<text x="60" y="67.4" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" ' +
-      'font-size="13.5" fill="#0b111f">' + (bien || '') + '</text>' +
+      'font-size="' + ((bien || '').length <= 5 ? 13.5 : (bien || '').length === 6 ? 12 : (bien || '').length === 7 ? 10.6 : 9.3) + '" fill="#0b111f">' + (bien || '') + '</text>' +
     /* khuếch tán gầm */
     '<path d="M20 73 h80 l-4 6 h-72 Z" fill="#0b111f"/>' +
     '<path d="M34 73 v6 M48 73 v6 M72 73 v6 M86 73 v6" stroke="#38425a" stroke-width="1.1"/>' +
