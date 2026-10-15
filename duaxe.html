@@ -1928,3 +1928,154 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   else setTimeout(function(){ try { oPass.focus(); } catch (e) {} }, 60);
 })();
 </script>
+
+<!-- ════════ ⛽ NHIÊN LIỆU: PHIẾU KIỂM TRA XE + CUỘC GỌI NHẬN ════════
+     Lớp hiển thị thuần tuý: KHÔNG đổi thứ hạng, KHÔNG đổi vị trí xe.
+     Bình xăng = phiếu kiểm tra xe / (3 phiếu × số ngày đã có số của chi nhánh).
+     Pin       = cuộc gọi nhận / cuộc gọi của người cao nhất.
+     ═════════════════════════════════════════════════════════════ -->
+<style>
+.lan-ten{flex-wrap:wrap;row-gap:4px}
+.nl-wrap{flex:1 0 100%;display:flex}
+.nl-chip{display:inline-flex;align-items:center;gap:5px;padding:1px 7px 2px;border-radius:999px;
+  background:#0d1a38;border:1px solid #1e2b52;font:800 10px/1.4 var(--f-body);white-space:nowrap}
+.nl-chip .nl-bar{position:relative;width:38px;height:7px;border-radius:3px;background:#1b2440;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.nl-chip .nl-bar i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.nl-chip b{font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.nl-day{color:var(--tot)} .nl-vua{color:var(--duong2)} .nl-it{color:var(--canh)} .nl-can{color:var(--xau)}
+.lan-xe.nl-boost{filter:drop-shadow(0 0 7px rgba(255,198,46,.75))}
+.lan-xe.nl-boost::after{content:'';position:absolute;right:100%;top:50%;width:24px;height:7px;margin-right:1px;
+  transform:translateY(-50%);border-radius:4px 0 0 4px;
+  background:linear-gradient(90deg,rgba(255,77,109,0),rgba(255,159,26,.85),rgba(255,214,94,.95));
+  animation:nlLua .5s ease-in-out infinite alternate}
+@keyframes nlLua{from{opacity:.45;width:14px}to{opacity:1;width:30px}}
+.lan-xe.nl-can{opacity:.55;filter:grayscale(.5)}
+.nlbox{margin-top:16px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:14px 16px 16px}
+.nlbox h2{margin:0;font:800 clamp(17px,2.4vw,23px)/1.1 var(--f-dis);letter-spacing:.6px;text-transform:uppercase}
+.nl-sub{margin:6px 0 12px;font:600 12px/1.6 var(--f-body);color:var(--chu-mo)}
+.nl-sub b{color:var(--duong2)}
+.nl-tong{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.nl-kpi{flex:1 1 150px;border:1px solid #16224a;border-radius:12px;background:#0a142e;padding:9px 11px}
+.nl-kpi span{display:block;font:800 10px/1.5 var(--f-body);letter-spacing:.7px;color:var(--chu-mo);text-transform:uppercase}
+.nl-kpi b{font:800 22px/1.15 var(--f-dis);font-variant-numeric:tabular-nums}
+.nl-luoi{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:9px}
+.nl-the{border:1px solid #16224a;border-radius:12px;background:#0a142e;padding:10px 11px;overflow:hidden}
+.nl-the.day{border-color:rgba(47,224,138,.45);background:linear-gradient(180deg,rgba(47,224,138,.09),#0a142e)}
+.nl-the.can{border-color:rgba(255,77,109,.35)}
+.nl-top{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.nl-top i.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.nl-top .nl-ten{font:800 12px/1.3 var(--f-body);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nl-top .nl-cn{font:800 9px/1.4 var(--f-body);letter-spacing:.6px;color:var(--chu-mo);border:1px solid #1e2b52;
+  border-radius:999px;padding:1px 6px;flex:none}
+.nl-hang{display:flex;align-items:center;gap:8px;margin:6px 0}
+.nl-hang .ico{font-size:14px;width:17px;text-align:center;flex:none}
+.nl-oto{display:flex;gap:2px;flex:1}
+.nl-oto u{height:11px;flex:1;border-radius:2px;background:#16203e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.nl-oto u.on{background:linear-gradient(180deg,#ffd45e,#ff8a1f)}
+.nl-oto.pin u.on{background:linear-gradient(180deg,#8ff0ff,#19e3ff)}
+.nl-hang .sl{font:800 11px/1 var(--f-dis);font-variant-numeric:tabular-nums;min-width:52px;text-align:right;flex:none}
+.nl-tt{margin-top:7px;font:800 10px/1.5 var(--f-body);letter-spacing:.5px;text-transform:uppercase}
+.nl-ghi{margin-top:10px;font:600 11px/1.65 var(--f-body);color:var(--chu-mo)}
+.nl-ghi b{color:var(--chu)}
+@media(max-width:560px){.nl-chip .nl-bar{width:28px}}
+</style>
+<script>
+(function(){
+  var MUC = 3;                                  /* 3 phiếu kiểm tra xe / ngày = đầy bình */
+  function sach(s){ return (s||'').replace(/[^0-9A-Za-zÀ-ỹ \-]/g,'').replace(/\s+/g,' ').trim().toUpperCase(); }
+  function muc(p){
+    if (p >= 80) return {lop:'nl-day', chu:'⛽ ĐẦY BÌNH · TĂNG TỐC'};
+    if (p >= 40) return {lop:'nl-vua', chu:'ĐỦ CHẠY'};
+    if (p >  0)  return {lop:'nl-it',  chu:'SẮP CẠN'};
+    return             {lop:'nl-can', chu:'CẠN XĂNG · XE Ì'};
+  }
+  function ds(){
+    if (!window.D) return [];
+    var ngay = D.ngayCo || {}, maxGoi = 0;
+    [].concat(D.kd||[], D.kt||[]).forEach(function(r){ if ((r.goi||0) > maxGoi) maxGoi = r.goi || 0; });
+    if (maxGoi < 1) maxGoi = 1;
+    return [].concat(
+      (D.kd||[]).map(function(r){ return {r:r, vai:'kd'}; }),
+      (D.kt||[]).map(function(r){ return {r:r, vai:'kt'}; })
+    ).map(function(o){
+      var n = Math.max(1, ngay[o.r.cn] || 1), pkt = o.r.pkt || 0, goi = o.r.goi || 0;
+      return { ten:sach(o.r.ten), cn:o.r.cn, vai:o.vai, mau:o.r.mau || '#8ea0c8',
+               pkt:pkt, goi:goi, ngay:n, can:MUC * n,
+               binh:Math.max(0, Math.min(100, pkt / (MUC * n) * 100)),
+               pin: Math.max(0, Math.min(100, goi / maxGoi * 100)) };
+    });
+  }
+  function oto(p, pin){
+    var s = '<div class="nl-oto' + (pin ? ' pin' : '') + '">', k = Math.round(p / 10);
+    for (var i = 0; i < 10; i++) s += '<u class="' + (i < k ? 'on' : '') + '"></u>';
+    return s + '</div>';
+  }
+  /* chip nhiên liệu trên từng làn xe */
+  function ganLan(){
+    var L = ds(); if (!L.length) return;
+    var map = {}; L.forEach(function(x){ map[x.ten] = map[x.ten] || x; });
+    document.querySelectorAll('.lan').forEach(function(lan){
+      var nm = lan.querySelector('.lan-ten .nm'); if (!nm) return;
+      var x = map[sach(nm.textContent)]; if (!x) return;
+      var m = muc(x.binh), xe = lan.querySelector('.lan-xe');
+      if (xe){ xe.classList.toggle('nl-boost', x.binh >= 80); xe.classList.toggle('nl-can', x.binh <= 0); }
+      var w = lan.querySelector('.nl-wrap');
+      if (!w){ w = document.createElement('div'); w.className = 'nl-wrap';
+               w.innerHTML = '<span class="nl-chip"></span>'; lan.querySelector('.lan-ten').appendChild(w); }
+      var chip = w.firstChild;
+      chip.title = 'Nhiên liệu: ' + x.pkt + '/' + x.can + ' phiếu kiểm tra xe (' + MUC + ' phiếu × ' +
+                   x.ngay + ' ngày) · Pin: ' + x.goi + ' cuộc gọi nhận';
+      chip.innerHTML = '<span>⛽</span><span class="nl-bar"><i style="width:' + x.binh.toFixed(0) +
+        '%;background:linear-gradient(90deg,#ff8a1f,#ffd45e)"></i></span>' +
+        '<b class="' + m.lop + '">' + Math.round(x.binh) + '%</b>' +
+        '<span style="opacity:.45">·</span><span>🔋</span><b class="nl-day">' + x.goi + '</b>';
+    });
+  }
+  /* Trạm nhiên liệu */
+  function ganTram(){
+    var L = ds(); if (!L.length) return;
+    var box = document.getElementById('nl-tram');
+    if (!box){
+      var wrap = document.querySelector('.wrap'); if (!wrap) return;
+      var moc = null;
+      [].forEach.call(wrap.children, function(c){ if (!moc && /CHỈ SỐ DẪN DẮT/.test(c.textContent || '')) moc = c; });
+      box = document.createElement('div'); box.className = 'nlbox'; box.id = 'nl-tram';
+      if (moc) wrap.insertBefore(box, moc); else wrap.appendChild(box);
+    }
+    var cnLoc = window.CN_LOC || '', T = L.filter(function(x){ return !cnLoc || x.cn === cnLoc; });
+    var tPkt = 0, tGoi = 0, day = 0, can = 0;
+    T.forEach(function(x){ tPkt += x.pkt; tGoi += x.goi; if (x.binh >= 80) day++; if (x.binh <= 0) can++; });
+    var the = T.slice().sort(function(a, b){ return (b.binh - a.binh) || (b.goi - a.goi) || (b.pkt - a.pkt); })
+      .map(function(x){
+        var m = muc(x.binh);
+        return '<div class="nl-the' + (x.binh >= 80 ? ' day' : (x.binh <= 0 ? ' can' : '')) + '">' +
+          '<div class="nl-top"><i class="dot" style="background:' + x.mau + '"></i>' +
+          '<span class="nl-ten">' + x.ten + '</span><span class="nl-cn">' + x.cn + ' · ' +
+          (x.vai === 'kd' ? 'KD' : 'KTV') + '</span></div>' +
+          '<div class="nl-hang"><span class="ico">⛽</span>' + oto(x.binh, false) +
+          '<span class="sl">' + x.pkt + '/' + x.can + '</span></div>' +
+          '<div class="nl-hang"><span class="ico">🔋</span>' + oto(x.pin, true) +
+          '<span class="sl">' + x.goi + ' gọi</span></div>' +
+          '<div class="nl-tt ' + m.lop + '">' + m.chu + '</div></div>';
+      }).join('');
+    box.innerHTML =
+      '<h2>⛽ Trạm nhiên liệu <span style="color:var(--duong2)">· phiếu kiểm tra xe &amp; cuộc gọi nhận</span></h2>' +
+      '<div class="nl-sub">Đây mới là thứ đổ vào bình để xe chạy: <b>mỗi ngày 3 phiếu kiểm tra xe</b> là đầy bình, ' +
+      'mỗi <b>cuộc gọi nhận</b> là một vạch pin. Bình đầy thì xe phụt lửa tăng tốc, bình cạn thì xe ì — ' +
+      'nhiên liệu <b>không cộng điểm, không đổi thứ hạng</b>, km về đích vẫn là doanh thu thật.</div>' +
+      '<div class="nl-tong">' +
+        '<div class="nl-kpi"><span>Phiếu kiểm tra xe</span><b class="nl-day">' + tPkt + '</b></div>' +
+        '<div class="nl-kpi"><span>Cuộc gọi nhận</span><b class="nl-day">' + tGoi + '</b></div>' +
+        '<div class="nl-kpi"><span>Xe đầy bình</span><b class="nl-day">' + day + '</b></div>' +
+        '<div class="nl-kpi"><span>Xe cạn xăng</span><b class="nl-can">' + can + '</b></div>' +
+      '</div><div class="nl-luoi">' + the + '</div>' +
+      '<div class="nl-ghi">Bình đầy tính theo số ngày đã có số của chính chi nhánh đó, nên chi nhánh nhập chậm ' +
+      'không bị thiệt. <b>Chi nhánh nào chưa nhập phiếu kiểm tra xe / cuộc gọi nhận vào file KPI thì xe hiện cạn ' +
+      'xăng</b> — là do chưa nhập, không phải do không làm.</div>';
+  }
+  function chay(){ try { ganLan(); ganTram(); } catch (e) {} }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', chay);
+  chay(); setTimeout(chay, 900); setTimeout(chay, 2500); setInterval(chay, 4000);
+})();
+</script>
