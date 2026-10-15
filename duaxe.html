@@ -2112,3 +2112,146 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   chay(); setTimeout(chay, 900); setTimeout(chay, 2500); setInterval(chay, 4000);
 })();
 </script>
+
+<!-- ════════ 🏁 THƯỚC ĐO CHI NHÁNH · KPI THÁNG ════════
+     Đồng hồ thứ 3, đặt ngay dưới ô cảnh báo. Số lấy thẳng từ tab KPI NGÀY T10
+     của từng chi nhánh (dòng DOANH THU MỤC TIÊU): KPI tháng · % đạt · thực đạt.
+     Không ảnh hưởng thứ hạng đường đua.
+     ══════════════════════════════════════════════════ -->
+<style>
+.tdbox{margin-top:16px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:14px 16px 16px}
+.tdbox h2{margin:0 0 4px;font:800 clamp(17px,2.4vw,23px)/1.1 var(--f-dis);letter-spacing:.6px;text-transform:uppercase}
+.td-sub{margin:0 0 12px;font:600 12px/1.6 var(--f-body);color:var(--chu-mo)}
+.td-sub b{color:var(--duong2)}
+.td-dan{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.td-dh{width:208px;flex:none}
+.td-dh svg{width:100%;height:auto;display:block}
+.td-ke{flex:1 1 260px;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+.td-o{border:1px solid #16224a;border-radius:12px;background:#0a142e;padding:9px 11px}
+.td-o span{display:block;font:800 10px/1.5 var(--f-body);letter-spacing:.7px;color:var(--chu-mo);text-transform:uppercase}
+.td-o b{font:800 19px/1.2 var(--f-dis);font-variant-numeric:tabular-nums}
+.td-ghi{margin-top:10px;font:600 11px/1.65 var(--f-body);color:var(--chu-mo)}
+.td-ghi b{color:var(--chu)}
+</style>
+<script>
+(function(){
+  var TD = {
+    SN: 31, PX: 871.7, PY: 165.9, MAX: 150, DATA: {},
+    NG: { CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'956715348' },
+          CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1903288687' },
+          CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'943253245' } }
+  };
+  function so(s){
+    s = (s||'').replace(/[^0-9,.\-]/g,''); if (!s) return null;
+    s = s.replace(/\./g,'').replace(/,/g,'.');
+    var v = parseFloat(s); return isNaN(v) ? null : v;
+  }
+  function csv(t){
+    var R=[], c=[], f='', q=false;
+    for (var i=0;i<t.length;i++){ var ch=t[i];
+      if (q){ if (ch==='"'){ if (t[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=ch; }
+      else if (ch==='"') q=true;
+      else if (ch===','){ c.push(f); f=''; }
+      else if (ch==='\n'){ c.push(f); R.push(c); c=[]; f=''; }
+      else if (ch!=='\r') f+=ch; }
+    c.push(f); R.push(c); return R;
+  }
+  function doc(R){
+    var kpi=null, dat=null, ngay=null, i, j, r;
+    for (i=0;i<R.length && !ngay;i++){ r=R[i];
+      for (j=0;j<r.length;j++){ if (/KPI\s*THÁNG/i.test(r[j]||'')){
+        for (var k=j+1;k<r.length;k++){ var m=(r[k]||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if (m){ ngay=parseInt(m[1],10); break; } }
+        break; } } }
+    for (i=0;i<R.length;i++){ r=R[i];
+      if (/DOANH\s*THU\s*M[ỤU]C\s*TIÊU/i.test((r[0]||'')+' '+(r[1]||''))){
+        var last=-1; for (j=0;j<r.length;j++){ if (/%/.test(r[j]||'')) last=j; }
+        if (last>0){ kpi=so(r[last-1]); dat=so(r[last+1]); }
+        break; } }
+    return { kpi:kpi, dat:dat, ngay:ngay };
+  }
+
+  function tai(){
+    return Promise.all(Object.keys(TD.NG).map(function(cn){
+      var n = TD.NG[cn];
+      return fetch('https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid, {cache:'no-store'})
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(function(t){ if (/<html|DOCTYPE/i.test(t.slice(0,200))) throw new Error('chưa mở quyền xem');
+                           TD.DATA[cn] = doc(csv(t)); })
+        .catch(function(e){ TD.DATA[cn] = { loi:'' + e }; });
+    }));
+  }
+  function tr(v){ var x = v / 1e6; return x >= 100 ? Math.round(x).toLocaleString('vi-VN') : x.toFixed(1).replace('.', ','); }
+  function diem(p, r){ var a = 180 * (1 - Math.min(Math.max(p,0), TD.MAX) / TD.MAX) * Math.PI / 180;
+                       return [TD.PX + r * Math.cos(a), TD.PY - r * Math.sin(a)]; }
+  function ve(o){
+    var src = null, gs = document.querySelectorAll('svg.road g');
+    for (var i=0;i<gs.length;i++){ if (/TỔNG TEAM/.test(gs[i].textContent)){ src = gs[i]; break; } }
+    if (!src) return null;
+    var g = src.cloneNode(true);
+    var c0 = g.querySelector('circle');
+    if (c0 && (c0.getAttribute('fill')||'').toLowerCase() === '#fff6cf') c0.remove();
+    var L = g.querySelectorAll('line'), T = g.querySelectorAll('text');
+    if (L.length < 2 || T.length < 4) return null;
+    var kim = L[L.length-1], vach = L[L.length-2];
+    var a = diem(o.pct, 73);
+    kim.setAttribute('x1', TD.PX); kim.setAttribute('y1', TD.PY);
+    kim.setAttribute('x2', a[0].toFixed(1)); kim.setAttribute('y2', a[1].toFixed(1));
+    var b1 = diem(o.nhip, 58), b2 = diem(o.nhip, 74);
+    vach.setAttribute('x1', b1[0].toFixed(1)); vach.setAttribute('y1', b1[1].toFixed(1));
+    vach.setAttribute('x2', b2[0].toFixed(1)); vach.setAttribute('y2', b2[1].toFixed(1));
+    T[0].textContent = Math.round(o.pct) + '%';
+    T[0].setAttribute('fill', o.pct >= o.nhip ? '#2fe08a' : '#ff4d6d');
+    T[1].textContent = o.nhan;
+    T[2].textContent = tr(o.dat) + 'TR';
+    T[3].textContent = tr(o.dat / o.ngay) + ' TR/NGÀY';
+    var ti = g.querySelector('title'); if (ti) ti.textContent = o.tip;
+    return '<svg viewBox="753 -3 238 250" xmlns="http://www.w3.org/2000/svg">' + g.outerHTML + '</svg>';
+  }
+
+  function gan(){
+    var cn = window.CN_LOC || '', ks = cn ? [cn] : ['CN1','CN2','CN3'];
+    var kpi = 0, dat = 0, ngay = 0, thieu = [];
+    ks.forEach(function(k){ var d = TD.DATA[k];
+      if (!d || d.loi || !d.kpi){ thieu.push(k); return; }
+      kpi += d.kpi; dat += d.dat || 0; if ((d.ngay||0) > ngay) ngay = d.ngay; });
+    if (!kpi) return;
+    if (!ngay) ngay = 1;
+    var pct = dat / kpi * 100, nhip = ngay / TD.SN * 100, duphong = dat / ngay * TD.SN, conlai = kpi - dat;
+    var nhan = cn ? ('THƯỚC ĐO ' + cn) : 'THƯỚC ĐO 3 CN';
+    var tip = 'KPI tháng 10: ' + tr(kpi) + 'tr · thực đạt ' + tr(dat) + 'tr = ' + pct.toFixed(1) +
+              '% · số liệu tới ngày ' + ngay + '/10 · tốc độ ' + tr(dat/ngay) + 'tr/ngày · dự phóng hết tháng ' +
+              tr(duphong) + 'tr = ' + Math.round(duphong/kpi*100) + '% KPI. Vạch trắng là đúng nhịp theo ngày (' +
+              Math.round(nhip) + '%).';
+    var box = document.getElementById('td-box');
+    if (!box){
+      var w = document.querySelector('.wrap'); if (!w) return;
+      var m = w.querySelector('.canhbao');
+      box = document.createElement('div'); box.className = 'tdbox'; box.id = 'td-box';
+      if (m && m.parentElement === w) w.insertBefore(box, m.nextSibling); else w.insertBefore(box, w.firstChild);
+    }
+    var svg = ve({ pct:pct, nhip:nhip, dat:dat, ngay:ngay, nhan:nhan, tip:tip }); if (!svg) return;
+    var ky = cn + '|' + kpi + '|' + dat + '|' + ngay;
+    if (box.getAttribute('data-ky') === ky) return;
+    box.setAttribute('data-ky', ky);
+    box.innerHTML =
+      '<h2>🏁 Thước đo chi nhánh <span style="color:var(--duong2)">· KPI tháng 10</span></h2>' +
+      '<div class="td-sub">Số lấy thẳng từ tab <b>KPI NGÀY T10</b> của từng chi nhánh (dòng DOANH THU MỤC TIÊU) — ' +
+      'không phải số của đường đua. Kim là <b>% đạt được luỹ kế</b>, vạch trắng là <b>đúng nhịp theo ngày</b>.' +
+      (thieu.length ? ' <b style="color:var(--xau)">Chưa đọc được: ' + thieu.join(', ') + '.</b>' : '') + '</div>' +
+      '<div class="td-dan"><div class="td-dh">' + svg + '</div><div class="td-ke">' +
+      '<div class="td-o"><span>KPI tháng 10</span><b>' + tr(kpi) + ' tr</b></div>' +
+      '<div class="td-o"><span>Thực đạt</span><b style="color:var(--tot)">' + tr(dat) + ' tr</b></div>' +
+      '<div class="td-o"><span>Còn lại</span><b style="color:var(--canh)">' + tr(conlai) + ' tr</b></div>' +
+      '<div class="td-o"><span>Dự phóng hết tháng</span><b style="color:' +
+        (duphong >= kpi ? 'var(--tot)' : 'var(--xau)') + '">' + tr(duphong) + ' tr</b></div>' +
+      '</div></div>' +
+      '<div class="td-ghi">Số liệu tới <b>ngày ' + ngay + '/10</b> · đúng nhịp tới hôm nay là <b>' +
+      Math.round(nhip) + '%</b> · đang đạt <b>' + pct.toFixed(1) + '%</b>. Đồng hồ này là thước đo doanh thu ' +
+      'của chi nhánh, <b>không ảnh hưởng thứ hạng đường đua</b>.</div>';
+  }
+  function chay(){ try { gan(); } catch (e) {} }
+  tai().then(chay);
+  setInterval(chay, 2000);
+  setInterval(function(){ tai().then(chay); }, 180000);
+})();
+</script>
