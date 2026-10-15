@@ -351,6 +351,14 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
       thứ hạng trên bảng chưa phải thứ hạng thật.</div>
   </div>
 
+  <!-- ── TỔNG CHI NHÁNH ─────────────────── -->
+  <section>
+    <div class="shead">
+      <h2>Đường đua tổng chi nhánh</h2>
+    </div>
+    <div class="cnbox" id="cn-tong"></div>
+  </section>
+
   <!-- ── KINH DOANH ─────────────────────── -->
   <section>
     <div class="shead">
@@ -1302,8 +1310,64 @@ function lay(nhom, khoa, toanHeThong){
   }).sort(function (a, b) { return b.giatri - a.giatri; });
 }
 
+
+/* ═══════ ĐƯỜNG ĐUA TỔNG CHI NHÁNH ═══════
+   Tổng mỗi chi nhánh = Σ (Lốp Xe + Ngoài Lốp) của KHỐI KINH DOANH chi nhánh đó.
+   'Ngoài Lốp' trong file KPI đã gồm BD + SC + PK.
+   KHÔNG cộng doanh thu trực tiếp KTV để không trùng số với dòng sale.
+   Không trạm: vạch đích = chi nhánh dẫn đầu.
+   Luôn so cả 3 chi nhánh — không theo bộ lọc chi nhánh; bộ lọc NGÀY vẫn áp dụng. */
+var MAU_CN = { CN1:'#2ea8ff', CN2:'#ff3d9a', CN3:'#9ee04a' };
+function veTongCN(el){
+  if (!el) return;
+  var ds = lay('kd', 'tong', true);
+  var m = {};
+  THUTU_CN.forEach(function (c) { m[c] = { cn:c, lop:0, bdsc:0, tong:0, n:0, canhbao:0 }; });
+  ds.forEach(function (r) {
+    var o = m[r.cn] || (m[r.cn] = { cn:r.cn, lop:0, bdsc:0, tong:0, n:0, canhbao:0 });
+    o.lop += r.lop; o.bdsc += r.bdsc; o.tong += r.giatri;
+    if (r.giatri >= 0.01) o.n++;          /* ≥10k mới tính là có phát sinh — bỏ số rác vài đồng */
+    if (r.canhbao) o.canhbao++;
+  });
+  var cns = Object.keys(m).map(function (c) { return m[c]; })
+    .sort(function (a, b) { return b.tong - a.tong || THUTU_CN.indexOf(a.cn) - THUTU_CN.indexOf(b.cn); });
+  var dinh = cns.length ? Math.max(cns[0].tong, 1) : 1;
+  var tongHT = cns.reduce(function (s, o) { return s + o.tong; }, 0);
+
+  var h = ['<div class="cnbox-dau"><h3>🏆 Tổng doanh thu theo chi nhánh · lốp + BD·SC·PK</h3>' +
+    '<p class="ghi">Toàn hệ thống <b>' + tr(tongHT) + ' tr</b> · ' + nhanLoc() +
+    ' · không trạm · vạch đích = chi nhánh dẫn đầu (' + vietTat(dinh) + ')' +
+    ' · luôn so cả 3 chi nhánh, không theo bộ lọc chi nhánh</p></div>'];
+
+  var k = ['<div class="cn-khoi">'];
+  cns.forEach(function (o, i) {
+    var pc = Math.max(0, Math.min(1, o.tong / dinh)) * 100;
+    var mau = MAU_CN[o.cn] || MAU_DU[i % MAU_DU.length];
+    var nc = GOC.ngayCo && GOC.ngayCo[o.cn];
+    var tt = tongHT > 0 ? Math.round(o.tong / tongHT * 1000) / 10 : 0;
+    k.push('<div class="lan">' +
+      '<div class="lan-ten"><b class="lan-hang' + (i <= 2 ? ' v' + (i + 1) : '') + '">' + (i + 1) + '</b>' +
+        '<i class="dot" style="background:' + mau + '"></i>' +
+        '<span class="nm">' + (i === 0 && o.tong > 0 ? '👑 ' : '') + o.cn + '</span>' +
+        '<span class="lan-ht">' + o.n + ' SALE' + (nc ? ' · ' + nc + 'N' : '') + '</span></div>' +
+      '<div class="lan-d"><div class="lan-fill" style="width:' + pc + '%"></div>' +
+        '<div class="lan-xe" style="left:' + pc + '%;transform:translate(-' + pc + '%,-50%)">' +
+        '<span class="xe-so" style="background:' + mau + ';color:' + (sangToi(mau) ? '#0b111f' : '#ffffff') + '">' + (i + 1) + '</span>' +
+        veXeNgang(mau, 58, 'tcn' + o.cn, i + 1) + '</div></div>' +
+      '<div class="lan-so"><b>' + tr(o.tong) + ' tr</b><span>' + Math.round(pc) + '%</span></div>' +
+      '</div>' +
+      '<div class="cn-meta" style="margin:-1px 0 9px 29px">lốp <b>' + tr(o.lop) + ' tr</b> · BD·SC·PK <b>' + tr(o.bdsc) +
+        ' tr</b> · tỷ trọng <b>' + tr(tt) + '%</b> toàn hệ thống' +
+        (o.canhbao ? ' · <span class="canhbao-ico">⚠</span> ' + o.canhbao + ' dòng cần soát' : '') + '</div>');
+  });
+  k.push('</div>');
+  h.push(k.join(''));
+  el.innerHTML = h.join('');
+}
+
 function chay(){
   var kd = lay('kd', ct.kd), kt = lay('kt', ct.kt);
+  veTongCN(document.getElementById('cn-tong'));
   veDuong(document.getElementById('scene-kd'), kd.slice(0, 3), ct.kd);
   veDuongCN(document.getElementById('cnd-kd'), kd, ct.kd);
   veBang(document.getElementById('bang-kd'), kd, ct.kd);
