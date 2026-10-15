@@ -345,10 +345,7 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
 
   <div class="canhbao">
     <span style="font-size:18px;line-height:1">⚠</span>
-    <div><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Hiện CN2 tới 10/10, CN1 tới 11/10, CN3 mới tới 06/10 —
-      xe CN3 đang tụt vì thiếu 5 ngày số, không phải vì chạy chậm. Cột <b>NHỊP ĐỘ</b> đã quy về số ngày thực tế
-      của từng người, nhưng vị trí xe trên đường đua là số thô. Ngày nào 3 chi nhánh chưa nhập xong thì
-      thứ hạng trên bảng chưa phải thứ hạng thật.</div>
+    <div id="nhip-cn"><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Đang đọc file KPI 3 chi nhánh…</div>
   </div>
 
   <!-- ── KINH DOANH ─────────────────────── -->
@@ -450,9 +447,11 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
       <p class="ghi">Trang đọc thẳng tab KPI của 3 file (CN1 · CN2 · CN3) và chỉ cộng ngang các cột ngày —
         không lấy cột tổng tuần / tổng tháng. Số nhập tay bên trên chỉ để thử, bấm “Đọc lại file” là về đúng số file.
         Tab xuất app chỉ dùng để đối chiếu xem có ai bị thiếu khối dòng trong tab KPI.</p>
-      <p class="ghi">Trang tự đọc lại <b>mỗi 5 phút</b>, đọc ngay khi mở lại tab hoặc có mạng trở lại,
-        và thử lại sau 1 phút nếu lỗi. Huy hiệu NGUỒN trên đầu trang hiện giờ đọc gần nhất và số đã cũ bao lâu —
-        <b>xanh</b> dưới 15 phút, <b>vàng</b> dưới 35 phút, <b>đỏ</b> là số đã cũ, cần bấm “Đọc lại file KPI”.</p>
+      <p class="ghi">Trang tự đọc lại <b>mỗi 3 phút</b>, đọc ngay khi mở lại tab hoặc có mạng trở lại,
+        và thử lại sau <b>45 giây</b> nếu có chi nhánh lỗi. Mỗi chi nhánh đọc riêng và lưu riêng nên
+        một chi nhánh nghẽn không làm mất số của hai chi nhánh kia. Huy hiệu NGUỒN hiện giờ đọc gần nhất,
+        số đã cũ bao lâu và dấu ✓ / ✗ của từng chi nhánh — <b>xanh</b> dưới 8 phút, <b>vàng</b> dưới 20 phút,
+        <b>đỏ</b> là số đã cũ, cần bấm “Đọc lại file KPI”.</p>
     </div>
     <div class="nut">
       <button class="act" id="btn-live">⟳ Đọc lại file KPI</button>
@@ -465,7 +464,7 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
   <footer>
     Đồng hồ tốc độ ở góc trời hiện TỔNG TEAM, tốc độ triệu/ngày và nhịp độ so với mức 1 của cả team (mức 1 mỗi người × số người đang có số) — vạch trắng là đúng nhịp, kim xanh lá là vượt nhịp · Đường đua 3D hiện 3 xe dẫn đầu toàn hệ thống · khối “Đường đua chi nhánh” ngay dưới hiện HẾT thành viên có phát sinh số của từng chi nhánh, mỗi người một làn · bảng điện tử liệt kê toàn bộ kể cả người chưa có số ·
     vị trí xe được giãn so le cho dễ nhìn, số tiền trên biển số và % trong bảng là số thật ·
-    số gốc lấy từ 3 file KPI tuần: CN1 (tới 11/10), CN2 (tới 10/10), CN3 (tới 06/10) · cập nhật tay trong mục ⚙ ·
+    số lấy thẳng từ 3 file KPI: <span id="ft-ngay">đang đọc…</span> · cập nhật tay trong mục ⚙ ·
     xe là hình minh hoạ xe thể thao vẽ riêng cho Phi Long.
   </footer>
 </div>
@@ -677,12 +676,18 @@ function dauNguon(txt, ok){
 }
 /* huy hiệu nguồn tự đếm tuổi số: xanh ≤15 phút · vàng ≤35 phút · đỏ hơn nữa */
 function veNguon(){
-  if (!LAN_CUOI) return;
+  var el = document.getElementById('c-nguon'); if (!el) return;
+  var cn3 = ['CN1','CN2','CN3'].map(function (c) {
+    var t = TT_CN[c] || {};
+    if (t.ok === true)  return '<span style="color:var(--tot)">' + c + '✓</span>';
+    if (t.ok === false) return '<span style="color:var(--xau)">' + c + '✗</span>';
+    return '<span style="opacity:.6">' + c + '·</span>';
+  }).join(' ');
+  if (!LAN_CUOI) { el.innerHTML = 'NGUỒN <b class="num" style="color:var(--canh)">SỐ LƯU</b> ' + cn3; return; }
   var phut = Math.floor((Date.now() - LAN_CUOI) / 60000);
-  var mau = phut <= 15 ? 'var(--tot)' : phut <= 35 ? 'var(--canh)' : 'var(--xau)';
-  var el = document.getElementById('c-nguon');
-  if (el) el.innerHTML = 'NGUỒN <b class="num" style="color:' + mau + '">FILE KPI ' + gioVN(LAN_CUOI) +
-    (phut < 1 ? ' · vừa xong' : ' · ' + phut + ' phút trước') + '</b>';
+  var mau = phut <= 8 ? 'var(--tot)' : phut <= 20 ? 'var(--canh)' : 'var(--xau)';
+  el.innerHTML = 'NGUỒN <b class="num" style="color:' + mau + '">FILE KPI ' + gioVN(LAN_CUOI) +
+    (phut < 1 ? ' · vừa xong' : ' · ' + phut + ' phút trước') + '</b> ' + cn3;
 }
 /* hẹn lần đọc kế tiếp — đọc lại sau 5 phút, nếu lỗi thì thử lại sau 1 phút */
 function henDoc(ms){ clearTimeout(HEN_LAI); HEN_LAI = setTimeout(function(){ keoLive(false); }, ms); }
@@ -745,40 +750,108 @@ async function doiChieuApp(){
   chay();
 }
 
-/* ═══════ ĐỌC SỐ: 3 TAB KPI LÀ NGUỒN DUY NHẤT ═══════ */
+/* ═══════ ĐỌC SỐ: 3 TAB KPI LÀ NGUỒN DUY NHẤT ═══════
+   Mỗi chi nhánh đọc ĐỘC LẬP: 1 chi nhánh lỗi mạng / nghẽn Google không còn
+   kéo 2 chi nhánh kia về số cũ. Mỗi chi nhánh thử lần lượt 3 đường lấy CSV
+   và được lưu riêng, nên lần đọc sau chỉ cần 1 đường thông là có số mới. */
+var LUU_TAB = 'philong-duaxe-tab-t10';
+var TT_CN = { CN1:{}, CN2:{}, CN3:{} };
+
+function duongCsv(n){
+  var t = Date.now();
+  return [
+    'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid + '&_=' + t,
+    'https://docs.google.com/spreadsheets/d/' + n.id + '/export?format=csv&gid=' + n.gid + '&_=' + (t + 1),
+    'https://docs.google.com/spreadsheets/u/0/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid + '&_=' + (t + 2)
+  ];
+}
+async function docMotCn(cn){
+  var n = NGUON[cn], loi = null, ds = duongCsv(n);
+  for (var i = 0; i < ds.length; i++) {
+    try {
+      var r = await fetch(ds[i], { cache:'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var t = await r.text();
+      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error('chưa mở quyền xem');
+      var g = gomTab(t, cn);
+      if (!g.ngayLbl.length) throw new Error('không thấy dòng ngày trong tab');
+      g.cn = cn; g.luc = Date.now();
+      return g;
+    } catch (e) { loi = e.message || String(e); }
+  }
+  throw new Error(loi || 'không đọc được');
+}
+/* số của từng chi nhánh lưu riêng → chi nhánh nào lỗi vẫn giữ nguyên số lần cuối */
+function luuTab(g){
+  try { var o = JSON.parse(localStorage.getItem(LUU_TAB) || '{}'); o[g.cn] = g;
+        localStorage.setItem(LUU_TAB, JSON.stringify(o)); } catch (e) {}
+}
+function layTabLuu(cn){
+  try { var o = JSON.parse(localStorage.getItem(LUU_TAB) || '{}'); return o[cn] || null; }
+  catch (e) { return null; }
+}
+
 async function keoLive(tuTay){
   dauNguon('ĐANG ĐỌC FILE…', true);
-  try {
-    var tabs = await Promise.all(Object.keys(NGUON).map(async function (cn) {
-      var n = NGUON[cn];
-      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid +
-              '&_=' + Date.now();                      /* chống cache: luôn lấy số mới nhất */
-      var t = await fetch(u, { cache:'no-store' }).then(function (r) {
-        if (!r.ok) throw new Error(cn + ' ' + r.status); return r.text();
-      });
-      if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error(cn + ' chưa mở quyền xem');
-      var g = gomTab(t, cn); g.cn = cn; return g;
-    }));
+  var ket = await Promise.all(Object.keys(NGUON).map(function (cn) {
+    return docMotCn(cn).then(function (g) {
+      TT_CN[cn] = { ok:true, luc:g.luc, loi:null };
+      luuTab(g); return g;
+    }).catch(function (e) {
+      var cu = layTabLuu(cn);
+      TT_CN[cn] = { ok:false, luc:cu ? (cu.luc || 0) : 0, loi:e.message || String(e) };
+      return cu;                                   /* giữ số lưu riêng của chi nhánh này */
+    });
+  }));
+  var tabs = ket.filter(Boolean);
+  var dsOk = Object.keys(TT_CN).filter(function (c) { return TT_CN[c].ok; });
+  if (tabs.length) {
     D = dungD(tabs);
     try { localStorage.setItem(LUU, JSON.stringify(D)); } catch (e) {}
-    LAN_CUOI = Date.now();
-    capNhatNgay(); veNguon();
-    veForm(); chay();
-    henDoc(5 * 60 * 1000);                              /* nhịp đọc lại: 5 phút */
-    if (Date.now() - LAN_APP > 30 * 60 * 1000) {        /* đối chiếu xuất app: 30 phút/lần */
-      LAN_APP = Date.now();
-      doiChieuApp().catch(function (e) {
-        TT_APP = { xong:true, thieu:[], chua:[], loi:['không đối chiếu được xuất app: ' + e.message] }; chay();
-      });
-    }
-    return true;
-  } catch (e) {
-    dauNguon(LAN_CUOI ? 'MẤT KẾT NỐI · số lúc ' + gioVN(LAN_CUOI) : 'SỐ LƯU', false);
-    henDoc(60 * 1000);                                  /* lỗi thì thử lại sau 1 phút */
-    if (tuTay) document.getElementById('trangthai').textContent =
-      'Chưa đọc được file KPI (' + e.message + '). Trang đang dùng số đã lưu, sẽ tự thử lại.';
-    return false;
+    if (dsOk.length) LAN_CUOI = Date.now();
+    capNhatNgay(); veNguon(); veForm(); chay();
   }
+  veNguon(); veTinhTrangCN();
+  henDoc(dsOk.length === 3 ? 3 * 60 * 1000 : 45 * 1000);   /* đủ 3 CN: 3 phút · thiếu: 45 giây */
+  if (dsOk.length && Date.now() - LAN_APP > 30 * 60 * 1000) {
+    LAN_APP = Date.now();
+    doiChieuApp().catch(function (e) {
+      TT_APP = { xong:true, thieu:[], chua:[], loi:['không đối chiếu được xuất app: ' + e.message] }; chay();
+    });
+  }
+  if (tuTay) {
+    var el = document.getElementById('trangthai');
+    if (el) el.textContent = dsOk.length === 3
+      ? 'Đã đọc đủ 3 file lúc ' + gioVN(Date.now()) + '.'
+      : 'Đọc được ' + dsOk.length + '/3 file. ' + Object.keys(TT_CN).filter(function (c) { return !TT_CN[c].ok; })
+          .map(function (c) { return c + ': ' + TT_CN[c].loi; }).join(' · ') + ' — sẽ tự thử lại sau 45 giây.';
+  }
+  return dsOk.length === 3;
+}
+
+/* dòng tình trạng từng chi nhánh: số tới ngày nào, đọc được hay đang dùng số lưu */
+function veTinhTrangCN(){
+  var el = document.getElementById('nhip-cn'); if (!el) return;
+  var homnay = ngayHomNay(), ph = [], tre = [];
+  THUTU_CN.forEach(function (cn) {
+    var t = TT_CN[cn] || {}, dsn = ((D.haiNgay || {})[cn] || []), n = dsn[dsn.length - 1] || 0;
+    var ch = cn + ' tới ' + (n ? n + '/10' : '—');
+    if (!t.ok) ch += ' ⚠ chưa đọc được file' + (t.luc ? ' (số lưu ' + gioVN(t.luc) + ')' : '');
+    else ch += ' ✓';
+    if (n && homnay - n >= 2) tre.push(cn + ' thiếu ' + (homnay - n - 1 > 0 ? (homnay - n - 1) : 1) + ' ngày');
+    ph.push(ch);
+  });
+  var loi = THUTU_CN.filter(function (c) { return TT_CN[c] && TT_CN[c].ok === false; });
+  el.innerHTML = '<b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> ' + ph.join(' · ') +
+    (tre.length ? ' — ' + tre.join(', ') + ', xe tụt là vì thiếu số chứ không phải chạy chậm.' : ' — 3 chi nhánh đang cùng nhịp.') +
+    (loi.length ? ' <b style="color:var(--xau)">' + loi.join(', ') + ' đang dùng số lưu: ' +
+      loi.map(function (c) { return c + ' – ' + TT_CN[c].loi; }).join('; ') + '.</b>' : '') +
+    ' Cột <b>NHỊP ĐỘ</b> đã quy về số ngày thực tế của từng người, còn vị trí xe trên đường đua là số thô.';
+  var ft = document.getElementById('ft-ngay');
+  if (ft) ft.textContent = THUTU_CN.map(function (cn) {
+    var dsn = ((D.haiNgay || {})[cn] || []); var n = dsn[dsn.length - 1] || 0;
+    return cn + ' (tới ' + (n ? n + '/10' : '—') + ')';
+  }).join(', ');
 }
 var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', tong:'Tổng doanh thu',
                dvl:'DVL', dvnl:'DVNL', dt:'Tổng doanh thu', ld:'KPI lưu động CN2' };
@@ -1607,7 +1680,7 @@ document.getElementById('btn-live').addEventListener('click', function(){
 });
 var hen; window.addEventListener('resize', function(){ clearTimeout(hen); hen = setTimeout(chay, 180); });
 
-dongHo(); traSoat(); veForm(); chay();
+dongHo(); traSoat(); veForm(); chay(); veTinhTrangCN();
 try { localStorage.removeItem('philong-duaxe-api'); } catch (e) {}
 keoLive(false);
 /* ═══════ GIỮ CHO TRANG LUÔN LIVE ═══════
@@ -1616,13 +1689,13 @@ keoLive(false);
    3) có mạng trở lại → đọc ngay
    4) mỗi 30 giây cập nhật tuổi của số và ngày trên đồng hồ */
 document.addEventListener('visibilitychange', function(){
-  if (!document.hidden && Date.now() - LAN_CUOI > 2 * 60 * 1000) keoLive(false);
+  if (!document.hidden && Date.now() - LAN_CUOI > 60 * 1000) keoLive(false);
 });
 window.addEventListener('focus', function(){
-  if (Date.now() - LAN_CUOI > 2 * 60 * 1000) keoLive(false);
+  if (Date.now() - LAN_CUOI > 60 * 1000) keoLive(false);
 });
 window.addEventListener('online', function(){ keoLive(false); });
-setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
+setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }, 30 * 1000);
 </script>
 
 <script>
