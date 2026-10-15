@@ -640,10 +640,19 @@ function dungD(dsTab){
           canhbao = 'File ' + p.cn + ': Lốp ' + tr(p.lop) + 'tr + Ngoài lốp ' + tr(p.bdsc) +
                     'tr = ' + tr(cong) + 'tr nhưng dòng Tổng doanh thu ghi ' + tr(tong) + 'tr.';
         if (p.lop + p.bdsc <= 0 && tong <= 0) return;
-        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tongFile:tong,
+        /* chi nhánh nào KHÔNG tách tiền Lốp / Ngoài lốp (CN1 đang ghi số lượng lốp,
+           tiền chỉ nằm ở dòng Tổng doanh thu) → giữ 'tongf' để đường đua TỔNG DOANH THU
+           và đường đua chi nhánh vẫn có số thật, thay vì về 0. */
+        if (p.lop + p.bdsc <= 0 && tong > 0)
+          canhbao = 'File ' + p.cn + ': dòng Lốp Xe và SP Ngoài Lốp không có tiền theo ngày ' +
+                    '(chỉ ghi số lượng), tiền chỉ nằm ở dòng Tổng doanh thu ' + tr(tong) + 'tr. ' +
+                    'Đường đua TỔNG DOANH THU đang lấy dòng này; đường đua LỐP và BD–SC sẽ bằng 0 ' +
+                    'cho tới khi ' + p.cn + ' nhập tiền vào 2 dòng đó.';
+        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tongFile:tong, tongf:tong,
                   pkt:p.pkt, goi:p.goi, lop2:s2(p, 'lop'), bdsc2:s2(p, 'bdsc'),
+                  tongf2:s2(p, 'tong'),
                   pkt2:s2(p, 'pkt'), goi2:s2(p, 'goi'), canhbao:canhbao,
-                  theo:theoNgay(p, { lop:'lop', bdsc:'bdsc', pkt:'pkt', goi:'goi' }) });
+                  theo:theoNgay(p, { lop:'lop', bdsc:'bdsc', tongf:'tong', pkt:'pkt', goi:'goi' }) });
       } else {
         var dt = p.tong;
         if (dt + 0.001 < p.dvl + p.dvnl)
@@ -1453,8 +1462,10 @@ function lay(nhom, khoa, toanHeThong){
   return D[nhom].filter(function (r) { return toanHeThong || hopCN(r); }).map(function (r) {
     var lop = congKhoang(r, 'lop'), bdsc = congKhoang(r, 'bdsc');
     var dvl = congKhoang(r, 'dvl'), dvnl = congKhoang(r, 'dvnl'), dt = congKhoang(r, 'dt');
-    /* TỔNG DOANH THU kinh doanh = lốp + BD–SC (tự cộng, không nhập tay) */
-    var gt = khoa === 'tong' ? lop + bdsc : congKhoang(r, khoa);
+    /* TỔNG DOANH THU kinh doanh = lốp + BD–SC; chi nhánh chưa tách 2 dòng đó
+       (CN1) thì lấy thẳng dòng Tổng doanh thu của file để không bị về 0 */
+    var tongf = congKhoang(r, 'tongf');
+    var gt = khoa === 'tong' ? ((lop + bdsc) > 0 ? lop + bdsc : tongf) : congKhoang(r, khoa);
     /* KTV: có ngày chỉ nhập dòng Tổng doanh thu mà không tách DVL/DVNL → DVL+DVNL hụt so với tổng */
     var thieu = (nhom === 'kt' && dt > 0 && (dvl + dvnl) > 0 &&
                  dt - (dvl + dvnl) > Math.max(0.1, dt * 0.01)) ? dt - (dvl + dvnl) : 0;
@@ -1731,7 +1742,7 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   function ve(j){
     if(!j||!j.kd) return;
     try{ capNhatCanhBao(j); }catch(e){}
-    j.kd.forEach(function(x){ x._v2=(x.lop2||0)+(x.bdsc2||0); });
+    j.kd.forEach(function(x){ x._v2=((x.lop2||0)+(x.bdsc2||0)) || (x.tongf2||0); });
     j.kt.forEach(function(x){ x._v2=(x.dt2||0)+(x.ld2||0); });
     var hn=j.haiNgay||{}, mo=[];
     Object.keys(hn).forEach(function(c){ if(hn[c]&&hn[c].length) mo.push(c+" ngay "+hn[c].slice().sort(function(a,b){return a-b;}).join("+")); });
