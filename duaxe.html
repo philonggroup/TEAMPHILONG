@@ -220,15 +220,18 @@ html.khoa #cong{
 .lan-hang.v3{background:#d98b4a;color:#2a1200}
 .lan-ht{font-family:var(--f-dis);font-size:9.5px;letter-spacing:.04em;color:var(--chu-mo);border:1px solid var(--vien);
   border-radius:4px;padding:0 4px;flex:none}
-.lan-d{position:relative;height:30px;border-radius:7px;overflow:hidden;flex:1;
+.lan-d{position:relative;height:38px;border-radius:7px;overflow:hidden;flex:1;
   background:linear-gradient(180deg,#2b3550,#1b2440);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .lan-d::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-50%);
   background:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 10px,transparent 10px 22px)}
 .lan-fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,rgba(25,227,255,.10),rgba(255,138,31,.34))}
 .lan-moc{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.55)}
 .lan-moc.dich{width:0;border-left:3px dashed var(--vang);transform:translateX(-3px)}
-.lan-xe{position:absolute;top:50%;margin-top:-1px;transform-origin:50% 50%;transition:left .5s ease;line-height:0}
-.lan-xe svg{display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55));transform:translateY(-50%)}
+.lan-xe{position:absolute;top:50%;display:flex;align-items:center;gap:4px;transition:left .5s ease;line-height:0;white-space:nowrap}
+.lan-xe svg{display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+.xe-so{font-family:var(--f-dis);font-weight:700;font-size:12px;line-height:1;min-width:19px;height:19px;padding:0 3px;
+  display:grid;place-items:center;border-radius:5px;background:#f2f6ff;color:#0b111f;flex:none;
+  box-shadow:0 2px 5px rgba(0,0,0,.5);border:1.5px solid rgba(8,14,30,.6)}
 .lan-so{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lan-so b{font-family:var(--f-dis);font-size:13.5px;display:block}
 .lan-so span{font-size:10.5px;color:var(--chu-mo)}
@@ -236,7 +239,7 @@ html.khoa #cong{
 .cn-thang i{font-style:normal}
 @media(max-width:640px){
   .lan{grid-template-columns:1fr auto;gap:4px 8px}
-  .lan-d{grid-column:1/-1;height:26px}
+  .lan-d{grid-column:1/-1;height:34px}
   .lan-so{text-align:right}
   .lan-so b{display:inline;font-size:12.5px}
   .lan-so span{margin-left:6px}
@@ -1116,7 +1119,7 @@ var TEN_HM = { lop:'DOANH THU LỐP', bdsc:'KPI BẢO DƯỠNG · SỬA CHỮA',
 var THUTU_CN = ['CN1', 'CN2', 'CN3'];
 
 /* xe nhìn ngang — dùng cho làn đua chi nhánh (chạy sang phải) */
-function veXeNgang(mau, w, id){
+function veXeNgang(mau, w, id, so){
   var h = Math.round(w * 0.47);
   return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 56" aria-hidden="true">' +
     '<defs><linearGradient id="nx' + id + '" x1="0" y1="0" x2="0" y2="1">' +
@@ -1133,6 +1136,10 @@ function veXeNgang(mau, w, id){
     '<rect x="16" y="30" width="7" height="4" rx="2" fill="#ff2742"/>' +
     '<circle cx="38" cy="41" r="8.6" fill="#10151f"/><circle cx="38" cy="41" r="3.4" fill="#2c3648"/>' +
     '<circle cx="90" cy="41" r="8.6" fill="#10151f"/><circle cx="90" cy="41" r="3.4" fill="#2c3648"/>' +
+    /* số xe sơn trên hông xe */
+    (so ? '<circle cx="62" cy="32" r="9.6" fill="#f7faff" stroke="#0b111f" stroke-width="1.6"/>' +
+          '<text x="62" y="36.4" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" ' +
+            'font-size="' + (String(so).length > 1 ? 11 : 14) + '" fill="#0b111f">' + so + '</text>' : '') +
     '</svg>';
 }
 
@@ -1165,7 +1172,7 @@ function veDuongCN(el, ds, khoa){
       var p = Math.max(0, Math.min(1, r.giatri / dich));
       var pc = p * 100, hht = hang[r.ten + '|' + r.cn];
       var cls = hht <= 3 ? ' v' + hht : '';
-      var w = 46;
+      var w = 58, so = i + 1;
       var moci = '';
       if (moc) moc.forEach(function (m, j) {
         if (m / dich > 1.0001) return;
@@ -1178,8 +1185,9 @@ function veDuongCN(el, ds, khoa){
           (r.canhbao ? ' <span class="canhbao-ico" title="' + r.canhbao.replace(/"/g, '') + '">⚠</span>' : '') + '</span>' +
           '<span class="lan-ht">#' + hht + ' HT</span></div>' +
         '<div class="lan-d"><div class="lan-fill" style="width:' + pc + '%"></div>' + moci +
-          '<div class="lan-xe" style="left:' + pc + '%;transform:translateX(-' + pc + '%)">' +
-          veXeNgang(r.mau, w, 'c' + khoa + cn + i) + '</div></div>' +
+          '<div class="lan-xe" style="left:' + pc + '%;transform:translate(-' + pc + '%,-50%)">' +
+          '<span class="xe-so" style="background:' + r.mau + ';color:' + (sangToi(r.mau) ? '#0b111f' : '#ffffff') + '">' + so + '</span>' +
+          veXeNgang(r.mau, w, 'c' + khoa + cn + i, so) + '</div></div>' +
         '<div class="lan-so"><b>' + tr(r.giatri) + ' tr</b><span>' + (pc > 0 && pc < 1 ? '&lt;1' : Math.round(pc)) + '%</span></div>' +
         '</div>');
     });
@@ -1190,7 +1198,7 @@ function veDuongCN(el, ds, khoa){
   if (cns.length === 0)
     h.push('<p class="ghi">Chưa có ai phát sinh số ở hạng mục này' + (CN_LOC ? ' tại ' + CN_LOC : '') + '.</p>');
   else
-    h.push('<div class="cn-thang"><i>👑 = hạng 1 toàn hệ thống</i><i>#n HT = hạng toàn hệ thống</i>' +
+    h.push('<div class="cn-thang"><i>Số trên xe = số thứ tự trong chi nhánh</i><i>👑 = hạng 1 toàn hệ thống</i><i>#n HT = hạng toàn hệ thống</i>' +
       (moc ? '<i>│ vạch trắng = trạm 1–2, vạch vàng nét đứt = đích</i>' : '') +
       '<i>· số trên làn là số thật luỹ kế ' + nhanLoc() + '</i></div>');
 
