@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tăng Tốc Về Đích - Bứt Phá Doanh Số | Phi Long</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -151,7 +153,93 @@ button.act.ghost{background:transparent;border:1px solid var(--vien);color:var(-
 .ghi{font-size:12px;color:var(--chu-mo);margin-top:8px;line-height:1.6}
 footer{margin-top:34px;border-top:1px solid var(--vien);padding-top:16px;font-size:12px;color:var(--chu-mo);line-height:1.7}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ═══════ CỔNG MẬT KHẨU ═══════ */
+html.khoa .wrap{visibility:hidden}
+html.khoa{overflow:hidden}
+#cong{display:none}
+html.khoa #cong{
+  display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:20px;
+  background:
+    radial-gradient(900px 480px at 50% -10%, #17224a 0%, transparent 62%),
+    linear-gradient(180deg,#070b18 0%, #0a1026 100%);
+}
+#cong form{
+  width:100%;max-width:420px;background:linear-gradient(180deg,#101a37,#0b1227);
+  border:1px solid var(--vien);border-radius:18px;padding:26px 22px 20px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);text-align:left
+}
+#cong .cong-eyebrow{font-family:var(--f-dis);font-size:11px;letter-spacing:.16em;color:var(--neon);text-transform:uppercase;margin-bottom:10px}
+#cong h2{font-size:clamp(22px,5vw,30px);line-height:1;margin-bottom:12px}
+#cong p{font-size:13px;color:var(--chu-mo);line-height:1.6;margin:0 0 16px}
+#cong label{display:block;font-family:var(--f-dis);font-size:11px;letter-spacing:.12em;color:var(--chu-mo);text-transform:uppercase;margin-bottom:6px}
+#cong input{
+  width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--vien);
+  background:#070d1e;color:var(--chu);font-family:var(--f-dis);font-size:18px;letter-spacing:.06em
+}
+#cong input:focus{outline:2px solid var(--neon);outline-offset:1px;border-color:var(--neon)}
+#cong button{
+  width:100%;margin-top:14px;padding:13px 14px;border:0;border-radius:12px;cursor:pointer;
+  font-family:var(--f-dis);font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  background:linear-gradient(180deg,var(--duong2),var(--duong));color:#20140a
+}
+#cong button:active{transform:translateY(1px)}
+#cong #cong-loi{min-height:18px;margin-top:10px;font-size:13px;color:var(--xau);font-weight:600}
+#cong .cong-ghi{margin-top:14px;padding-top:12px;border-top:1px solid var(--vien);font-size:11.5px;color:var(--chu-mo);line-height:1.6}
+#the-quyen{
+  position:fixed;right:12px;bottom:12px;z-index:900;display:none;gap:8px;align-items:center;
+  background:rgba(14,22,48,.92);border:1px solid var(--vien);border-radius:999px;padding:7px 8px 7px 13px;
+  font-size:12px;color:var(--chu-mo);backdrop-filter:blur(6px)
+}
+#the-quyen.on{display:flex}
+#the-quyen b{font-family:var(--f-dis);color:var(--chu);letter-spacing:.06em}
+#the-quyen button{
+  border:1px solid var(--vien);background:transparent;color:var(--chu-mo);border-radius:999px;
+  padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--f-body)
+}
+#the-quyen button:hover{color:var(--chu);border-color:var(--neon)}
 </style>
+
+<script>
+/* CỔNG MẬT KHẨU — chạy sớm nhất để không lóe số liệu trước khi khoá */
+var PL_KHOA = 'philong-duaxe-quyen';
+function plBam(s){
+  s = 'PL#' + String(s).trim().toUpperCase() + '#DUAXE';
+  var h = 5381, g = 2166136261 >>> 0, i;
+  for (i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  for (i = s.length - 1; i >= 0; i--) g = ((g ^ s.charCodeAt(i)) * 16777619) >>> 0;
+  return ('00000000' + h.toString(16)).slice(-8) + ('00000000' + g.toString(16)).slice(-8);
+}
+var PL_BANG = {
+  'a09a694c941e5d9c': { quyen:'ADMIN', cn:null,  nhan:'Ban giám đốc · cả 3 CN' },
+  '3dbdea1d996ac8c0': { quyen:'CN',    cn:'CN1', nhan:'CN1' },
+  'c6beff9e3d1082d8': { quyen:'CN',    cn:'CN2', nhan:'CN2' },
+  'ad64331f03c20a24': { quyen:'CN',    cn:'CN3', nhan:'CN3' }
+};
+var PL_AI = null;
+try {
+  var _l = localStorage.getItem(PL_KHOA);
+  if (_l && PL_BANG[_l]) PL_AI = PL_BANG[_l];
+} catch (e) {}
+if (!PL_AI) document.documentElement.classList.add('khoa');
+</script>
+
+<div id="cong" role="dialog" aria-modal="true" aria-labelledby="cong-tieude">
+  <form id="cong-form" autocomplete="off" onsubmit="return false">
+    <div class="cong-eyebrow">Phi Long Group · mini game tháng 10</div>
+    <h2 id="cong-tieude">Đường đua thành tích</h2>
+    <p>Số liệu nội bộ. Nhập mật khẩu chi nhánh để mở đường đua.</p>
+    <label for="cong-pass">Mật khẩu</label>
+    <input id="cong-pass" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="PHILONG@…">
+    <button id="cong-nut" type="submit">MỞ đường đua</button>
+    <div id="cong-loi" role="alert"></div>
+    <div class="cong-ghi">Mỗi chi nhánh có mật khẩu riêng và chỉ xem xe của chi nhánh mình.
+      Mất mật khẩu thì hỏi quản lý chi nhánh.</div>
+  </form>
+</div>
+
+<div id="the-quyen" aria-live="polite">Đang xem <b id="the-quyen-nhan">—</b>
+  <button type="button" id="the-quyen-thoat">Thoát</button></div>
 
 <div class="wrap">
 
@@ -1447,5 +1535,71 @@ setInterval(function(){ veNguon(); if (capNhatNgay()) chay(); }, 30 * 1000);
   window.__vePhuLuc = tai;
   if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",function(){setTimeout(tai,600);}); }
   else { setTimeout(tai,600); }
+})();
+</script>
+
+<script>
+/* ═══════ CỔNG MẬT KHẨU · xử lý ═══════
+   ADMIN  → xem cả 3 chi nhánh, bộ lọc chi nhánh dùng bình thường
+   CN1/2/3 → khoá cứng vào chi nhánh của mình, ẩn các nút chi nhánh khác */
+(function(){
+  var oForm = document.getElementById('cong-form');
+  var oPass = document.getElementById('cong-pass');
+  var oLoi  = document.getElementById('cong-loi');
+  var oThe  = document.getElementById('the-quyen');
+  var oNhan = document.getElementById('the-quyen-nhan');
+  var sai = 0;
+
+  function khoaBoLoc(cn){
+    var nut = document.querySelectorAll('.locngay button[data-cn]');
+    for (var i = 0; i < nut.length; i++) {
+      if ((nut[i].dataset.cn || '') !== cn) nut[i].style.display = 'none';
+      else nut[i].setAttribute('aria-pressed', 'true');
+    }
+    if (typeof datCN === 'function') {
+      var that = datCN;
+      datCN = function(){ return that(cn); };
+      datCN(cn);
+    }
+  }
+
+  function moCua(ai){
+    document.documentElement.classList.remove('khoa');
+    PL_AI = ai;
+    oNhan.textContent = ai.nhan;
+    oThe.classList.add('on');
+    if (ai.quyen === 'CN' && ai.cn) khoaBoLoc(ai.cn);
+    /* vẽ lại để đo đúng bề ngang sau khi bỏ khoá */
+    if (typeof chay === 'function') { try { chay(); } catch (e) {} }
+    setTimeout(function(){ if (typeof chay === 'function') { try { chay(); } catch (e) {} } }, 120);
+  }
+
+  function thu(){
+    var v = oPass.value;
+    if (!v) { oLoi.textContent = 'Chưa nhập mật khẩu.'; oPass.focus(); return; }
+    var ai = PL_BANG[plBam(v)];
+    if (!ai) {
+      sai++;
+      oLoi.textContent = sai >= 3
+        ? 'Sai mật khẩu ' + sai + ' lần — hỏi quản lý chi nhánh để lấy lại mật khẩu.'
+        : 'Mật khẩu không đúng.';
+      oPass.value = ''; oPass.focus();
+      return;
+    }
+    oLoi.textContent = '';
+    try { localStorage.setItem(PL_KHOA, plBam(v)); } catch (e) {}
+    oPass.value = '';
+    moCua(ai);
+  }
+
+  oForm.addEventListener('submit', function(e){ e.preventDefault(); thu(); });
+  oPass.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); thu(); } });
+  document.getElementById('the-quyen-thoat').addEventListener('click', function(){
+    try { localStorage.removeItem(PL_KHOA); } catch (e) {}
+    location.reload();
+  });
+
+  if (PL_AI) moCua(PL_AI);               /* đã mở từ lần trước */
+  else setTimeout(function(){ try { oPass.focus(); } catch (e) {} }, 60);
 })();
 </script>
