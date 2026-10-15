@@ -345,7 +345,10 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
 
   <div class="canhbao">
     <span style="font-size:18px;line-height:1">⚠</span>
-    <div id="nhip-cn"><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Đang đọc file KPI 3 chi nhánh…</div>
+    <div>
+      <div id="nhip-cn"><b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> Đang đọc file KPI 3 chi nhánh…</div>
+      <div id="tt-doc" style="margin-top:7px;font:600 12px/1.6 system-ui;color:#94a3b8"></div>
+    </div>
   </div>
 
   <!-- ── KINH DOANH ─────────────────────── -->
@@ -829,24 +832,22 @@ async function keoLive(tuTay){
   return dsOk.length === 3;
 }
 
-/* dòng tình trạng từng chi nhánh: số tới ngày nào, đọc được hay đang dùng số lưu */
+/* dòng tình trạng ĐỌC FILE của từng chi nhánh — tách khỏi ô cảnh báo lệch ngày,
+   để hai nơi không ghi đè nhau: ô trên nói về NGÀY SỐ, dòng này nói về KẾT NỐI. */
 function veTinhTrangCN(){
-  var el = document.getElementById('nhip-cn'); if (!el) return;
-  var homnay = ngayHomNay(), ph = [], tre = [];
-  THUTU_CN.forEach(function (cn) {
+  var el = document.getElementById('tt-doc'); if (!el) return;
+  var ph = THUTU_CN.map(function (cn) {
     var t = TT_CN[cn] || {}, dsn = ((D.haiNgay || {})[cn] || []), n = dsn[dsn.length - 1] || 0;
-    var ch = cn + ' tới ' + (n ? n + '/10' : '—');
-    if (!t.ok) ch += ' ⚠ chưa đọc được file' + (t.luc ? ' (số lưu ' + gioVN(t.luc) + ')' : '');
-    else ch += ' ✓';
-    if (n && homnay - n >= 2) tre.push(cn + ' thiếu ' + (homnay - n - 1 > 0 ? (homnay - n - 1) : 1) + ' ngày');
-    ph.push(ch);
+    var ngay = n ? n + '/10' : '—';
+    if (t.ok === true)  return '<span style="color:var(--tot)">' + cn + ' ✓ ' + ngay + '</span>';
+    if (t.ok === false) return '<span style="color:var(--xau)">' + cn + ' ✗ ' + ngay +
+      ' · chưa đọc được file (' + (t.loi || 'lỗi') + ')' + (t.luc ? ' · số lưu ' + gioVN(t.luc) : '') + '</span>';
+    return '<span style="opacity:.65">' + cn + ' · đang đọc…</span>';
   });
-  var loi = THUTU_CN.filter(function (c) { return TT_CN[c] && TT_CN[c].ok === false; });
-  el.innerHTML = '<b>Cúp xét live nên số liệu phải nhập cùng nhịp.</b> ' + ph.join(' · ') +
-    (tre.length ? ' — ' + tre.join(', ') + ', xe tụt là vì thiếu số chứ không phải chạy chậm.' : ' — 3 chi nhánh đang cùng nhịp.') +
-    (loi.length ? ' <b style="color:var(--xau)">' + loi.join(', ') + ' đang dùng số lưu: ' +
-      loi.map(function (c) { return c + ' – ' + TT_CN[c].loi; }).join('; ') + '.</b>' : '') +
-    ' Cột <b>NHỊP ĐỘ</b> đã quy về số ngày thực tế của từng người, còn vị trí xe trên đường đua là số thô.';
+  var hong = THUTU_CN.filter(function (c) { return TT_CN[c] && TT_CN[c].ok === false; });
+  el.innerHTML = 'KẾT NỐI FILE KPI: ' + ph.join(' &nbsp;·&nbsp; ') +
+    (hong.length ? ' — chi nhánh lỗi đang hiện SỐ LƯU lần đọc gần nhất, 45 giây nữa trang tự đọc lại.'
+                 : ' — cả 3 chi nhánh đang đọc trực tiếp từ file, tự đọc lại mỗi 3 phút.');
   var ft = document.getElementById('ft-ngay');
   if (ft) ft.textContent = THUTU_CN.map(function (cn) {
     var dsn = ((D.haiNgay || {})[cn] || []); var n = dsn[dsn.length - 1] || 0;
@@ -1761,10 +1762,13 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     var th=hai(new Date().getMonth()+1);
     var max=0; cn.forEach(function(c){ if(hn[c]>max) max=hn[c]; });
     var sau=cn.filter(function(c){ return hn[c]<max; });
-    var el=null, all=document.querySelectorAll("div,p,section");
-    for(var i=all.length-1;i>=0;i--){
-      var t=all[i].textContent||"";
-      if(t.indexOf("nh\u1EADp c\u00F9ng nh\u1ECBp")>-1 && all[i].children.length<=4){ el=all[i]; break; }
+    var el=document.getElementById("nhip-cn");
+    if(!el){
+      var all=document.querySelectorAll("div,p,section");
+      for(var i=all.length-1;i>=0;i--){
+        var t=all[i].textContent||"";
+        if(t.indexOf("nh\u1EADp c\u00F9ng nh\u1ECBp")>-1 && all[i].children.length<=4){ el=all[i]; break; }
+      }
     }
     if(!el) return;
     var s;
