@@ -2489,3 +2489,160 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   setInterval(function () { tai().then(chay); }, 180000);
 })();
 </script>
+
+
+<!-- ═══════ TRỢ LÝ TEAM PHI LONG — cổ vũ & chào đón người dẫn đầu ═══════ -->
+<style>
+#troly{position:fixed;left:14px;bottom:14px;z-index:880;display:flex;align-items:flex-end;gap:10px;
+  font-family:var(--f-body,system-ui);pointer-events:none}
+html.khoa #troly{display:none}
+#troly .tl-av{pointer-events:auto;position:relative;width:88px;height:88px;border-radius:50%;flex:none;
+  cursor:pointer;background:#0a1026;overflow:hidden;
+  border:3px solid var(--vang,#ffc62e);
+  box-shadow:0 6px 20px rgba(0,0,0,.55),0 0 0 3px rgba(25,227,255,.25);
+  animation:tl-bob 3.4s ease-in-out infinite}
+#troly .tl-av img{width:118%;height:118%;object-fit:cover;object-position:50% 42%;transform:translate(-8%,-4%)}
+#troly .tl-av::after{content:"";position:absolute;inset:0;border-radius:50%;
+  box-shadow:inset 0 0 14px rgba(25,227,255,.35);pointer-events:none}
+#troly.moi .tl-av{animation:tl-pop .7s ease 4, tl-bob 3.4s ease-in-out infinite}
+#troly .tl-bubble{pointer-events:auto;position:relative;max-width:min(78vw,260px);
+  background:linear-gradient(165deg,#14204a,#0b1430);border:1px solid var(--vien,#1e2b52);
+  border-radius:14px 14px 14px 4px;padding:11px 13px 12px;color:var(--chu,#eaf0ff);
+  font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;
+  transform-origin:left bottom;animation:tl-in .35s ease}
+#troly .tl-bubble::after{content:"";position:absolute;left:-7px;bottom:10px;width:0;height:0;
+  border:7px solid transparent;border-right-color:#0b1430;border-left:0}
+#troly .tl-tag{display:block;font-family:var(--f-dis,'Oswald');font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--neon,#19e3ff);margin-bottom:3px}
+#troly .tl-tag b{color:var(--vang,#ffc62e)}
+#troly .tl-x{position:absolute;top:4px;right:6px;border:0;background:transparent;color:var(--chu-mo,#8ea0c8);
+  font-size:15px;line-height:1;cursor:pointer;padding:2px 4px}
+#troly .tl-x:hover{color:var(--chu,#eaf0ff)}
+#troly .tl-dot{pointer-events:auto;display:none;width:40px;height:40px;border-radius:50%;cursor:pointer;
+  align-items:center;justify-content:center;font-size:18px;background:#14204a;border:1px solid var(--vien);
+  box-shadow:0 4px 12px rgba(0,0,0,.5)}
+#troly.thu .tl-bubble{display:none}
+#troly.thu .tl-dot{display:flex}
+@keyframes tl-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes tl-in{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes tl-pop{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.55),0 0 0 3px rgba(255,198,46,.25)}
+  50%{box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 7px rgba(255,198,46,.6)}}
+@media(max-width:640px){
+  #troly .tl-av{width:66px;height:66px;border-width:2px}
+  #troly .tl-bubble{font-size:12px;max-width:72vw;padding:9px 11px 10px}
+  #troly{left:10px;bottom:10px;gap:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  #troly .tl-av,#troly.moi .tl-av{animation:none}
+  #troly .tl-bubble{animation:none}
+}
+</style>
+
+<div id="troly" aria-live="polite">
+  <div class="tl-av" id="tl-av" role="button" tabindex="0" aria-label="Trợ lý Team Phi Long — bấm để xem lời tiếp theo">
+    <img src="troly-philong.png" alt="Trợ lý Phi Long" draggable="false">
+  </div>
+  <div class="tl-bubble" id="tl-bubble">
+    <button class="tl-x" id="tl-x" type="button" aria-label="Thu gọn trợ lý" title="Thu gọn">×</button>
+    <span class="tl-tag" id="tl-tag">Trợ lý Team Phi Long</span>
+    <span id="tl-text">Anh em Phi Long ơi, tăng tốc nào! 🚀</span>
+  </div>
+  <div class="tl-dot" id="tl-dot" role="button" tabindex="0" title="Mở lại trợ lý" aria-label="Mở lại trợ lý">🐉</div>
+</div>
+
+<script>
+/* TRỢ LÝ TEAM PHI LONG — hoàn toàn độc lập, chỉ ĐỌC từ #cup-box, không đổi dữ liệu/thứ hạng */
+(function(){
+  var KEY_THU = 'pl-troly-thu';
+  var el = document.getElementById('troly');
+  var av = document.getElementById('tl-av');
+  var bub = document.getElementById('tl-bubble');
+  var txt = document.getElementById('tl-text');
+  var tag = document.getElementById('tl-tag');
+  var dot = document.getElementById('tl-dot');
+  var btnX = document.getElementById('tl-x');
+  if(!el) return;
+
+  /* Lời cổ vũ chung — tinh thần anh em */
+  var CO_VU = [
+    {t:'Trợ lý Team Phi Long', m:'Anh em Phi Long ơi, tăng tốc nào! 🚀'},
+    {t:'Cổ vũ', m:'Mỗi cuộc gọi, mỗi phiếu kiểm tra xe là một mét đường về đích 💪'},
+    {t:'Giữ nhịp', m:'Đường đua còn dài — giữ đều tay, mình còn bứt phá! 🔥'},
+    {t:'Tâm thế', m:'Khách hài lòng là mình thắng. Cả team cố lên nhé! ⭐'},
+    {t:'Nhích từng ngày', m:'Hôm nay nhích thêm một bậc, mai đã khác rồi 📈'},
+    {t:'Khẩu hiệu', m:'Phi Long — Tăng tốc về đích, bứt phá doanh số, cùng nhau! 🏁'},
+    {t:'Nhắc nhẹ', m:'Đừng quên 11 video TikTok + xin đánh giá 5 sao mỗi ngày nha 📱'},
+    {t:'Không bỏ cuộc', m:'Dẫn đầu hay bám đuổi, quan trọng là không bỏ cuộc 🏎️'},
+    {t:'Đồng đội', m:'Người đi trước kéo người đi sau — mình là một TEAM 🤝'}
+  ];
+
+  function layDan(){
+    /* đọc 2 dòng đầu của #cup-box: [0]=kinh doanh, [1]=kỹ thuật viên; tên nằm trước dấu " · " */
+    var box = document.getElementById('cup-box');
+    var out = {kd:null, kt:null};
+    if(!box) return out;
+    var bs = box.querySelectorAll('.tram-row b');
+    function ten(n){ if(!n) return null; var s=(n.textContent||'').split('·')[0].trim();
+      return (!s || s==='—') ? null : s; }
+    if(bs[0]) out.kd = ten(bs[0]);
+    if(bs[1]) out.kt = ten(bs[1]);
+    return out;
+  }
+
+  function danhSach(dan){
+    var ds = [];
+    if(dan.kd) ds.push({t:'🏆 Giữ cúp Kinh doanh', m:'<b>'+dan.kd+'</b> đang DẪN ĐẦU khối kinh doanh — cả team vỗ tay 👏'});
+    if(dan.kt) ds.push({t:'🏆 Giữ cúp Kỹ thuật', m:'<b>'+dan.kt+'</b> đang giữ cúp kỹ thuật viên — giữ phong độ nhé! 🔧🔥'});
+    /* trộn lời cổ vũ chung vào giữa các lời chúc dẫn đầu */
+    for(var i=0;i<CO_VU.length;i++) ds.push(CO_VU[i]);
+    return ds;
+  }
+
+  var ds = danhSach({kd:null,kt:null});
+  var idx = 0, danCu = '';
+
+  function hien(item){
+    tag.innerHTML = item.t;
+    txt.innerHTML = item.m;
+    bub.style.animation='none'; void bub.offsetWidth; bub.style.animation='';
+  }
+  function tiep(){ idx=(idx+1)%ds.length; hien(ds[idx]); }
+
+  /* chào đón nhà vô địch MỚI khi người giữ cúp đổi */
+  function chaoMoi(dan){
+    var ai = dan.kd || dan.kt;
+    if(!ai) return;
+    el.classList.add('moi');
+    setTimeout(function(){ el.classList.remove('moi'); }, 2900);
+    var ten = dan.kd && dan.kt && dan.kd!==dan.kt ? (dan.kd+' & '+dan.kt) : ai;
+    hien({t:'🎉 Chào đón người về đích', m:'Xin chúc mừng <b>'+ten+'</b>! Anh em mình cổ vũ nào! 🥳🏆'});
+    idx = 0;
+  }
+
+  function capNhat(){
+    var dan = layDan();
+    var khoa = (dan.kd||'')+'|'+(dan.kt||'');
+    if(khoa !== danCu){
+      ds = danhSach(dan);
+      if(danCu !== '' && (dan.kd||dan.kt)) chaoMoi(dan);  /* chỉ chào khi đã có mốc trước đó rồi đổi */
+      danCu = khoa;
+    }
+  }
+
+  /* tương tác */
+  av.addEventListener('click', tiep);
+  bub.addEventListener('click', function(e){ if(e.target!==btnX) tiep(); });
+  av.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tiep(); }});
+  btnX.addEventListener('click', function(e){ e.stopPropagation(); el.classList.add('thu');
+    try{ localStorage.setItem(KEY_THU,'1'); }catch(_){} });
+  dot.addEventListener('click', function(){ el.classList.remove('thu');
+    try{ localStorage.removeItem(KEY_THU); }catch(_){} hien(ds[idx]); });
+  try{ if(localStorage.getItem(KEY_THU)==='1') el.classList.add('thu'); }catch(_){}
+
+  /* vòng đời: đọc người giữ cúp mỗi 3s, tự đổi lời mỗi 6,5s */
+  capNhat();
+  hien(ds[0]);
+  setInterval(capNhat, 3000);
+  setInterval(function(){ if(!el.classList.contains('thu')) tiep(); }, 6500);
+})();
+</script>
