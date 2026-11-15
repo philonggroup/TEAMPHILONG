@@ -537,6 +537,16 @@ var BO_QUA = /Tổng Lượt|Kiểm\s*Tra Xe|cuộc gọi|Tra HD|Chấm\s*KPI|M�
    nên cột tổng có sai công thức cũng không ảnh hưởng đường đua. */
 function gomTab(csv, cn){
   var rows = tachCsv(csv), cot = [], ngayLbl = [], vai = null, ten = null, ra = {}, coSo = {};
+  /* Có tab bị MẤT ô tiêu đề "KỸ THUẬT VIÊN" ở đầu khối KTV (CN3 tháng 11) → trước đây cả khối
+     biến mất khỏi đường đua vì chưa thấy tiêu đề khối nào. Nếu tab không có tiêu đề KỸ THUẬT VIÊN
+     mà vẫn có KINH DOANH ở dưới, coi phần phía trên là khối kỹ thuật viên. */
+  var coKT = false, dongKD = -1;
+  rows.forEach(function (r0, i) {
+    var a = (r0[0] || '').replace(/\s+/g, ' ').trim();
+    if (/KỸ THUẬT/i.test(a)) coKT = true;
+    if (dongKD < 0 && /KINH DOANH/i.test(a)) dongKD = i;
+  });
+  if (!coKT && dongKD > 0) vai = 'kt';
   rows.forEach(function (r0) {
     var r = r0.map(function (x) { return (x || '').replace(/\s+/g, ' ').trim(); });
     var ngay = [];
