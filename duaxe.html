@@ -2258,32 +2258,36 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 
 <!-- ════════ ⛽ CHỈ SỐ DẪN DẮT CHI NHÁNH · BÁO CÁO KPI NGÀY T11 ════════
      Đọc thẳng tab "BÁO CÁO KPI NGÀY T11" của 3 file (cột KPI THÁNG 11 · % ĐẠT THÁNG ·
-     THỰC ĐẠT THÁNG). Đây là CHỈ SỐ NGUYÊN NHÂN - chỉ hiển thị, không cộng điểm,
-     không đổi thứ hạng đường đua. Vạch trắng trên thanh là nhịp đúng tới ngày đang xem.
+     THỰC ĐẠT THÁNG), đủ 15 dòng chia 4 nhóm đúng như trong tab.
+     Nhóm IV. CHẤT LƯỢNG đi ngược chiều: thấp hơn ngưỡng là xanh, vượt ngưỡng là đỏ.
+     Đây là CHỈ SỐ NGUYÊN NHÂN - chỉ hiển thị, không cộng điểm, không đổi thứ hạng.
      ══════════════════════════════════════════════════ -->
 <style>
 .ddbox{margin-top:16px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:14px 16px 16px}
 .ddbox h2{margin:0 0 4px;font:800 clamp(17px,2.4vw,23px)/1.1 var(--f-dis);letter-spacing:.6px;text-transform:uppercase}
 .dd-sub{margin:0 0 12px;font:600 12px/1.6 var(--f-body);color:var(--chu-mo)}
 .dd-sub b{color:var(--duong2)}
-.dd-luoi{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.dd-luoi{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
 .dd-cn{border:1px solid #16224a;border-radius:13px;background:#0a142e;padding:11px 12px 13px}
-.dd-dau{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:9px}
+.dd-dau{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:6px}
 .dd-ten{font-family:var(--f-dis);font-size:15px;font-weight:700;letter-spacing:.08em;color:var(--neon)}
 .dd-ngay{font-size:11.5px;color:var(--chu-mo)}
 .dd-ngay b{color:var(--chu);font-variant-numeric:tabular-nums}
-.dd-row{display:grid;grid-template-columns:minmax(118px,1fr) minmax(90px,1.1fr) 96px;gap:8px;align-items:center;padding:4px 0}
-.dd-row+.dd-row{border-top:1px solid rgba(255,255,255,.055)}
+.dd-nhom{margin:9px 0 3px;font:700 10px/1.4 var(--f-dis);letter-spacing:.12em;text-transform:uppercase;color:var(--duong2);
+  border-top:1px solid rgba(255,255,255,.09);padding-top:7px}
+.dd-nhom:first-of-type{border-top:0;margin-top:4px}
+.dd-row{display:grid;grid-template-columns:minmax(118px,1fr) minmax(80px,1fr) 104px;gap:8px;align-items:center;padding:3px 0}
+.dd-row+.dd-row{border-top:1px solid rgba(255,255,255,.05)}
 .dd-lbl{font-size:11.5px;font-weight:600;line-height:1.25}
-.dd-d{position:relative;height:15px;border-radius:999px;background:#1b2440;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.dd-d{position:relative;height:14px;border-radius:999px;background:#1b2440;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .dd-fill{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .5s ease}
 .dd-nhip{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.9}
 .dd-so{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.dd-so b{font-family:var(--f-dis);font-size:13px;display:block;line-height:1.15}
-.dd-so span{font-size:10px;color:var(--chu-mo)}
+.dd-so b{font-family:var(--f-dis);font-size:12.5px;display:block;line-height:1.15}
+.dd-so span{font-size:9.5px;color:var(--chu-mo)}
 .dd-ghi{margin-top:10px;font:600 11.5px/1.6 var(--f-body);color:var(--chu-mo)}
 .dd-loi{color:var(--xau);font-size:11.5px;font-weight:600}
-@media(max-width:460px){.dd-row{grid-template-columns:1fr 92px}.dd-d{grid-column:1/-1}}
+@media(max-width:460px){.dd-row{grid-template-columns:1fr 100px}.dd-d{grid-column:1/-1}}
 </style>
 <script>
 /* CHỈ SỐ DẪN DẮT CHI NHÁNH — nguồn: tab BÁO CÁO KPI NGÀY T11 của từng chi nhánh */
@@ -2293,16 +2297,34 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
     CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852'  }
   };
-  var CHI = [
-    ['Lượt xe vào xưởng',      /Lượt xe vào xưởng/i],
-    ['Lượt xe hoàn tất',       /Lượt xe hoàn tất/i],
-    ['Khách kiểm tra ATX',     /kiểm tra ATX/i],
-    ['Báo giá lên trong ngày', /Báo\s*Gi[áa]/i],
-    ['Cuộc gọi chăm sóc/nhận', /Cuộc gọi/i],
-    ['Lượt xe đặt lịch',       /đặt lịch/i],
-    ['Cân chỉnh thước lái',    /thước lái/i],
-    ['Tổng lốp bán ra',        /LỐP BÁN RA/i]
+  /* [nhãn trên trang, regex dò dòng trong tab, kiểu số] · kiểu: dem | tien | pt | nguoc */
+  var NHOM = [
+    ['II · Dẫn dắt', [
+      ['DT trung bình / lượt hoàn tất', /DT trung b[ìi]nh/i,  'tien'],
+      ['Lượt xe vào xưởng',             /Lượt xe vào xưởng/i, 'dem'],
+      ['Lượt xe hoàn tất',              /Lượt xe hoàn tất/i,  'dem'],
+      ['Tỷ lệ chuyển đổi',              /Tỷ lệ chuyển đổi/i,  'pt'],
+      ['Khách kiểm tra ATX',            /kiểm tra ATX/i,      'dem'],
+      ['Báo giá lên trong ngày',        /Báo\s*Gi[áa]/i,      'dem'],
+      ['Cuộc gọi chăm sóc / nhận',      /Cuộc gọi/i,          'dem'],
+      ['Lượt xe đặt lịch',              /đặt lịch/i,          'dem'],
+      ['Cân chỉnh thước lái',           /thước lái/i,         'dem']
+    ]],
+    ['Online · Marketing', [
+      ['Đăng bài Facebook',             /Đăng bài facebook/i, 'dem'],
+      ['Google Maps / Zalo OA',         /Google Maps/i,       'dem'],
+      ['Video ngắn TikTok · FB',        /TikTok/i,            'dem']
+    ]],
+    ['III · Lốp', [
+      ['Tổng lốp bán ra',               /LỐP BÁN RA/i,        'dem']
+    ]],
+    ['IV · Chất lượng · càng thấp càng tốt', [
+      ['Xe phản tu / quay lại lần 2',   /phản tu/i,           'nguoc'],
+      ['Xe chậm tiến độ',               /chậm tiến độ/i,      'nguoc']
+    ]]
   ];
+  var CHI = [];
+  NHOM.forEach(function (g) { g[1].forEach(function (x) { CHI.push(x); }); });
   var NGAY_THANG = 30, DATA = {}, LUC = 0;
   function so(v){
     v = (v || '').replace(/[^0-9,.\-]/g, '');
@@ -2334,15 +2356,32 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
         }
       }
     }
+    /* Khoá cột KPI THÁNG một lần từ dòng DOANH THU MỤC TIÊU. Không dò "% cuối dòng" cho từng
+       dòng, vì dòng như Tỷ lệ chuyển đổi có THỰC ĐẠT cũng là % nên sẽ lệch đúng 1 cột. */
+    var cot = -1;
+    for (i = 0; i < R.length && cot < 0; i++) { r = R[i];
+      if (!/DOANH\s*THU\s*M[ỤU]C\s*TIÊU/i.test((r[0] || '') + ' ' + (r[1] || ''))) continue;
+      last = -1;
+      for (k = 0; k < r.length; k++) { if (/%/.test(r[k] || '')) last = k; }
+      if (last > 0) cot = last - 1;
+    }
+    if (cot < 0) cot = 20;
     for (i = 0; i < R.length; i++) { r = R[i];
       key = (r[0] || '') + ' ' + (r[1] || '');
       for (j = 0; j < CHI.length; j++) {
         if (ra[CHI[j][0]] !== undefined) continue;
         if (!CHI[j][1].test(key)) continue;
-        last = -1;
-        for (k = 0; k < r.length; k++) { if (/%/.test(r[k] || '')) last = k; }
-        if (last > 0) ra[CHI[j][0]] = { kpi: so(r[last-1]), dat: so(r[last+1]) };
+        ra[CHI[j][0]] = { kpi: so(r[cot]), dat: so(r[cot + 2]) };
       }
+    }
+    /* Dòng "Tỷ lệ chuyển đổi" đang BỊ ẨN trong tab nên gviz không đọc được →
+       tự tính đúng công thức của file: hoàn tất ÷ vào xưởng, cả KPI lẫn thực đạt. */
+    var vx = ra['Lượt xe vào xưởng'], ht = ra['Lượt xe hoàn tất'];
+    if (!ra['Tỷ lệ chuyển đổi'] && vx && ht) {
+      ra['Tỷ lệ chuyển đổi'] = {
+        kpi: (vx.kpi && vx.kpi > 0 && ht.kpi !== null) ? (ht.kpi / vx.kpi * 100) : null,
+        dat: (vx.dat && vx.dat > 0 && ht.dat !== null) ? (ht.dat / vx.dat * 100) : null
+      };
     }
     return { ngay: ngay, chi: ra };
   }
@@ -2358,12 +2397,40 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
         .catch(function (e) { DATA[cn] = { loi: '' + (e.message || e) }; });
     }));
   }
-  function fmt(v){ return (v === null || v === undefined) ? '—' : Math.round(v).toLocaleString('vi-VN'); }
+  function fmt(v, loai){
+    if (v === null || v === undefined) return '—';
+    if (loai === 'pt') return v.toFixed(1).replace('.', ',') + '%';
+    return Math.round(v).toLocaleString('vi-VN');
+  }
   function mau(pct, nhip){
     if (nhip <= 0) return '#2ea8ff';
     if (pct >= nhip) return 'linear-gradient(90deg,#19e3ff,#2fe08a)';
     if (pct >= nhip * 0.8) return 'linear-gradient(90deg,#19e3ff,#ff9f1a)';
     return 'linear-gradient(90deg,#ff9f1a,#ff4d6d)';
+  }
+  function veRow(x, d, nhip){
+    var v = d.chi[x[0]], loai = x[2];
+    var kpi = v ? v.kpi : null, dat = v ? v.dat : null;
+    var co = !!v && dat !== null;
+    var nguoc = (loai === 'nguoc');
+    var pct = (co && kpi && kpi > 0) ? (dat / kpi * 100) : 0;
+    var mu, ghi, rong;
+    if (!co) { mu = '#2b3550'; ghi = 'tab chưa có dòng này'; rong = 0; }
+    else if (nguoc) {
+      mu = (kpi === null || dat <= kpi) ? 'linear-gradient(90deg,#19e3ff,#2fe08a)'
+                                        : 'linear-gradient(90deg,#ff9f1a,#ff4d6d)';
+      ghi = 'ngưỡng tối đa ' + fmt(kpi, 'dem');
+      rong = Math.min(100, Math.max(0, pct));
+    } else {
+      mu = mau(pct, nhip);
+      ghi = (kpi && kpi > 0) ? Math.round(pct) + '% KPI tháng' : 'chưa có KPI';
+      rong = Math.min(100, Math.max(0, pct));
+    }
+    return '<div class="dd-row"><div class="dd-lbl">' + x[0] + '</div>' +
+      '<div class="dd-d"><div class="dd-fill" style="width:' + rong.toFixed(1) + '%;background:' + mu + '"></div>' +
+      (co && !nguoc && nhip > 0 ? '<div class="dd-nhip" style="left:' + Math.min(100, nhip).toFixed(1) + '%"></div>' : '') +
+      '</div><div class="dd-so"><b>' + (co ? (nguoc ? fmt(dat, loai) : fmt(dat, loai) + ' / ' + fmt(kpi, loai)) : '—') +
+      '</b><span>' + ghi + '</span></div></div>';
   }
   function hop(){
     var w = document.getElementById('dd-box');
@@ -2378,10 +2445,11 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     var cnLoc = (typeof CN_LOC !== 'undefined' && CN_LOC) ? CN_LOC : null;
     var ds = cnLoc ? [cnLoc] : ['CN1','CN2','CN3'];
     var h = '<h2>⛽ Chỉ số dẫn dắt chi nhánh <span style="color:var(--duong2)">· tháng 11</span></h2>' +
-      '<div class="dd-sub">Số lấy thẳng tab <b>BÁO CÁO KPI NGÀY T11</b> của từng chi nhánh ' +
+      '<div class="dd-sub">Đủ 15 dòng của tab <b>BÁO CÁO KPI NGÀY T11</b> từng chi nhánh ' +
       '(cột KPI THÁNG 11 · % đạt tháng · thực đạt tháng). Đây là <b>chỉ số nguyên nhân</b> — ' +
       'nhiên liệu để xe chạy. <b>Không cộng điểm, không đổi thứ hạng đường đua.</b> ' +
-      'Vạch trắng là nhịp đúng tới ngày đang xem.</div><div class="dd-luoi">';
+      'Vạch trắng là nhịp đúng tới ngày đang xem; nhóm chất lượng đi ngược chiều, thấp hơn ngưỡng là xanh.</div>' +
+      '<div class="dd-luoi">';
     ds.forEach(function (cn) {
       var d = DATA[cn];
       h += '<div class="dd-cn"><div class="dd-dau"><span class="dd-ten">' + cn + '</span>';
@@ -2390,21 +2458,16 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
       var ngay = d.ngay || 0, nhip = ngay ? (ngay / NGAY_THANG * 100) : 0;
       h += '<span class="dd-ngay">số liệu tới ngày <b>' + (ngay ? ngay + '/11' : '—') +
            '</b> · nhịp đúng <b>' + Math.round(nhip) + '%</b></span></div>';
-      CHI.forEach(function (x) {
-        var v = d.chi[x[0]], kpi = v ? v.kpi : null, dat = v ? v.dat : null;
-        var pct = (kpi && kpi > 0 && dat !== null) ? (dat / kpi * 100) : 0;
-        h += '<div class="dd-row"><div class="dd-lbl">' + x[0] + '</div>' +
-             '<div class="dd-d"><div class="dd-fill" style="width:' + Math.min(100, Math.max(0, pct)).toFixed(1) +
-             '%;background:' + mau(pct, nhip) + '"></div>' +
-             (nhip > 0 ? '<div class="dd-nhip" style="left:' + Math.min(100, nhip).toFixed(1) + '%"></div>' : '') +
-             '</div><div class="dd-so"><b>' + fmt(dat) + ' / ' + fmt(kpi) + '</b><span>' +
-             (kpi && kpi > 0 ? pct.toFixed(0) + '% KPI tháng' : 'chưa có KPI') + '</span></div></div>';
+      NHOM.forEach(function (g) {
+        h += '<div class="dd-nhom">' + g[0] + '</div>';
+        g[1].forEach(function (x) { h += veRow(x, d, nhip); });
       });
       h += '</div>';
     });
     h += '</div><div class="dd-ghi">Thanh dài hơn vạch trắng là đang <b style="color:var(--tot)">vượt nhịp</b>; ' +
-      'ngắn hơn vạch trắng là đang <b style="color:var(--xau)">nợ chỉ số</b>. Chi nhánh nào chưa nhập vào tab ' +
-      'BÁO CÁO KPI NGÀY T11 thì hiện 0 — là do chưa nhập, không phải do không làm.' +
+      'ngắn hơn vạch trắng là đang <b style="color:var(--xau)">nợ chỉ số</b>. Dòng nào chi nhánh chưa nhập vào tab ' +
+      'BÁO CÁO KPI NGÀY T11 thì hiện 0 — là do chưa nhập, không phải do không làm. ' +
+      '<b>Tỷ lệ chuyển đổi</b> được tính thẳng từ hoàn tất ÷ vào xưởng, vì dòng này đang bị ẩn trong tab nên không đọc trực tiếp được.' +
       (LUC ? ' · đọc lúc ' + new Date(LUC).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : '') +
       '</div>';
     w.innerHTML = h;
