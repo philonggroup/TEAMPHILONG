@@ -272,7 +272,7 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
 
 <div id="cong" role="dialog" aria-modal="true" aria-labelledby="cong-tieude">
   <form id="cong-form" autocomplete="off" onsubmit="return false">
-    <div class="cong-eyebrow">Phi Long Group · mini game tháng 10</div>
+    <div class="cong-eyebrow">Phi Long Group · mini game tháng 11</div>
     <h2 id="cong-tieude">Đường đua thành tích</h2>
     <p>Số liệu nội bộ. Nhập mật khẩu chi nhánh để mở đường đua.</p>
     <label for="cong-pass">Mật khẩu</label>
@@ -291,19 +291,19 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
 
   <header class="top">
     <div>
-      <div class="eyebrow">PHI LONG GROUP · MINI GAME THÁNG 10 · <b>2 CÚP VÀNG XÉT LIVE</b></div>
+      <div class="eyebrow">PHI LONG GROUP · MINI GAME THÁNG 11 · <b>2 CÚP VÀNG XÉT LIVE</b></div>
       <h1>Tăng tốc về đích<br>bứt phá doanh số</h1>
       <p class="sub">Kilômét là doanh số. Cờ vẫy là các mức thưởng P3. Đồng hồ là ngày trong tháng.
          Đua theo hiệu suất từng người — không phân biệt chi nhánh.</p>
       <div class="chips">
-        <span class="chip">NGÀY <b class="num" id="c-ngay">—</b> / 31</span>
+        <span class="chip">NGÀY <b class="num" id="c-ngay">—</b> / 30</span>
         <span class="chip">CÒN <b class="num" id="c-con">—</b> NGÀY</span>
         <span class="chip vang">GIẢI <b class="num">2</b> CÚP × 200K · XÉT LIVE</span>
         <span class="chip" id="c-nguon">NGUỒN <b class="num">—</b></span>
       </div>
     </div>
     <div class="dialbox">
-      <svg class="dial" viewBox="0 0 190 122" role="img" aria-label="Đồng hồ ngày trong tháng 10">
+      <svg class="dial" viewBox="0 0 190 122" role="img" aria-label="Đồng hồ ngày trong tháng 11">
         <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stop-color="#19e3ff"/><stop offset=".6" stop-color="#ffc62e"/><stop offset="1" stop-color="#ff4d6d"/>
         </linearGradient></defs>
@@ -313,7 +313,7 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
         <line id="dial-kim" x1="95" y1="108" x2="95" y2="42" stroke="#eaf0ff" stroke-width="3" stroke-linecap="round"/>
         <circle cx="95" cy="108" r="7" fill="#eaf0ff"/>
         <text x="95" y="90" text-anchor="middle" fill="#eaf0ff" font-family="Oswald,sans-serif" font-size="27" id="dial-so">11</text>
-        <text x="95" y="104" text-anchor="middle" fill="#8ea0c8" font-family="Oswald,sans-serif" font-size="10" letter-spacing="2">THÁNG 10</text>
+        <text x="95" y="104" text-anchor="middle" fill="#8ea0c8" font-family="Oswald,sans-serif" font-size="10" letter-spacing="2">THÁNG 11</text>
       </svg>
       <div class="dial-cap" id="dial-cap">Quãng đường đã chạy</div>
     </div>
@@ -328,9 +328,9 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
     <button data-loc="tuan" aria-pressed="false">Tuần này</button>
     <span style="color:var(--chu-mo)">· tự chọn:</span>
     <label for="loc-tu" style="color:var(--chu-mo)">từ ngày</label>
-    <input id="loc-tu" type="number" min="1" max="31" step="1" inputmode="numeric">
+    <input id="loc-tu" type="number" min="1" max="30" step="1" inputmode="numeric">
     <label for="loc-den" style="color:var(--chu-mo)">đến</label>
-    <input id="loc-den" type="number" min="1" max="31" step="1" inputmode="numeric">
+    <input id="loc-den" type="number" min="1" max="30" step="1" inputmode="numeric">
     <span class="mo" id="loc-mo"></span>
   </div>
 
@@ -393,7 +393,7 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
            <b>xét theo đường đua TỔNG DOANH THU</b> của khối đó.
            Xét theo <b>hiện trạng live, bất kỳ thời điểm nào</b> — mở bảng ra là biết ai đang giữ cúp.</p>
         <p>Không chốt theo tuần, không cán đích sớm. Ai đang dẫn đầu thì đang cầm cúp;
-           <b>hết 31 ngày ai còn đứng đầu thì cúp về tay người đó</b>.</p>
+           <b>hết 30 ngày ai còn đứng đầu thì cúp về tay người đó</b>.</p>
         <div class="cup-ten">🏆 Đang giữ cúp</div>
         <div class="tram-list" id="cup-box"></div>
       </div>
@@ -475,34 +475,9 @@ if (!PL_AI) document.documentElement.classList.add('khoa');
 <script>
 /* ═══════ SỐ LIỆU GỐC (triệu đồng) ═══════ */
 var GOC = {
-  ngayCo: {CN1:11, CN2:10, CN3:6},
-  kd: [
-    {ten:'BÙI THỊ BÍCH PHƯỢNG', cn:'CN2', mau:'#ff3d9a', lop:230.0,  bdsc:53.9},
-    {ten:'PHAN XUÂN ĐỨC',       cn:'CN2', mau:'#2ea8ff', lop:111.9,  bdsc:28.6, canhbao:'Dòng của bạn này trong file CN2 lệch: cộng ngang 137,8tr nhưng cột tổng 111,9tr; ô 01/10 của dòng Tổng doanh thu là 103,3tr. Cần CN2 soát lại.'},
-    {ten:'NGỌC TRÂM',           cn:'CN3', mau:'#19e3ff', lop:56.1,   bdsc:15.7},
-    {ten:'LÊ THỊ LÀNH',         cn:'CN2', mau:'#ffd12e', lop:44.6,   bdsc:27.7},
-    {ten:'PHẠM CÔNG THÀNH',     cn:'CN3', mau:'#9ee04a', lop:0.7,    bdsc:3.7},
-    {ten:'NGUYỄN XUÂN VŨ',      cn:'CN3', mau:'#ff7a45', lop:0.5,    bdsc:0.2},
-    {ten:'HỨA THỊ PHƯƠNG VY',   cn:'CN2', mau:'#a855f7', lop:0,      bdsc:0, canhbao:'Chưa có tên trong file KPI CN2 lẫn danh sách nhân sự chuẩn — xe tím đang nằm ở vạch xuất phát chờ số.'}
-  ],
-  kt: [
-    {ten:'NGUYỄN HẠNH PHÚC',  cn:'CN2', mau:'#19e3ff', dt:10.05, ld:2.43},
-    {ten:'NGUYỄN CHÍ TÂM',    cn:'CN2', mau:'#ff3d9a', dt:9.83,  ld:0},
-    {ten:'LỤC VĂN BỘ',        cn:'CN2', mau:'#ffd12e', dt:8.87,  ld:0},
-    {ten:'TRẦN MINH QUANG',   cn:'CN1', mau:'#2ea8ff', dt:8.03,  ld:0},
-    {ten:'NGUYỄN MINH TRÍ',   cn:'CN2', mau:'#a855f7', dt:7.88,  ld:0},
-    {ten:'ĐỔ VĂN CAO',        cn:'CN2', mau:'#9ee04a', dt:7.85,  ld:1.18},
-    {ten:'PHẠM KIM PHƯƠNG',   cn:'CN1', mau:'#ff7a45', dt:6.20,  ld:0},
-    {ten:'TRẦN THANH DUY',    cn:'CN2', mau:'#ff9f1a', dt:5.40,  ld:0},
-    {ten:'NGUYỄN TẤN TÀI',    cn:'CN3', mau:'#7dd3fc', dt:4.65,  ld:0},
-    {ten:'TẤN NHỊN',          cn:'CN3', mau:'#f472b6', dt:3.65,  ld:0},
-    {ten:'TRẦN VĂN KHẢI',     cn:'CN2', mau:'#c4b5fd', dt:3.47,  ld:0},
-    {ten:'PHẠM CÔNG THÀNH',   cn:'CN3', mau:'#86efac', dt:3.37,  ld:0.80},
-    {ten:'HOÀNG VĂN NAM',     cn:'CN3', mau:'#fcd34d', dt:3.30,  ld:0},
-    {ten:'LÂN VĂN THÀNH',     cn:'CN1', mau:'#fdba74', dt:4.78,  ld:0},
-    {ten:'THÁI GIA HUY',      cn:'CN2', mau:'#94a3b8', dt:2.35,  ld:0, canhbao:'Dòng DVNL 0,37tr nhưng tổng doanh thu 2,35tr — file CN2 cộng chưa khớp.'},
-    {ten:'BÙI QUỐC PHÚ',      cn:'CN3', mau:'#a3e635', dt:2.05,  ld:0.30}
-  ]
+  ngayCo: {CN1:0, CN2:0, CN3:0},
+  kd: [],
+  kt: []
 };
 /* Trạm (cờ vẫy trên đường) chỉ còn ở 3 đường đua có mốc chốt:
    lốp, BD–SC (kinh doanh) và lưu động CN2 (KTV).
@@ -516,11 +491,11 @@ var MOC_THUONG = { dt:[10,20,30] };
    để ĐỐI CHIẾU DANH SÁCH: ai có doanh thu trên app mà thiếu khối dòng trong tab KPI. */
 var NGUON = {
   CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'2029309149',
-        app:'KTBH DUNG - APP - KPI KẾT QUẢ CN1 T10' },
+        appGid:'1172284502' },
   CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'90141774',
-        app:'LÊ LÀNH  APP - KPI KẾT QUẢ CN2 T10' },
+        appGid:'763819468' },
   CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'288637199',
-        app:'KT PHƯƠNG- APP - KPI KẾT QUẢ CN3 T10' }
+        appGid:'544566681' }
 };
 var MAU_CHOT = {
   'PHAN XUÂN ĐỨC':'#2ea8ff', 'NGUYỄN XUÂN ĐỨC':'#2ea8ff',
@@ -565,7 +540,7 @@ function gomTab(csv, cn){
   rows.forEach(function (r0) {
     var r = r0.map(function (x) { return (x || '').replace(/\s+/g, ' ').trim(); });
     var ngay = [];
-    r.forEach(function (c, i) { if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(c)) ngay.push(i); });
+    r.forEach(function (c, i) { if (/^\d{1,2}\/11\/\d{4}$/.test(c)) ngay.push(i); });
     if (ngay.length >= 3) {                                        /* dòng tiêu đề ngày */
       cot = ngay; ngayLbl = ngay.map(function (i) { return r[i]; }); return;
     }
@@ -727,10 +702,10 @@ async function doiChieuApp(){
   var thieu = [], chua = [], loi = [];
   await Promise.all(Object.keys(NGUON).map(async function (cn) {
     var n = NGUON[cn];
-    if (!n.app) return;
+    if (!n.appGid) return;
     try {
-      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&sheet=' +
-              encodeURIComponent(n.app) + '&tq=' + encodeURIComponent('select L,M,J');
+      var u = 'https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' +
+              n.appGid + '&tq=' + encodeURIComponent('select M,N,K');
       var t = await fetch(u, { cache:'no-store' }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status); return r.text();
       });
@@ -766,7 +741,7 @@ async function doiChieuApp(){
    Mỗi chi nhánh đọc ĐỘC LẬP: 1 chi nhánh lỗi mạng / nghẽn Google không còn
    kéo 2 chi nhánh kia về số cũ. Mỗi chi nhánh thử lần lượt 3 đường lấy CSV
    và được lưu riêng, nên lần đọc sau chỉ cần 1 đường thông là có số mới. */
-var LUU_TAB = 'philong-duaxe-tab-t10';
+var LUU_TAB = 'philong-duaxe-tab-t11';
 var TT_CN = { CN1:{}, CN2:{}, CN3:{} };
 
 function duongCsv(n){
@@ -847,7 +822,7 @@ function veTinhTrangCN(){
   var el = document.getElementById('tt-doc'); if (!el) return;
   var ph = THUTU_CN.map(function (cn) {
     var t = TT_CN[cn] || {}, dsn = ((D.haiNgay || {})[cn] || []), n = dsn[dsn.length - 1] || 0;
-    var ngay = n ? n + '/10' : '—';
+    var ngay = n ? n + '/11' : '—';
     if (t.ok === true)  return '<span style="color:var(--tot)">' + cn + ' ✓ ' + ngay + '</span>';
     if (t.ok === false) return '<span style="color:var(--xau)">' + cn + ' ✗ ' + ngay +
       ' · chưa đọc được file (' + (t.loi || 'lỗi') + ')' + (t.luc ? ' · số lưu ' + gioVN(t.luc) : '') + '</span>';
@@ -860,12 +835,12 @@ function veTinhTrangCN(){
   var ft = document.getElementById('ft-ngay');
   if (ft) ft.textContent = THUTU_CN.map(function (cn) {
     var dsn = ((D.haiNgay || {})[cn] || []); var n = dsn[dsn.length - 1] || 0;
-    return cn + ' (tới ' + (n ? n + '/10' : '—') + ')';
+    return cn + ' (tới ' + (n ? n + '/11' : '—') + ')';
   }).join(', ');
 }
 var TEN_CT = { lop:'Doanh thu lốp', bdsc:'KPI BD–SC', tong:'Tổng doanh thu',
                dvl:'DVL', dvnl:'DVNL', dt:'Tổng doanh thu', ld:'KPI lưu động CN2' };
-var SO_NGAY = 31, LUU = 'philong-duaxe-t10';
+var SO_NGAY = 30, LUU = 'philong-duaxe-t11';
 
 /* ═══════ LỌC KHOẢNG NGÀY ═══════
    LOC = null → cả tháng (số gốc). Khác → cộng lại từ số của từng ngày. */
@@ -884,9 +859,9 @@ function congKhoang(r, f){
   return s;
 }
 function nhanLoc(){
-  if (caThang()) return 'Cả tháng 10 · 1 → ' + SO_NGAY;
-  return LOC.tu === LOC.den ? ('Chỉ ngày ' + LOC.tu + '/10')
-       : ('Từ ' + LOC.tu + '/10 đến ' + LOC.den + '/10 · ' + soNgayLoc() + ' ngày');
+  if (caThang()) return 'Cả tháng 11 · 1 → ' + SO_NGAY;
+  return LOC.tu === LOC.den ? ('Chỉ ngày ' + LOC.tu + '/11')
+       : ('Từ ' + LOC.tu + '/11 đến ' + LOC.den + '/11 · ' + soNgayLoc() + ' ngày');
 }
 
 /* ═══════ TRẠNG THÁI ═══════ */
@@ -898,8 +873,8 @@ var ct = { kd:'lop', kt:'dt' };
 function tr(v){ return (Math.round(v*10)/10).toLocaleString('vi-VN'); }
 function ngayHomNay(){
   var d = new Date();
-  if (d.getFullYear() === 2026 && d.getMonth() === 9) return d.getDate();
-  return (d.getTime() > new Date(2026, 9, 31, 23, 59).getTime()) ? 31 : 1;
+  if (d.getFullYear() === 2026 && d.getMonth() === 10) return d.getDate();
+  return (d.getTime() > new Date(2026, 10, 30, 23, 59).getTime()) ? 30 : 1;
 }
 var NGAY = ngayHomNay();
 /* trang mở xuyên đêm vẫn phải sang ngày mới, không treo ở ngày lúc mở */
@@ -1480,6 +1455,7 @@ function lay(nhom, khoa, toanHeThong){
 }
 
 function chay(){
+  try { traSoat(); } catch (e) {}
   var kd = lay('kd', ct.kd), kt = lay('kt', ct.kt);
   veDuong(document.getElementById('scene-kd'), kd.slice(0, 3), ct.kd, kd);
   veDuongCN(document.getElementById('cnd-kd'), kd, ct.kd);
@@ -1598,7 +1574,7 @@ function dongHo(){
   document.getElementById('dial-so').textContent = den;
   var cap = document.getElementById('dial-cap');
   if (cap) {
-    cap.textContent = dangLoc ? ('⏪ Tua về ' + tu + ' → ' + den + '/10') : 'Quãng đường đã chạy';
+    cap.textContent = dangLoc ? ('⏪ Tua về ' + tu + ' → ' + den + '/11') : 'Quãng đường đã chạy';
     cap.style.color = dangLoc ? 'var(--vang)' : '';
   }
   var arc = document.getElementById('dial-arc'), L = arc.getTotalLength();
@@ -1623,16 +1599,32 @@ function dongHo(){
 
 /* ═══════ TRA SOÁT ═══════ */
 function traSoat(){
-  var ds = [
-    ['Lệch ngày giữa 3 file', 'CN3 mới có số tới 06/10 (1 tuần), CN1 tới 11/10, CN2 tới 10/10. Xe CN3 đang bị tụt lại vì thiếu số, không phải vì chạy chậm.'],
-    ['Dòng Phan Xuân Đức (CN2)', 'Cộng ngang các ngày ra 137,8tr lốp nhưng cột tổng của file là 111,9tr; ô 01/10 dòng Tổng doanh thu ghi 103,3tr — nhiều khả năng dán nhầm số tháng. Trang đang lấy 111,9tr theo cột tổng.'],
-    ['Hứa Thị Phương Vy', 'Không có trong file KPI CN2 và cũng không có trong tab NHÂN SỰ chuẩn. Xe tím đang ở vạch xuất phát.'],
-    ['Mốc đã chốt', 'Bước nhảy bằng 100% mức 1: lốp 350/700/1.050tr · BD–SC 100/200/300tr · KTV 10/20/30tr. Không cán đích sớm — hết 31 ngày ai đi xa nhất thì thắng.'],
-    ['Nhịp hiện tại so với trạm', 'Bích Phượng đang trên đà ~713tr lốp cả tháng (qua trạm 2). Xuân Đức ~347tr, sát trạm 1. Lành ~138tr. KTV mạnh nhất trên đà ~31tr, vừa đủ chạm trạm 3.'],
-    ['Nguồn DVL / DVNL (KTV)', 'File live Apps Script chỉ trả về tổng doanh thu trực tiếp và lưu động, không có DVL/DVNL tách riêng. Hai đường đua này đọc thêm trực tiếp từ 3 file KPI tuần — file nào chưa mở quyền “bất kỳ ai có liên kết · chỉ xem” thì xe đứng ở vạch xuất phát. Tình trạng thực tế hiện ngay dưới bảng KTV.'],
-    ['DVL + DVNL vs tổng doanh thu', 'Trong file KPI có ngày nhân sự chỉ nhập dòng Tổng doanh thu mà bỏ trống DVL/DVNL, nên cộng 2 dòng đó sẽ hụt so với tổng. Vì vậy đường đua 3 lấy đúng dòng Tổng doanh thu của file, không tự cộng DVL+DVNL; dòng nào lệch có dấu ◑ trong bảng.'],
-    ['Kinh doanh CN1 chưa có số', 'Trần Thị Dung và Thành Luân 0đ doanh thu ở cả 2 tuần nên chưa lên đường đua. Nếu là vai trò quản lý/CSKH thì nên tách hẳn khỏi hạng mục kinh doanh.']
-  ];
+  var ds = [];
+  var dn = THUTU_CN.map(function (cn) {
+    var a = ((D.haiNgay || {})[cn] || []), n = a[a.length - 1] || 0;
+    return cn + (n ? ': tới ' + n + '/11' : ': chưa có số');
+  }).join(' · ');
+  ds.push(['Lệch ngày giữa 3 file', 'Số mới nhất của từng chi nhánh — ' + dn +
+    '. Chi nhánh nào nhập chậm thì xe tụt lại vì thiếu số, không phải vì chạy chậm.']);
+  var lech = (D.kd || []).concat(D.kt || []).filter(function (r) { return r.canhbao; });
+  ds.push(['Dòng lệch trong file KPI', lech.length
+    ? lech.length + ' dòng đang lệch: ' + lech.slice(0, 5).map(function (r) {
+        return r.ten + ' (' + r.cn + ')'; }).join(' · ') + (lech.length > 5 ? ' …' : '') +
+      '. Chi tiết xem dấu ◑ trong bảng điện tử.'
+    : 'Không có dòng nào lệch giữa cộng ngang các cột ngày và cột tổng của file.']);
+  ds.push(['Nguồn số tháng 11', 'Đường đua đọc tab “APP CNx KPI KỸ THUẬT VIÊN SALE -T11” của 3 file chi nhánh; thước đo và chỉ số dẫn dắt đọc tab “BÁO CÁO KPI NGÀY T11”. Chỉ cộng ngang các cột ngày 01→30/11 — không lấy cột tổng tuần / tổng tháng.']);
+  ds.push(['Mốc đã chốt', 'Bước nhảy bằng 100% mức 1: lốp 350/700/1.050tr · BD–SC 100/200/300tr · KTV 10/20/30tr. Không cán đích sớm — hết 30 ngày ai đi xa nhất thì thắng.']);
+  ds.push(['DVL + DVNL vs tổng doanh thu', 'Có ngày nhân sự chỉ nhập dòng Tổng doanh thu mà bỏ trống DVL/DVNL, nên cộng 2 dòng đó sẽ hụt so với tổng. Đường đua 3 lấy đúng dòng Tổng doanh thu của file, không tự cộng DVL+DVNL.']);
+  var ta = (typeof TT_APP !== 'undefined') ? TT_APP : null;
+  if (ta && ta.xong) {
+    var t = [];
+    if (ta.thieu.length) t.push('Thiếu khối dòng trong tab KPI: ' + ta.thieu.slice(0, 5).map(function (x) {
+      return x.ten + ' (' + x.cn + ' · ' + tr(x.tien) + 'tr)'; }).join(' · '));
+    if (ta.chua.length) t.push('Có doanh thu trên app nhưng tab KPI còn 0đ: ' + ta.chua.slice(0, 5).map(function (x) {
+      return x.ten + ' (' + x.cn + ' · ' + tr(x.tien) + 'tr)'; }).join(' · '));
+    if (ta.loi.length) t.push('Chưa đối chiếu được: ' + ta.loi.join(' · '));
+    ds.push(['Đối chiếu tab xuất app', t.length ? t.join('. ') + '.' : 'Khớp — không ai bị thiếu khối dòng trong tab KPI.']);
+  }
   document.getElementById('audit').innerHTML = ds.map(function (x) {
     return '<div class="the"><h3>' + x[0] + '</h3><p>' + x[1] + '</p></div>';
   }).join('');
@@ -2114,7 +2106,7 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 </script>
 
 <!-- ════════ 🏁 THƯỚC ĐO CHI NHÁNH · KPI THÁNG ════════
-     Đồng hồ thứ 3, đặt ngay dưới ô cảnh báo. Số lấy thẳng từ tab KPI NGÀY T10
+     Đồng hồ thứ 3, đặt ngay dưới ô cảnh báo. Số lấy thẳng từ tab BÁO CÁO KPI NGÀY T11
      của từng chi nhánh (dòng DOANH THU MỤC TIÊU): KPI tháng · % đạt · thực đạt.
      Không ảnh hưởng thứ hạng đường đua.
      ══════════════════════════════════════════════════ -->
@@ -2136,10 +2128,10 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 <script>
 (function(){
   var TD = {
-    SN: 31, PX: 871.7, PY: 165.9, MAX: 150, DATA: {},
-    NG: { CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'956715348' },
-          CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1903288687' },
-          CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'943253245' } }
+    SN: 30, PX: 871.7, PY: 165.9, MAX: 150, DATA: {},
+    NG: { CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049' },
+          CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
+          CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852' } }
   };
   function so(s){
     s = (s||'').replace(/[^0-9,.\-]/g,''); if (!s) return null;
@@ -2159,7 +2151,7 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   function doc(R){
     var kpi=null, dat=null, ngay=null, i, j, r;
     for (i=0;i<R.length && !ngay;i++){ r=R[i];
-      for (j=0;j<r.length;j++){ if (/KPI\s*THÁNG/i.test(r[j]||'')){
+      for (j=0;j<r.length;j++){ if (/KPI\s*THÁNG|CH[ỌO]N\s*NG[ÀA]Y/i.test(r[j]||'')){
         for (var k=j+1;k<r.length;k++){ var m=(r[k]||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if (m){ ngay=parseInt(m[1],10); break; } }
         break; } } }
     for (i=0;i<R.length;i++){ r=R[i];
@@ -2190,13 +2182,19 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     var g = src.cloneNode(true);
     var c0 = g.querySelector('circle');
     if (c0 && (c0.getAttribute('fill')||'').toLowerCase() === '#fff6cf') c0.remove();
+    /* lấy đúng tâm & bán kính của đồng hồ vừa nhân bản — trước đây ghi cứng nên kim bị văng ra ngoài mặt đồng hồ */
+    var cc = g.querySelector('circle');
+    if (cc) { TD.PX = parseFloat(cc.getAttribute('cx')) || TD.PX;
+              TD.PY = parseFloat(cc.getAttribute('cy')) || TD.PY;
+              TD.R  = parseFloat(cc.getAttribute('r'))  || 96.9;
+              TD.K  = TD.R / 96.9; }
     var L = g.querySelectorAll('line'), T = g.querySelectorAll('text');
     if (L.length < 2 || T.length < 4) return null;
     var kim = L[L.length-1], vach = L[L.length-2];
-    var a = diem(o.pct, 73);
+    var a = diem(o.pct, 73 * (TD.K || 1));
     kim.setAttribute('x1', TD.PX); kim.setAttribute('y1', TD.PY);
     kim.setAttribute('x2', a[0].toFixed(1)); kim.setAttribute('y2', a[1].toFixed(1));
-    var b1 = diem(o.nhip, 58), b2 = diem(o.nhip, 74);
+    var b1 = diem(o.nhip, 58 * (TD.K || 1)), b2 = diem(o.nhip, 74 * (TD.K || 1));
     vach.setAttribute('x1', b1[0].toFixed(1)); vach.setAttribute('y1', b1[1].toFixed(1));
     vach.setAttribute('x2', b2[0].toFixed(1)); vach.setAttribute('y2', b2[1].toFixed(1));
     T[0].textContent = Math.round(o.pct) + '%';
@@ -2205,7 +2203,9 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     T[2].textContent = tr(o.dat) + 'TR';
     T[3].textContent = tr(o.dat / o.ngay) + ' TR/NGÀY';
     var ti = g.querySelector('title'); if (ti) ti.textContent = o.tip;
-    return '<svg viewBox="753 -3 238 250" xmlns="http://www.w3.org/2000/svg">' + g.outerHTML + '</svg>';
+    var R = (TD.R || 96.9) + 12;
+    return '<svg viewBox="' + (TD.PX - R) + ' ' + (TD.PY - R) + ' ' + (2 * R) + ' ' + (2 * R) +
+           '" xmlns="http://www.w3.org/2000/svg">' + g.outerHTML + '</svg>';
   }
 
   function gan(){
@@ -2218,8 +2218,8 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     if (!ngay) ngay = 1;
     var pct = dat / kpi * 100, nhip = ngay / TD.SN * 100, duphong = dat / ngay * TD.SN, conlai = kpi - dat;
     var nhan = cn ? ('THƯỚC ĐO ' + cn) : 'THƯỚC ĐO 3 CN';
-    var tip = 'KPI tháng 10: ' + tr(kpi) + 'tr · thực đạt ' + tr(dat) + 'tr = ' + pct.toFixed(1) +
-              '% · số liệu tới ngày ' + ngay + '/10 · tốc độ ' + tr(dat/ngay) + 'tr/ngày · dự phóng hết tháng ' +
+    var tip = 'KPI tháng 11: ' + tr(kpi) + 'tr · thực đạt ' + tr(dat) + 'tr = ' + pct.toFixed(1) +
+              '% · số liệu tới ngày ' + ngay + '/11 · tốc độ ' + tr(dat/ngay) + 'tr/ngày · dự phóng hết tháng ' +
               tr(duphong) + 'tr = ' + Math.round(duphong/kpi*100) + '% KPI. Vạch trắng là đúng nhịp theo ngày (' +
               Math.round(nhip) + '%).';
     var box = document.getElementById('td-box');
@@ -2234,18 +2234,18 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
     if (box.getAttribute('data-ky') === ky) return;
     box.setAttribute('data-ky', ky);
     box.innerHTML =
-      '<h2>🏁 Thước đo chi nhánh <span style="color:var(--duong2)">· KPI tháng 10</span></h2>' +
-      '<div class="td-sub">Số lấy thẳng từ tab <b>KPI NGÀY T10</b> của từng chi nhánh (dòng DOANH THU MỤC TIÊU) — ' +
+      '<h2>🏁 Thước đo chi nhánh <span style="color:var(--duong2)">· KPI tháng 11</span></h2>' +
+      '<div class="td-sub">Số lấy thẳng từ tab <b>BÁO CÁO KPI NGÀY T11</b> của từng chi nhánh (dòng DOANH THU MỤC TIÊU) — ' +
       'không phải số của đường đua. Kim là <b>% đạt được luỹ kế</b>, vạch trắng là <b>đúng nhịp theo ngày</b>.' +
       (thieu.length ? ' <b style="color:var(--xau)">Chưa đọc được: ' + thieu.join(', ') + '.</b>' : '') + '</div>' +
       '<div class="td-dan"><div class="td-dh">' + svg + '</div><div class="td-ke">' +
-      '<div class="td-o"><span>KPI tháng 10</span><b>' + tr(kpi) + ' tr</b></div>' +
+      '<div class="td-o"><span>KPI tháng 11</span><b>' + tr(kpi) + ' tr</b></div>' +
       '<div class="td-o"><span>Thực đạt</span><b style="color:var(--tot)">' + tr(dat) + ' tr</b></div>' +
       '<div class="td-o"><span>Còn lại</span><b style="color:var(--canh)">' + tr(conlai) + ' tr</b></div>' +
       '<div class="td-o"><span>Dự phóng hết tháng</span><b style="color:' +
         (duphong >= kpi ? 'var(--tot)' : 'var(--xau)') + '">' + tr(duphong) + ' tr</b></div>' +
       '</div></div>' +
-      '<div class="td-ghi">Số liệu tới <b>ngày ' + ngay + '/10</b> · đúng nhịp tới hôm nay là <b>' +
+      '<div class="td-ghi">Số liệu tới <b>ngày ' + ngay + '/11</b> · đúng nhịp tới hôm nay là <b>' +
       Math.round(nhip) + '%</b> · đang đạt <b>' + pct.toFixed(1) + '%</b>. Đồng hồ này là thước đo doanh thu ' +
       'của chi nhánh, <b>không ảnh hưởng thứ hạng đường đua</b>.</div>';
   }
@@ -2253,5 +2253,165 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
   tai().then(chay);
   setInterval(chay, 2000);
   setInterval(function(){ tai().then(chay); }, 180000);
+})();
+</script>
+
+<!-- ════════ ⛽ CHỈ SỐ DẪN DẮT CHI NHÁNH · BÁO CÁO KPI NGÀY T11 ════════
+     Đọc thẳng tab "BÁO CÁO KPI NGÀY T11" của 3 file (cột KPI THÁNG 11 · % ĐẠT THÁNG ·
+     THỰC ĐẠT THÁNG). Đây là CHỈ SỐ NGUYÊN NHÂN - chỉ hiển thị, không cộng điểm,
+     không đổi thứ hạng đường đua. Vạch trắng trên thanh là nhịp đúng tới ngày đang xem.
+     ══════════════════════════════════════════════════ -->
+<style>
+.ddbox{margin-top:16px;border:1px solid var(--vien);border-radius:16px;background:var(--nen2);padding:14px 16px 16px}
+.ddbox h2{margin:0 0 4px;font:800 clamp(17px,2.4vw,23px)/1.1 var(--f-dis);letter-spacing:.6px;text-transform:uppercase}
+.dd-sub{margin:0 0 12px;font:600 12px/1.6 var(--f-body);color:var(--chu-mo)}
+.dd-sub b{color:var(--duong2)}
+.dd-luoi{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.dd-cn{border:1px solid #16224a;border-radius:13px;background:#0a142e;padding:11px 12px 13px}
+.dd-dau{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:9px}
+.dd-ten{font-family:var(--f-dis);font-size:15px;font-weight:700;letter-spacing:.08em;color:var(--neon)}
+.dd-ngay{font-size:11.5px;color:var(--chu-mo)}
+.dd-ngay b{color:var(--chu);font-variant-numeric:tabular-nums}
+.dd-row{display:grid;grid-template-columns:minmax(118px,1fr) minmax(90px,1.1fr) 96px;gap:8px;align-items:center;padding:4px 0}
+.dd-row+.dd-row{border-top:1px solid rgba(255,255,255,.055)}
+.dd-lbl{font-size:11.5px;font-weight:600;line-height:1.25}
+.dd-d{position:relative;height:15px;border-radius:999px;background:#1b2440;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.dd-fill{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .5s ease}
+.dd-nhip{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.9}
+.dd-so{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dd-so b{font-family:var(--f-dis);font-size:13px;display:block;line-height:1.15}
+.dd-so span{font-size:10px;color:var(--chu-mo)}
+.dd-ghi{margin-top:10px;font:600 11.5px/1.6 var(--f-body);color:var(--chu-mo)}
+.dd-loi{color:var(--xau);font-size:11.5px;font-weight:600}
+@media(max-width:460px){.dd-row{grid-template-columns:1fr 92px}.dd-d{grid-column:1/-1}}
+</style>
+<script>
+/* CHỈ SỐ DẪN DẮT CHI NHÁNH — nguồn: tab BÁO CÁO KPI NGÀY T11 của từng chi nhánh */
+(function(){
+  var FILE = {
+    CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049'  },
+    CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
+    CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852'  }
+  };
+  var CHI = [
+    ['Lượt xe vào xưởng',      /Lượt xe vào xưởng/i],
+    ['Lượt xe hoàn tất',       /Lượt xe hoàn tất/i],
+    ['Khách kiểm tra ATX',     /kiểm tra ATX/i],
+    ['Báo giá lên trong ngày', /Báo\s*Gi[áa]/i],
+    ['Cuộc gọi chăm sóc/nhận', /Cuộc gọi/i],
+    ['Lượt xe đặt lịch',       /đặt lịch/i],
+    ['Cân chỉnh thước lái',    /thước lái/i],
+    ['Tổng lốp bán ra',        /LỐP BÁN RA/i]
+  ];
+  var NGAY_THANG = 30, DATA = {}, LUC = 0;
+  function so(v){
+    v = (v || '').replace(/[^0-9,.\-]/g, '');
+    if (!v) return null;
+    v = v.replace(/\./g, '').replace(/,/g, '.');
+    var x = parseFloat(v);
+    return isNaN(x) ? null : x;
+  }
+  function csv(t){
+    var R = [], c = [], f = '', q = false, i, ch;
+    for (i = 0; i < t.length; i++) { ch = t[i];
+      if (q) { if (ch === '"') { if (t[i+1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ',') { c.push(f); f = ''; }
+      else if (ch === '\n') { c.push(f); R.push(c); c = []; f = ''; }
+      else if (ch !== '\r') f += ch; }
+    c.push(f); R.push(c); return R;
+  }
+  function docTab(R){
+    var ngay = null, ra = {}, i, j, k, m, r, last, key;
+    for (i = 0; i < R.length && ngay === null; i++) { r = R[i];
+      for (j = 0; j < r.length; j++) {
+        if (/CH[ỌO]N\s*NG[ÀA]Y/i.test(r[j] || '')) {
+          for (k = j + 1; k < r.length; k++) {
+            m = (r[k] || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (m) { ngay = parseInt(m[1], 10); break; }
+          }
+          break;
+        }
+      }
+    }
+    for (i = 0; i < R.length; i++) { r = R[i];
+      key = (r[0] || '') + ' ' + (r[1] || '');
+      for (j = 0; j < CHI.length; j++) {
+        if (ra[CHI[j][0]] !== undefined) continue;
+        if (!CHI[j][1].test(key)) continue;
+        last = -1;
+        for (k = 0; k < r.length; k++) { if (/%/.test(r[k] || '')) last = k; }
+        if (last > 0) ra[CHI[j][0]] = { kpi: so(r[last-1]), dat: so(r[last+1]) };
+      }
+    }
+    return { ngay: ngay, chi: ra };
+  }
+  function tai(){
+    return Promise.all(['CN1','CN2','CN3'].map(function (cn) {
+      var n = FILE[cn];
+      return fetch('https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid + '&_=' + Date.now(), { cache:'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(function (t) {
+          if (/<html|DOCTYPE/i.test(t.slice(0, 200))) throw new Error('chưa mở quyền xem');
+          DATA[cn] = docTab(csv(t)); LUC = Date.now();
+        })
+        .catch(function (e) { DATA[cn] = { loi: '' + (e.message || e) }; });
+    }));
+  }
+  function fmt(v){ return (v === null || v === undefined) ? '—' : Math.round(v).toLocaleString('vi-VN'); }
+  function mau(pct, nhip){
+    if (nhip <= 0) return '#2ea8ff';
+    if (pct >= nhip) return 'linear-gradient(90deg,#19e3ff,#2fe08a)';
+    if (pct >= nhip * 0.8) return 'linear-gradient(90deg,#19e3ff,#ff9f1a)';
+    return 'linear-gradient(90deg,#ff9f1a,#ff4d6d)';
+  }
+  function hop(){
+    var w = document.getElementById('dd-box');
+    if (!w) { w = document.createElement('div'); w.className = 'ddbox'; w.id = 'dd-box'; }
+    var td = document.getElementById('td-box');
+    if (td && td.parentNode && td.nextSibling !== w) { td.parentNode.insertBefore(w, td.nextSibling); return w; }
+    if (!w.parentNode) { var x = document.querySelector('.wrap'); if (!x) return null; x.appendChild(w); }
+    return w;
+  }
+  function gan(){
+    var w = hop(); if (!w) return;
+    var cnLoc = (typeof CN_LOC !== 'undefined' && CN_LOC) ? CN_LOC : null;
+    var ds = cnLoc ? [cnLoc] : ['CN1','CN2','CN3'];
+    var h = '<h2>⛽ Chỉ số dẫn dắt chi nhánh <span style="color:var(--duong2)">· tháng 11</span></h2>' +
+      '<div class="dd-sub">Số lấy thẳng tab <b>BÁO CÁO KPI NGÀY T11</b> của từng chi nhánh ' +
+      '(cột KPI THÁNG 11 · % đạt tháng · thực đạt tháng). Đây là <b>chỉ số nguyên nhân</b> — ' +
+      'nhiên liệu để xe chạy. <b>Không cộng điểm, không đổi thứ hạng đường đua.</b> ' +
+      'Vạch trắng là nhịp đúng tới ngày đang xem.</div><div class="dd-luoi">';
+    ds.forEach(function (cn) {
+      var d = DATA[cn];
+      h += '<div class="dd-cn"><div class="dd-dau"><span class="dd-ten">' + cn + '</span>';
+      if (!d) { h += '<span class="dd-ngay">đang đọc…</span></div></div>'; return; }
+      if (d.loi) { h += '<span class="dd-loi">✗ ' + d.loi + '</span></div></div>'; return; }
+      var ngay = d.ngay || 0, nhip = ngay ? (ngay / NGAY_THANG * 100) : 0;
+      h += '<span class="dd-ngay">số liệu tới ngày <b>' + (ngay ? ngay + '/11' : '—') +
+           '</b> · nhịp đúng <b>' + Math.round(nhip) + '%</b></span></div>';
+      CHI.forEach(function (x) {
+        var v = d.chi[x[0]], kpi = v ? v.kpi : null, dat = v ? v.dat : null;
+        var pct = (kpi && kpi > 0 && dat !== null) ? (dat / kpi * 100) : 0;
+        h += '<div class="dd-row"><div class="dd-lbl">' + x[0] + '</div>' +
+             '<div class="dd-d"><div class="dd-fill" style="width:' + Math.min(100, Math.max(0, pct)).toFixed(1) +
+             '%;background:' + mau(pct, nhip) + '"></div>' +
+             (nhip > 0 ? '<div class="dd-nhip" style="left:' + Math.min(100, nhip).toFixed(1) + '%"></div>' : '') +
+             '</div><div class="dd-so"><b>' + fmt(dat) + ' / ' + fmt(kpi) + '</b><span>' +
+             (kpi && kpi > 0 ? pct.toFixed(0) + '% KPI tháng' : 'chưa có KPI') + '</span></div></div>';
+      });
+      h += '</div>';
+    });
+    h += '</div><div class="dd-ghi">Thanh dài hơn vạch trắng là đang <b style="color:var(--tot)">vượt nhịp</b>; ' +
+      'ngắn hơn vạch trắng là đang <b style="color:var(--xau)">nợ chỉ số</b>. Chi nhánh nào chưa nhập vào tab ' +
+      'BÁO CÁO KPI NGÀY T11 thì hiện 0 — là do chưa nhập, không phải do không làm.' +
+      (LUC ? ' · đọc lúc ' + new Date(LUC).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}) : '') +
+      '</div>';
+    w.innerHTML = h;
+  }
+  function chay(){ try { gan(); } catch (e) {} }
+  tai().then(chay);
+  setInterval(chay, 2000);
+  setInterval(function () { tai().then(chay); }, 180000);
 })();
 </script>
