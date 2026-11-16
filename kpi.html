@@ -2,277 +2,313 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Đồng hồ KPI</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KPI của tôi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
 <style>
 :root{
-  --lv1:#F5A623; --lv2:#1E73D6; --lv3:#16A34A; --neg:#D14343;
-  --bg:#F2F5F3; --card:#FFFFFF; --ink:#16211B; --ink2:#5C6B62; --ink3:#8A978E;
-  --line:#E2E9E4; --track:#EDF1EE; --shadow:0 2px 14px rgba(20,40,28,.06);
-  --warn-bg:#FFF4E2; --warn-fg:#A35A06; --warn-bd:#F3D5A8;
-  --ok-bg:#E8F5EA; --ok-fg:#16703A;
+  /* bảng màu PLG: xanh lá chủ đạo · vàng nắng (Michelin) · chút xanh biển */
+  --lv1:#F2B705;           /* MỨC 1 — vàng Michelin */
+  --lv2:#2458A8;           /* MỨC 2 — xanh biển */
+  --lv3:#1B9D6F;           /* MỨC 3 — xanh lá (màu app) */
+  --grn:#1B9D6F; --grn-d:#0E7A52; --neg:#C0392B;
+  --bg:#F4F8F4; --card:#FFFFFF; --ink:#16211B; --ink2:#5C6B62; --ink3:#8A978E;
+  --line:#E1EAE2; --track:#EDF2EE; --shadow:0 2px 12px rgba(14,122,82,.07);
+  --warn-bg:#FFF6E3; --warn-fg:#8A6500; --warn-bd:#F3DDA8;
+  --ok-bg:#E6F6EE; --ok-fg:#0E7A52;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0E1512; --card:#172019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
-    --line:#26332B; --track:#222E27; --shadow:0 2px 14px rgba(0,0,0,.4);
-    --warn-bg:#36280F; --warn-fg:#F2C078; --warn-bd:#54401A;
-    --ok-bg:#15301F; --ok-fg:#7CD9A0;
+    --bg:#0D1512; --card:#162019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
+    --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
+    --warn-bg:#352810; --warn-fg:#F2C078; --warn-bd:#54401A;
+    --ok-bg:#133024; --ok-fg:#7CD9A0;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0E1512; --card:#172019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
-  --line:#26332B; --track:#222E27; --shadow:0 2px 14px rgba(0,0,0,.4);
-  --warn-bg:#36280F; --warn-fg:#F2C078; --warn-bd:#54401A;
-  --ok-bg:#15301F; --ok-fg:#7CD9A0;
+  --bg:#0D1512; --card:#162019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
+  --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
+  --warn-bg:#352810; --warn-fg:#F2C078; --warn-bd:#54401A;
+  --ok-bg:#133024; --ok-fg:#7CD9A0;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55;padding:0 16px 48px}
-.wrap{max-width:520px;margin:0 auto}
-header{padding:22px 0 14px}
-h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
-.sub{font-size:12.5px;color:var(--ink2);margin-top:2px}
-.seg{display:flex;background:var(--track);border-radius:999px;padding:3px;gap:3px;margin-bottom:14px}
-.seg button{flex:1;border:none;background:none;font:600 12.5px/1 'Be Vietnam Pro',sans-serif;color:var(--ink2);padding:9px 6px;border-radius:999px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:4px 0 2px}
-svg.gauge{width:100%;max-width:340px;height:auto;display:block}
+body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:26px}
+
+/* ---- topbar xanh lá giống app chấm công ---- */
+.top{background:linear-gradient(135deg,var(--grn),var(--grn-d));color:#fff;padding:16px 18px 40px;border-radius:0 0 26px 26px}
+.top .t1{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.top .t2{font-size:12.5px;opacity:.9;margin-top:2px}
+.wrap{max-width:520px;margin:-26px auto 0;padding:0 14px}
+
+/* ---- dải động viên + linh vật ---- */
+.mot{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:11px 13px;margin-bottom:12px;box-shadow:var(--shadow)}
+.mot .ava{flex:0 0 54px;width:54px;height:54px;border-radius:50%;overflow:hidden;background:#fff;border:2px solid var(--lv1);display:flex;align-items:center;justify-content:center}
+.mot .ava img{width:150%;height:150%;object-fit:cover;object-position:34% 32%}
+.mot .ava .fb{font-size:26px}
+.mot .mt{flex:1;min-width:0}
+.mot .hi{font-size:11.5px;font-weight:700;color:var(--grn);letter-spacing:.03em;text-transform:uppercase}
+.mot .msg{font-size:13.2px;font-weight:600;margin-top:2px;line-height:1.45}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center}
+svg.gauge{width:100%;max-width:320px;height:auto;display:block}
 .c-lbl{font:600 11px/1 'Be Vietnam Pro',sans-serif;fill:var(--ink3);letter-spacing:.06em}
 .c-val{font:800 27px/1 'Be Vietnam Pro',sans-serif;fill:var(--ink)}
 .c-unit{font:600 12px/1 'Be Vietnam Pro',sans-serif;fill:var(--ink3)}
 .tick{font:700 10.5px/1 'Be Vietnam Pro',sans-serif;fill:var(--ink3)}
-.lvpill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 16px;font-weight:800;font-size:13.5px;color:#fff;margin-top:2px}
-.dotrow{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-size:11.5px;color:var(--ink2);font-weight:600}
+.lvpill{display:inline-flex;border-radius:999px;padding:7px 18px;font-weight:800;font-size:13.5px;color:#fff;margin-top:2px}
+.dotrow{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:11.5px;color:var(--ink2);font-weight:600}
 .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.note{margin-top:12px;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.5;border:1px solid}
+.note{margin-top:11px;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.5;border:1px solid}
 .note.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:var(--warn-bd)}
 .note.ok{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
-h2{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px}
+h2{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:11px}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.kc{border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:var(--bg)}
+.kl{font-size:11.5px;font-weight:600;color:var(--ink2);line-height:1.35;min-height:31px}
+.kv{font-size:20px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kd{font-size:12.5px;font-weight:700;margin-top:2px}
+.kd.up{color:var(--lv3)} .kd.down{color:var(--neg)} .kd.flat{color:var(--ink3)}
+.ksub{font-size:10.5px;color:var(--ink3);font-weight:600;margin-top:2px}
+.lead{margin-top:13px;border-top:1px solid var(--line);padding-top:12px}
+.lead h3{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.lead ol{margin:0;padding-left:17px}
+.lead li{font-size:13px;line-height:1.55;margin-bottom:7px}
+.lead li:last-child{margin-bottom:0}
 label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin:0 0 5px}
 input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 15px/1.2 'Be Vietnam Pro',sans-serif;font-variant-numeric:tabular-nums}
-input:focus{outline:none;border-color:var(--lv2);box-shadow:0 0 0 3px rgba(30,115,214,.15)}
-.fg{margin-bottom:11px}
-.fg:last-child{margin-bottom:0}
+input:focus{outline:none;border-color:var(--grn);box-shadow:0 0 0 3px rgba(27,157,111,.16)}
+.fg{margin-bottom:11px}.fg:last-child{margin-bottom:0}
 .hint{font-size:11.5px;color:var(--ink3);margin-top:4px}
-/* ---- phân tích chỉ số ---- */
-.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.kc{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:var(--bg)}
-.kl{font-size:12px;font-weight:600;color:var(--ink2);line-height:1.35;min-height:33px}
-.kv{font-size:21px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.kd{font-size:12.5px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:4px}
-.kd.up{color:var(--lv3)} .kd.down{color:var(--neg)} .kd.flat{color:var(--ink3)}
-.ksub{font-size:11px;color:var(--ink3);font-weight:600;margin-top:2px}
-.lead{margin-top:14px;border-top:1px solid var(--line);padding-top:13px}
-.lead h3{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:9px}
-.lead ol{margin:0;padding-left:17px}
-.lead li{font-size:13.2px;line-height:1.55;margin-bottom:8px}
-.lead li:last-child{margin-bottom:0}
-.lead b{font-weight:800}
 table{width:100%;border-collapse:collapse}
-td{padding:8px 2px;font-size:13px;border-bottom:1px solid var(--line)}
+td{padding:7px 2px;font-size:13px;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:none}
 td:last-child{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
-tr.tot td{border-top:2px solid var(--line);padding-top:11px;font-weight:800;color:var(--lv3)}
-.foot{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:18px;line-height:1.6}
-@media (max-width:360px){.c-val{font-size:23px}.kv{font-size:19px}}
+tr.tot td{border-top:2px solid var(--line);padding-top:10px;font-weight:800;color:var(--lv3)}
+.foot{font-size:11px;color:var(--ink3);text-align:center;margin-top:14px;line-height:1.6}
+.seg{display:flex;background:var(--track);border-radius:999px;padding:3px;gap:3px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:none;font:600 12.5px/1 'Be Vietnam Pro',sans-serif;color:var(--ink2);padding:9px 6px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.hide{display:none!important}
+@media (max-width:360px){.c-val{font-size:23px}.kv{font-size:18px}}
 </style>
 </head>
 <body>
+
+<div class="top">
+  <div class="t1">KPI của tôi</div>
+  <div class="t2" id="who">Phi Long Group — mức đạt tháng này</div>
+</div>
+
 <div class="wrap">
 
-<header>
-  <h1>KPI của tôi</h1>
-  <div class="sub" id="who">Phi Long Auto — đồng hồ mức đạt</div>
-</header>
-
-<div class="seg" role="group" aria-label="Chọn vai trò">
-  <button id="tab-sale" aria-pressed="true" onclick="setMode('sale')">SALE · Doanh thu trực tiếp</button>
-  <button id="tab-ktv" aria-pressed="false" onclick="setMode('ktv')">KTV · Lưu động</button>
-</div>
-
-<div class="card">
-  <div class="gauge-wrap">
-    <svg class="gauge" viewBox="0 0 320 300" role="img" aria-labelledby="gTitle">
-      <title id="gTitle">Đồng hồ mức KPI</title>
-      <defs>
-        <filter id="nsh" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity=".28"/>
-        </filter>
-      </defs>
-      <path id="segBase" fill="none" stroke="var(--track)" stroke-width="26" stroke-linecap="round"/>
-      <path id="seg1" fill="none" stroke="var(--lv1)" stroke-width="26"/>
-      <path id="seg2" fill="none" stroke="var(--lv2)" stroke-width="26"/>
-      <path id="seg3" fill="none" stroke="var(--lv3)" stroke-width="26"/>
-      <g id="ticks"></g>
-      <text class="c-lbl" id="cLbl" x="160" y="192" text-anchor="middle">TỔNG DOANH THU TRỰC TIẾP</text>
-      <text class="c-val" id="cVal" x="160" y="221" text-anchor="middle">0</text>
-      <text class="c-unit" id="cUnit" x="160" y="240" text-anchor="middle">đồng</text>
-      <g id="needle" filter="url(#nsh)">
-        <path id="needlePath" d="" fill="var(--ink)"/>
-        <circle cx="160" cy="160" r="11" fill="var(--card)" stroke="var(--ink)" stroke-width="4"/>
-      </g>
-    </svg>
-    <div class="lvpill" id="lvPill">MỨC 1</div>
-    <div class="dotrow">
-      <span><i class="dot" style="background:var(--lv1)"></i>Mức 1</span>
-      <span><i class="dot" style="background:var(--lv2)"></i>Mức 2</span>
-      <span><i class="dot" style="background:var(--lv3)"></i>Mức 3</span>
+  <div class="mot">
+    <div class="ava"><img id="ava" src="troly-philong.png" alt="Rồng Phi Long"><span class="fb hide" id="avaFb">🐉</span></div>
+    <div class="mt">
+      <div class="hi" id="hi">CHÀO NGÀY MỚI</div>
+      <div class="msg" id="msg">Mỗi cuốc xe hôm nay là một bước lên mức cao hơn.</div>
     </div>
   </div>
-  <div class="note" id="note"></div>
-</div>
 
-<div class="card">
-  <h2>Phân tích chỉ số</h2>
-  <div class="kgrid" id="kgrid"></div>
-  <div class="lead">
-    <h3>Dẫn dắt kết quả</h3>
-    <ol id="lead"></ol>
+  <div class="seg" id="segBox" role="group" aria-label="Chọn vai trò">
+    <button id="tab-sale" aria-pressed="true" onclick="setMode('sale')">SALE · Doanh thu trực tiếp</button>
+    <button id="tab-ktv" aria-pressed="false" onclick="setMode('ktv')">KTV · Lưu động</button>
   </div>
-</div>
 
-<div class="card">
-  <h2>Nhập doanh thu</h2>
-  <div id="inputs"></div>
-</div>
+  <div class="card">
+    <div class="gauge-wrap">
+      <svg class="gauge" viewBox="0 0 320 300" role="img" aria-labelledby="gTitle">
+        <title id="gTitle">Đồng hồ mức KPI</title>
+        <defs><filter id="nsh" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity=".26"/>
+        </filter></defs>
+        <path id="segBase" fill="none" stroke="var(--track)" stroke-width="26" stroke-linecap="round"/>
+        <path id="seg1" fill="none" stroke="var(--lv1)" stroke-width="26"/>
+        <path id="seg2" fill="none" stroke="var(--lv2)" stroke-width="26"/>
+        <path id="seg3" fill="none" stroke="var(--lv3)" stroke-width="26"/>
+        <g id="ticks"></g>
+        <text class="c-lbl"  id="cLbl"  x="160" y="192" text-anchor="middle">TỔNG DOANH THU TRỰC TIẾP</text>
+        <text class="c-val"  id="cVal"  x="160" y="221" text-anchor="middle">0</text>
+        <text class="c-unit" id="cUnit" x="160" y="240" text-anchor="middle">0 đ</text>
+        <g id="needle" filter="url(#nsh)">
+          <path id="needlePath" d="" fill="var(--ink)"/>
+          <circle cx="160" cy="160" r="11" fill="var(--card)" stroke="var(--ink)" stroke-width="4"/>
+        </g>
+      </svg>
+      <div class="lvpill" id="lvPill">MỨC 1</div>
+      <div class="dotrow">
+        <span><i class="dot" style="background:var(--lv1)"></i>Mức 1</span>
+        <span><i class="dot" style="background:var(--lv2)"></i>Mức 2</span>
+        <span><i class="dot" style="background:var(--lv3)"></i>Mức 3</span>
+      </div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
 
-<div class="card">
-  <h2>Hoa hồng lũy tiến</h2>
-  <table id="hh"></table>
-</div>
+  <div class="card">
+    <h2>Phân tích chỉ số</h2>
+    <div class="kgrid" id="kgrid"></div>
+    <div class="lead"><h3>Dẫn dắt kết quả</h3><ol id="lead"></ol></div>
+  </div>
 
-<p class="foot" id="foot"></p>
+  <div class="card" id="inputCard">
+    <h2>Nhập doanh thu</h2>
+    <div id="inputs"></div>
+  </div>
 
+  <div class="card" id="hhCard">
+    <h2>Hoa hồng lũy tiến</h2>
+    <table id="hh"></table>
+  </div>
+
+  <p class="foot" id="foot"></p>
 </div>
 
 <script>
-/* ================= CẤU HÌNH BẬC — sửa ở đây là đổi toàn bộ đồng hồ ================= */
+/* ============ CẤU HÌNH BẬC — sửa ở đây là đổi toàn bộ đồng hồ ============ */
 var TR = 1e6;
 var CFG = {
   sale: {
-    label: 'TỔNG DOANH THU TRỰC TIẾP',
-    floor: 2,
-    floorText: 'KPI sàn của SALE = MỨC 2 (lốp ≥ 350tr VÀ bảo dưỡng–sửa chữa ≥ 100tr).',
-    parts: [
-      { key:'lx', short:'Lốp xe', name:'Lốp xe (LX)',             t1:350*TR, t2:700*TR, rates:[0.003,0.005,0.010] },
-      { key:'bd', short:'BD–SC', name:'Bảo dưỡng – sửa chữa',     t1:100*TR, t2:200*TR, rates:[0.005,0.010,0.030] }
+    label:'TỔNG DOANH THU TRỰC TIẾP', floor:2,
+    floorText:'KPI sàn của SALE = MỨC 2 (lốp ≥ 350tr VÀ bảo dưỡng–sửa chữa ≥ 100tr).',
+    parts:[
+      {key:'lx', short:'Lốp xe', name:'Lốp xe (LX)',          t1:350*TR, t2:700*TR, rates:[0.003,0.005,0.010]},
+      {key:'bd', short:'BD–SC',  name:'Bảo dưỡng – sửa chữa', t1:100*TR, t2:200*TR, rates:[0.005,0.010,0.030]}
     ],
-    fields: [
-      { key:'lx', label:'Doanh thu lốp xe (LX) — đồng' },
-      { key:'bd', label:'Doanh thu bảo dưỡng – sửa chữa (BD+SC+PK) — đồng' }
+    fields:[
+      {key:'lx', label:'Doanh thu lốp xe (LX) — đồng'},
+      {key:'bd', label:'Doanh thu bảo dưỡng – sửa chữa (BD+SC+PK) — đồng'}
     ]
   },
   ktv: {
-    label: 'TIỀN CÔNG LƯU ĐỘNG',
-    floor: 3,
-    floorText: 'KPI lưu động của KTV phải đạt MỨC 3 = 20tr/tháng tiền công lưu động.',
-    parts: [
-      { key:'ld', short:'Lưu động', name:'Tiền công lưu động', t1:10*TR, t2:20*TR, rates:[0.30,0.40,0.50] }
-    ],
-    fields: [
-      { key:'ld', label:'Tiền công dịch vụ lưu động — đồng (không gồm vật tư / lốp bán kèm)' }
-    ]
+    label:'TIỀN CÔNG LƯU ĐỘNG', floor:3,
+    floorText:'KPI lưu động của KTV phải đạt MỨC 3 = 20tr/tháng tiền công lưu động.',
+    parts:[{key:'ld', short:'Lưu động', name:'Tiền công lưu động', t1:10*TR, t2:20*TR, rates:[0.30,0.40,0.50]}],
+    fields:[{key:'ld', label:'Tiền công dịch vụ lưu động — đồng (không gồm vật tư / lốp bán kèm)'}]
   }
 };
-var STEP = 10*TR;   /* bước mô phỏng đòn bẩy */
-/* ================================================================================= */
+var STEP = 10*TR;
+/* ======================================================================== */
 
-var mode = 'sale';
-var V = { lx:0, bd:0, ld:0 };
-var CX = 160, CY = 160, R = 112, A0 = 135, SWEEP = 270;
+var mode='sale', V={lx:0,bd:0,ld:0}, APP=false;
+var CX=160, CY=160, R=112, A0=135, SWEEP=270;
 
 function fm(n){ return Math.round(n||0).toLocaleString('vi-VN'); }
 function fmShort(n){
-  n = Math.round(n||0);
-  if (n >= 1e9) return (n/1e9).toFixed(n % 1e9 === 0 ? 0 : 2).replace('.',',') + ' tỷ';
-  if (n >= TR)  return (n/TR ).toFixed(n % TR  === 0 ? 0 : 1).replace('.',',') + ' tr';
+  n=Math.round(n||0);
+  if(n>=1e9) return (n/1e9).toFixed(n%1e9===0?0:2).replace('.',',')+' tỷ';
+  if(n>=TR)  return (n/TR ).toFixed(n%TR ===0?0:1).replace('.',',')+' tr';
   return fm(n);
 }
 function pct1(x){ return (Math.round(x*10)/10).toString().replace('.',','); }
-function pol(a){ var r = a*Math.PI/180; return [CX + R*Math.cos(r), CY + R*Math.sin(r)]; }
+function pol(a){ var r=a*Math.PI/180; return [CX+R*Math.cos(r), CY+R*Math.sin(r)]; }
 function arc(a1,a2){
-  var p = pol(a1), q = pol(a2), big = (a2-a1) > 180 ? 1 : 0;
+  var p=pol(a1), q=pol(a2), big=(a2-a1)>180?1:0;
   return 'M'+p[0].toFixed(2)+' '+p[1].toFixed(2)+'A'+R+' '+R+' 0 '+big+' 1 '+q[0].toFixed(2)+' '+q[1].toFixed(2);
 }
 function frac(v,t1,t2){
-  var cap = t2 + (t2 - t1);
-  if (v <= 0) return 0;
-  if (v <= t1) return (v/t1)/3;
-  if (v <= t2) return 1/3 + ((v-t1)/(t2-t1))/3;
-  return 2/3 + Math.min(1,(v-t2)/(cap-t2))/3;
+  var cap=t2+(t2-t1);
+  if(v<=0) return 0;
+  if(v<=t1) return (v/t1)/3;
+  if(v<=t2) return 1/3+((v-t1)/(t2-t1))/3;
+  return 2/3+Math.min(1,(v-t2)/(cap-t2))/3;
 }
-function levelOf(v,t1,t2){ return v >= t2 ? 3 : (v >= t1 ? 2 : 1); }
-function lvColor(l){ return l===3 ? 'var(--lv3)' : (l===2 ? 'var(--lv2)' : 'var(--lv1)'); }
+function levelOf(v,t1,t2){ return v>=t2?3:(v>=t1?2:1); }
+function lvColor(l){ return l===3?'var(--lv3)':(l===2?'var(--lv2)':'var(--lv1)'); }
 function hoaHong(v,t1,t2,r){
-  if (v <= t1) return v*r[0];
-  if (v <= t2) return t1*r[0] + (v-t1)*r[1];
-  return t1*r[0] + (t2-t1)*r[1] + (v-t2)*r[2];
+  if(v<=t1) return v*r[0];
+  if(v<=t2) return t1*r[0]+(v-t1)*r[1];
+  return t1*r[0]+(t2-t1)*r[1]+(v-t2)*r[2];
+}
+
+/* ---------------- Rồng Phi Long động viên ---------------- */
+var MOT = {
+  1:[ 'Khởi đầu nào cũng từ con số 0 — hôm nay cứ chốt thêm một xe là kim nhích lên.',
+      'Chưa qua sàn thì mức đứng yên. Nhích từng xe, đừng chờ một đơn thật to.',
+      'Mức 1 là chỗ ai cũng từng đứng. Khác nhau ở chỗ ai bước tiếp.',
+      'Khách vào xưởng hôm nay là điểm KPI của hôm nay. Đừng để trôi.' ],
+  2:[ 'Qua sàn rồi — giữ nhịp này là Mức 3 nằm trong tầm tay.',
+      'Mỗi đồng từ đây đã ăn bậc cao hơn. Đẩy tiếp, đừng dừng ở đủ.',
+      'Đang ở Mức 2: tốt, nhưng chưa phải chỗ ngồi lại nghỉ.',
+      'Nửa đường rồi. Phần còn lại trả công cao hơn phần đã đi.' ],
+  3:[ 'Mức 3 — bậc cao nhất, không có trần. Mỗi xe thêm là tiền thêm.',
+      'Đã lên đỉnh thang thì việc còn lại là giữ cho tháng sau cũng vậy.',
+      'Rồng Phi Long chào người đang dẫn đầu. Kéo anh em cùng lên nhé!',
+      'Mức 3 không tự đến. Giữ được mới là bản lĩnh.' ]
+};
+var HI = [
+  [5,11,'CHÀO BUỔI SÁNG'],
+  [11,13,'CHÀO BUỔI TRƯA'],
+  [13,18,'CHÀO BUỔI CHIỀU'],
+  [18,24,'CHÀO BUỔI TỐI'],
+  [0,5, 'CHÀO ANH EM TRỰC ĐÊM']
+];
+function motivate(lv,total){
+  var d=new Date(), h=d.getHours();
+  var hi='CHÀO NGÀY MỚI';
+  for(var i=0;i<HI.length;i++){ if(h>=HI[i][0] && h<HI[i][1]){ hi=HI[i][2]; break; } }
+  var doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
+  var slot=Math.floor(h/6);                 /* mỗi ngày đổi 4 lần */
+  var list=MOT[lv]||MOT[1];
+  var msg=list[(doy*4+slot)%list.length];
+  if(total<=0) msg='Chưa có số liệu tháng này. Nhập doanh thu để xem mình đang ở đâu.';
+  document.getElementById('hi').textContent=hi;
+  document.getElementById('msg').textContent=msg;
 }
 
 function setMode(m){
-  mode = m;
+  mode=m;
   document.getElementById('tab-sale').setAttribute('aria-pressed', m==='sale');
-  document.getElementById('tab-ktv').setAttribute('aria-pressed',  m==='ktv');
-  buildInputs();
-  render();
+  document.getElementById('tab-ktv' ).setAttribute('aria-pressed', m==='ktv');
+  buildInputs(); render();
 }
 function buildInputs(){
-  var c = CFG[mode], h = '';
+  var c=CFG[mode], h='';
   c.fields.forEach(function(f){
-    h += '<div class="fg"><label for="in-'+f.key+'">'+f.label+'</label>'
-       + '<input id="in-'+f.key+'" type="text" inputmode="numeric" value="'+fm(V[f.key])+'" '
-       + 'oninput="onIn(\''+f.key+'\',this)">'
-       + '<div class="hint" id="hint-'+f.key+'">= '+fmShort(V[f.key])+'</div></div>';
+    h+='<div class="fg"><label for="in-'+f.key+'">'+f.label+'</label>'
+      +'<input id="in-'+f.key+'" type="text" inputmode="numeric" value="'+fm(V[f.key])+'" oninput="onIn(\''+f.key+'\',this)">'
+      +'<div class="hint" id="hint-'+f.key+'">= '+fmShort(V[f.key])+'</div></div>';
   });
-  document.getElementById('inputs').innerHTML = h;
+  document.getElementById('inputs').innerHTML=h;
 }
 function onIn(k,el){
-  var raw = el.value.replace(/[^\d]/g,'');
-  V[k] = parseFloat(raw||'0');
-  var before = el.value.length, pos = el.selectionStart;
-  el.value = raw ? fm(V[k]) : '';
-  var d = el.value.length - before;
-  try { el.setSelectionRange(Math.max(0,pos+d), Math.max(0,pos+d)); } catch(e){}
-  document.getElementById('hint-'+k).textContent = '= ' + fmShort(V[k]);
+  var raw=el.value.replace(/[^\d]/g,'');
+  V[k]=parseFloat(raw||'0');
+  var before=el.value.length, pos=el.selectionStart;
+  el.value=raw?fm(V[k]):'';
+  var d=el.value.length-before;
+  try{ el.setSelectionRange(Math.max(0,pos+d),Math.max(0,pos+d)); }catch(e){}
+  document.getElementById('hint-'+k).textContent='= '+fmShort(V[k]);
   render();
 }
 
 function render(){
-  var c = CFG[mode];
-  var parts = c.parts.map(function(p){
-    var v = V[p.key]||0;
-    var lv = levelOf(v,p.t1,p.t2);
-    return {
-      p:p, v:v, lv:lv,
-      fr:frac(v,p.t1,p.t2),
-      hh:hoaHong(v,p.t1,p.t2,p.rates),
-      next: lv===1 ? p.t1 : (lv===2 ? p.t2 : null),   /* mốc kế tiếp */
-      gap:  lv===1 ? p.t1-v : (lv===2 ? p.t2-v : 0),
-      marg: p.rates[lv-1],                            /* % hoa hồng cho đồng tiếp theo */
-      goal: lv===1 ? p.t1 : p.t2                      /* mốc dùng để đo % đạt */
-    };
+  var c=CFG[mode];
+  var parts=c.parts.map(function(p){
+    var v=V[p.key]||0, lv=levelOf(v,p.t1,p.t2);
+    return { p:p, v:v, lv:lv, fr:frac(v,p.t1,p.t2), hh:hoaHong(v,p.t1,p.t2,p.rates),
+             next: lv===1?p.t1:(lv===2?p.t2:null),
+             gap:  lv===1?p.t1-v:(lv===2?p.t2-v:0),
+             marg: p.rates[lv-1],
+             goal: lv===1?p.t1:p.t2 };
   });
-  var total  = parts.reduce(function(s,x){ return s+x.v;  },0);
-  var totHH  = parts.reduce(function(s,x){ return s+x.hh; },0);
-  var lv = Math.min.apply(null, parts.map(function(x){ return x.lv; }));
-  var fr = parts.reduce(function(s,x){ return s+x.fr; },0)/parts.length;
+  var total=parts.reduce(function(s,x){return s+x.v;},0);
+  var totHH=parts.reduce(function(s,x){return s+x.hh;},0);
+  var lv=Math.min.apply(null,parts.map(function(x){return x.lv;}));
+  var fr=parts.reduce(function(s,x){return s+x.fr;},0)/parts.length;
 
-  /* ---------- cung 3 màu ---------- */
-  var s1=A0, s2=A0+SWEEP/3, s3=A0+2*SWEEP/3, s4=A0+SWEEP;
-  document.getElementById('segBase').setAttribute('d', arc(s1,s4));
-  document.getElementById('seg1').setAttribute('d', arc(s1+1.2, s2-1.2));
-  document.getElementById('seg2').setAttribute('d', arc(s2+1.2, s3-1.2));
-  document.getElementById('seg3').setAttribute('d', arc(s3+1.2, s4-1.2));
+  var s1=A0,s2=A0+SWEEP/3,s3=A0+2*SWEEP/3,s4=A0+SWEEP;
+  document.getElementById('segBase').setAttribute('d',arc(s1,s4));
+  document.getElementById('seg1').setAttribute('d',arc(s1+1.2,s2-1.2));
+  document.getElementById('seg2').setAttribute('d',arc(s2+1.2,s3-1.2));
+  document.getElementById('seg3').setAttribute('d',arc(s3+1.2,s4-1.2));
   [['seg1',1],['seg2',2],['seg3',3]].forEach(function(t){
-    document.getElementById(t[0]).setAttribute('opacity', lv >= t[1] ? '1' : '.26');
+    document.getElementById(t[0]).setAttribute('opacity', lv>=t[1]?'1':'.26');
   });
 
-  /* ---------- vạch mốc ---------- */
-  var marks = (parts.length === 1)
+  var marks=(parts.length===1)
     ? [[s1,'0'],[s2,fmShort(parts[0].p.t1)],[s3,fmShort(parts[0].p.t2)],[s4,'']]
     : [[s1,'0'],[s2,'Mức 2'],[s3,'Mức 3'],[s4,'']];
   var tk='';
@@ -281,77 +317,61 @@ function render(){
     var x1=CX+(R-16)*Math.cos(a), y1=CY+(R-16)*Math.sin(a);
     var x2=CX+(R+16)*Math.cos(a), y2=CY+(R+16)*Math.sin(a);
     var tx=CX+(R+30)*Math.cos(a), ty=CY+(R+30)*Math.sin(a)+4;
-    tk += '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="var(--line)" stroke-width="2"/>';
-    if (m[1]) tk += '<text class="tick" x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="middle">'+m[1]+'</text>';
+    tk+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="var(--line)" stroke-width="2"/>';
+    if(m[1]) tk+='<text class="tick" x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="middle">'+m[1]+'</text>';
   });
-  document.getElementById('ticks').innerHTML = tk;
+  document.getElementById('ticks').innerHTML=tk;
 
-  /* ---------- kim ---------- */
   var ang=A0+SWEEP*Math.max(0,Math.min(1,fr)), a=ang*Math.PI/180, ca=Math.cos(a), sa=Math.sin(a);
   var tipL=R-16, backL=20, hw=7.5;
-  var tip=[CX+tipL*ca, CY+tipL*sa];
-  var bL =[CX-backL*ca-hw*sa, CY-backL*sa+hw*ca];
-  var bR =[CX-backL*ca+hw*sa, CY-backL*sa-hw*ca];
-  var np = document.getElementById('needlePath');
+  var tip=[CX+tipL*ca,CY+tipL*sa], bL=[CX-backL*ca-hw*sa,CY-backL*sa+hw*ca], bR=[CX-backL*ca+hw*sa,CY-backL*sa-hw*ca];
+  var np=document.getElementById('needlePath');
   np.setAttribute('d','M'+tip[0].toFixed(1)+' '+tip[1].toFixed(1)+'L'+bR[0].toFixed(1)+' '+bR[1].toFixed(1)+'L'+bL[0].toFixed(1)+' '+bL[1].toFixed(1)+'Z');
-  np.setAttribute('fill', lvColor(lv));
-  document.querySelector('#needle circle').setAttribute('stroke', lvColor(lv));
+  np.setAttribute('fill',lvColor(lv));
+  document.querySelector('#needle circle').setAttribute('stroke',lvColor(lv));
 
-  document.getElementById('cLbl').textContent  = c.label;
-  document.getElementById('cVal').textContent  = fmShort(total);
-  document.getElementById('cUnit').textContent = fm(total)+' đ';
-  var pill = document.getElementById('lvPill');
-  pill.textContent = 'MỨC '+lv+(lv===3?' — CAO NHẤT':'');
-  pill.style.background = lvColor(lv);
+  document.getElementById('cLbl').textContent=c.label;
+  document.getElementById('cVal').textContent=fmShort(total);
+  document.getElementById('cUnit').textContent=fm(total)+' đ';
+  var pill=document.getElementById('lvPill');
+  pill.textContent='MỨC '+lv+(lv===3?' — CAO NHẤT':'');
+  pill.style.background=lvColor(lv);
 
-  /* ---------- cảnh báo sàn ---------- */
-  var note = document.getElementById('note');
-  var lows = parts.filter(function(x){ return x.lv < c.floor; });
-  if (lows.length){
+  var note=document.getElementById('note');
+  var lows=parts.filter(function(x){ return x.lv<c.floor; });
+  if(lows.length){
     note.className='note warn';
-    note.innerHTML = '⚠ Chưa đạt KPI sàn. '+c.floorText+'<br>Đang hụt: '
-      + lows.map(function(x){
-          var need = (c.floor===3 ? x.p.t2 : x.p.t1) - x.v;
-          return '<b>'+x.p.name+'</b> còn thiếu '+fmShort(need);
-        }).join(' · ');
+    note.innerHTML='⚠ Chưa đạt KPI sàn. '+c.floorText+'<br>Đang hụt: '
+      + lows.map(function(x){ var need=(c.floor===3?x.p.t2:x.p.t1)-x.v;
+          return '<b>'+x.p.name+'</b> còn thiếu '+fmShort(need); }).join(' · ');
   } else {
     note.className='note ok';
-    note.innerHTML = '✓ Đã đạt KPI sàn (Mức '+c.floor+'). '+c.floorText;
+    note.innerHTML='✓ Đã đạt KPI sàn (Mức '+c.floor+'). '+c.floorText;
   }
 
-  /* ---------- PHÂN TÍCH CHỈ SỐ ---------- */
-  function kcard(lbl, val, dHtml, dCls, sub){
-    return '<div class="kc"><div class="kl">'+lbl+'</div>'
-         + '<div class="kv">'+val+'</div>'
-         + '<div class="kd '+dCls+'">'+dHtml+'</div>'
-         + (sub ? '<div class="ksub">'+sub+'</div>' : '') + '</div>';
+  function kcard(lbl,val,dHtml,dCls,sub){
+    return '<div class="kc"><div class="kl">'+lbl+'</div><div class="kv">'+val+'</div>'
+         + '<div class="kd '+dCls+'">'+dHtml+'</div>'+(sub?'<div class="ksub">'+sub+'</div>':'')+'</div>';
   }
-  var cards = parts.map(function(x){
-    var r = x.v/x.goal*100;
-    var cls = r >= 100 ? 'up' : 'down';
-    var ar  = r >= 100 ? '↑' : '↓';
-    var d   = r >= 100 ? pct1(r-100) : pct1(100-r);
-    return kcard(x.p.name, fmShort(x.v), ar+' '+d+'%', cls,
+  var cards=parts.map(function(x){
+    var r=x.v/x.goal*100, cls=r>=100?'up':'down', ar=r>=100?'↑':'↓';
+    return kcard(x.p.name, fmShort(x.v), ar+' '+pct1(Math.abs(r-100))+'%', cls,
       (r>=100?'vượt':'thiếu')+' so với mốc '+fmShort(x.goal)+' · Mức '+x.lv);
   });
-  if (parts.length > 1){
-    var gTot = parts.reduce(function(s,x){ return s+x.goal; },0);
-    var rt = gTot ? total/gTot*100 : 0;
+  if(parts.length>1){
+    var gTot=parts.reduce(function(s,x){return s+x.goal;},0);
+    var rt=gTot?total/gTot*100:0;
     cards.push(kcard('Tổng doanh thu trực tiếp', fmShort(total),
       (rt>=100?'↑ ':'↓ ')+pct1(Math.abs(rt-100))+'%', rt>=100?'up':'down',
       'so với tổng mốc '+fmShort(gTot)));
   }
-  var effRate = total ? totHH/total*100 : 0;
-  cards.push(kcard('Hoa hồng tạm tính', fm(totHH)+' đ',
-    '≈ '+pct1(effRate)+'% doanh thu', 'flat', 'tính lũy tiến theo bậc'));
-  document.getElementById('kgrid').innerHTML = cards.join('');
+  var eff=total?totHH/total*100:0;
+  cards.push(kcard('Hoa hồng tạm tính', fm(totHH)+' đ', '≈ '+pct1(eff)+'% doanh thu','flat','tính lũy tiến theo bậc'));
+  document.getElementById('kgrid').innerHTML=cards.join('');
 
-  /* ---------- DẪN DẮT KẾT QUẢ ---------- */
-  var li = [];
-  var worst = parts.slice().sort(function(a,b){ return a.lv-b.lv || (b.gap-a.gap); })[0];
-
-  if (total <= 0){
-    li.push('Chưa có số. Nhập doanh thu bên dưới để đồng hồ chạy.');
+  var li=[], worst=parts.slice().sort(function(a,b){ return a.lv-b.lv || (b.gap-a.gap); })[0];
+  if(total<=0){
+    li.push('Chưa có số. '+(APP?'Dữ liệu sẽ tự đổ từ app khi có doanh thu trong tháng.':'Nhập doanh thu bên dưới để đồng hồ chạy.'));
   } else {
     li.push(parts.length>1
       ? 'Đang ở <b>Mức '+lv+'</b> — mức lấy theo chỉ tiêu <b>thấp nhất</b>, nên '
@@ -359,59 +379,65 @@ function render(){
             ? 'cả hai chỉ tiêu đang cùng Mức '+lv+'.'
             : '<b>'+worst.p.name+'</b> đang kéo kết quả xuống.')
       : 'Đang ở <b>Mức '+lv+'</b> trên thang '+fmShort(parts[0].p.t1)+' / '+fmShort(parts[0].p.t2)+'.');
-
-    parts.filter(function(x){ return x.next; }).forEach(function(x){
-      var hhNow  = x.hh;
-      var hhNext = hoaHong(x.next, x.p.t1, x.p.t2, x.p.rates);
-      li.push('<b>'+x.p.name+'</b>: còn <b>'+fmShort(x.gap)+'</b> nữa là chạm mốc '
-        + fmShort(x.next)+' (Mức '+(x.lv+1)+'). Khi chạm, hoa hồng phần này lên <b>'
-        + fm(hhNext)+' đ</b> (+'+fm(hhNext-hhNow)+' đ) và đồng tiếp theo được hưởng <b>'
-        + pct1(x.p.rates[x.lv]*100)+'%</b> thay vì '+pct1(x.marg*100)+'%.');
+    parts.filter(function(x){return x.next;}).forEach(function(x){
+      var hhNext=hoaHong(x.next,x.p.t1,x.p.t2,x.p.rates);
+      li.push('<b>'+x.p.name+'</b>: còn <b>'+fmShort(x.gap)+'</b> nữa là chạm mốc '+fmShort(x.next)
+        +' (Mức '+(x.lv+1)+'). Khi chạm, hoa hồng phần này lên <b>'+fm(hhNext)+' đ</b> (+'
+        +fm(hhNext-x.hh)+' đ) và đồng tiếp theo được hưởng <b>'+pct1(x.p.rates[x.lv]*100)+'%</b> thay vì '
+        +pct1(x.marg*100)+'%.');
     });
-
-    if (parts.length > 1){
-      var sim = parts.map(function(x){
-        return { n:x.p.short, g:hoaHong(x.v+STEP, x.p.t1, x.p.t2, x.p.rates) - x.hh };
+    if(parts.length>1){
+      var sim=parts.map(function(x){
+        return { n:x.p.short, g:hoaHong(x.v+STEP,x.p.t1,x.p.t2,x.p.rates)-x.hh };
       }).sort(function(a,b){ return b.g-a.g; });
       li.push('<b>Đòn bẩy:</b> cùng bán thêm '+fmShort(STEP)+' lúc này — '
         + sim.map(function(s){ return s.n+' được '+fm(s.g)+' đ'; }).join(', ')
-        + '. Ưu tiên đẩy <b>'+sim[0].n+'</b>'
-        + (sim[0].g === sim[sim.length-1].g ? ' (hai bên ngang nhau).' : '.'));
+        + '. Ưu tiên đẩy <b>'+sim[0].n+'</b>'+(sim[0].g===sim[sim.length-1].g?' (hai bên ngang nhau).':'.'));
     }
-
-    if (lows.length === 0 && lv === 3){
-      li.push('Đã <b>Mức 3</b> toàn bộ — từ đây mỗi đồng doanh thu thêm đều hưởng bậc cao nhất, không có trần.');
-    } else if (lows.length){
-      li.push('<b>Việc cần làm:</b> đóng khoảng hụt của <b>'
-        + lows.map(function(x){ return x.p.short; }).join(' và ')
-        + '</b> trước — chưa qua sàn thì mức vẫn đứng yên dù tổng doanh thu có cao.');
-    }
+    if(!lows.length && lv===3) li.push('Đã <b>Mức 3</b> toàn bộ — từ đây mỗi đồng doanh thu thêm đều hưởng bậc cao nhất, không có trần.');
+    else if(lows.length) li.push('<b>Việc cần làm:</b> đóng khoảng hụt của <b>'
+      + lows.map(function(x){return x.p.short;}).join(' và ')
+      + '</b> trước — chưa qua sàn thì mức vẫn đứng yên dù tổng doanh thu có cao.');
   }
-  document.getElementById('lead').innerHTML = li.map(function(t){ return '<li>'+t+'</li>'; }).join('');
+  document.getElementById('lead').innerHTML=li.map(function(t){return '<li>'+t+'</li>';}).join('');
 
-  /* ---------- bảng hoa hồng ---------- */
-  var rows = parts.map(function(x){
+  var rows=parts.map(function(x){
     return '<tr><td>'+x.p.name+' — '+fmShort(x.v)+'</td><td>'+fm(x.hh)+' đ</td></tr>';
   }).join('');
-  rows += '<tr class="tot"><td>Tổng hoa hồng lũy tiến</td><td>'+fm(totHH)+' đ</td></tr>';
-  document.getElementById('hh').innerHTML = rows;
+  rows+='<tr class="tot"><td>Tổng hoa hồng lũy tiến</td><td>'+fm(totHH)+' đ</td></tr>';
+  document.getElementById('hh').innerHTML=rows;
 
-  document.getElementById('foot').innerHTML = c.parts.map(function(p){
+  document.getElementById('foot').innerHTML=c.parts.map(function(p){
     return p.name+': '+pct1(p.rates[0]*100)+'% / '+pct1(p.rates[1]*100)+'% / '+pct1(p.rates[2]*100)
-         + '% lũy tiến theo mốc '+fmShort(p.t1)+' – '+fmShort(p.t2);
+      +'% lũy tiến theo mốc '+fmShort(p.t1)+' – '+fmShort(p.t2);
   }).join('<br>');
+
+  motivate(lv,total);
 }
 
-/* nhận dữ liệu từ AppSheet / link: ?lx=...&bd=...&ld=...&mode=ktv&ten=... */
+/* nhận dữ liệu từ app: ?lx=&bd=&ld=&mode=ktv&ten=&ky=&app=1  (&edit=1 để hiện ô nhập) */
 (function init(){
-  try{
-    var q = new URLSearchParams(location.search);
-    ['lx','bd','ld'].forEach(function(k){
-      if (q.has(k)) V[k] = parseFloat(String(q.get(k)).replace(/[^\d.]/g,'')) || 0;
-    });
-    if (q.get('mode') === 'ktv') mode = 'ktv';
-    if (q.get('ten')) document.getElementById('who').textContent = q.get('ten');
-  }catch(e){}
+  var q;
+  try{ q=new URLSearchParams(location.search); }catch(e){ q=new URLSearchParams(''); }
+  ['lx','bd','ld'].forEach(function(k){
+    if(q.has(k)) V[k]=parseFloat(String(q.get(k)).replace(/[^\d.]/g,''))||0;
+  });
+  if(q.get('mode')==='ktv') mode='ktv';
+  var ten=q.get('ten'), ky=q.get('ky');
+  if(ten) document.getElementById('who').textContent=ten+(ky?' · '+ky:'');
+  else if(ky) document.getElementById('who').textContent='Kỳ '+ky;
+
+  APP = q.has('app') || q.has('lx') || q.has('bd') || q.has('ld');
+  if(APP && q.get('edit')!=='1'){
+    document.getElementById('inputCard').classList.add('hide');
+    document.getElementById('hhCard').classList.add('hide');
+    document.getElementById('foot').classList.add('hide');
+    if(q.has('mode')||q.has('ld')||q.has('lx')||q.has('bd')) document.getElementById('segBox').classList.add('hide');
+  }
+  var img=document.getElementById('ava');
+  function noAva(){ img.classList.add('hide'); document.getElementById('avaFb').classList.remove('hide'); }
+  img.addEventListener('error',noAva);
+  if(img.complete && !img.naturalWidth) noAva();
   setMode(mode);
 })();
 </script>
