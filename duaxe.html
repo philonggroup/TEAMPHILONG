@@ -2490,159 +2490,149 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 })();
 </script>
 
-
-<!-- ═══════ TRỢ LÝ TEAM PHI LONG — cổ vũ & chào đón người dẫn đầu ═══════ -->
+<!-- ═══════ TRỢ LÝ RỒNG PHI LONG — đồng hành & nhắc tên từng thành viên (trên cùng) ═══════ -->
 <style>
-#troly{position:fixed;left:14px;bottom:14px;z-index:880;display:flex;align-items:flex-end;gap:10px;
-  font-family:var(--f-body,system-ui);pointer-events:none}
+#troly{display:flex;align-items:center;gap:13px;position:sticky;top:0;z-index:70;
+  margin:0 0 16px;padding:10px 14px;border-radius:0 0 18px 18px;
+  font-family:var(--f-body,system-ui);
+  background:linear-gradient(100deg,#0c1430 0%,#132253 52%,#0c1430 100%);
+  border:1px solid var(--vien,#1e2b52);border-top:0;
+  box-shadow:0 10px 26px rgba(0,0,0,.45)}
 html.khoa #troly{display:none}
-#troly .tl-av{pointer-events:auto;position:relative;width:88px;height:88px;border-radius:50%;flex:none;
-  cursor:pointer;background:#0a1026;overflow:hidden;
-  border:3px solid var(--vang,#ffc62e);
-  box-shadow:0 6px 20px rgba(0,0,0,.55),0 0 0 3px rgba(25,227,255,.25);
-  animation:tl-bob 3.4s ease-in-out infinite}
-#troly .tl-av img{width:118%;height:118%;object-fit:cover;object-position:50% 42%;transform:translate(-8%,-4%)}
-#troly .tl-av::after{content:"";position:absolute;inset:0;border-radius:50%;
-  box-shadow:inset 0 0 14px rgba(25,227,255,.35);pointer-events:none}
-#troly.moi .tl-av{animation:tl-pop .7s ease 4, tl-bob 3.4s ease-in-out infinite}
-#troly .tl-bubble{pointer-events:auto;position:relative;max-width:min(78vw,260px);
-  background:linear-gradient(165deg,#14204a,#0b1430);border:1px solid var(--vien,#1e2b52);
-  border-radius:14px 14px 14px 4px;padding:11px 13px 12px;color:var(--chu,#eaf0ff);
-  font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;
-  transform-origin:left bottom;animation:tl-in .35s ease}
-#troly .tl-bubble::after{content:"";position:absolute;left:-7px;bottom:10px;width:0;height:0;
-  border:7px solid transparent;border-right-color:#0b1430;border-left:0}
-#troly .tl-tag{display:block;font-family:var(--f-dis,'Oswald');font-size:10px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--neon,#19e3ff);margin-bottom:3px}
-#troly .tl-tag b{color:var(--vang,#ffc62e)}
-#troly .tl-x{position:absolute;top:4px;right:6px;border:0;background:transparent;color:var(--chu-mo,#8ea0c8);
-  font-size:15px;line-height:1;cursor:pointer;padding:2px 4px}
+#troly .tl-av{position:relative;width:70px;height:70px;border-radius:16px;flex:none;overflow:hidden;
+  background:#fff;cursor:pointer;border:2px solid var(--vang,#ffc62e);
+  box-shadow:0 4px 14px rgba(0,0,0,.4);animation:tl-nod 3.8s ease-in-out infinite}
+#troly .tl-av img{width:100%;height:100%;object-fit:cover;object-position:50% 28%}
+#troly .tl-main{flex:1;min-width:0}
+#troly .tl-top{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+#troly .tl-k{font-family:var(--f-dis,'Oswald');font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--vang,#ffc62e);white-space:nowrap}
+#troly .tl-count{font-family:var(--f-dis,'Oswald');font-size:10.5px;letter-spacing:.06em;color:var(--chu-mo,#8ea0c8);
+  border:1px solid var(--vien,#1e2b52);border-radius:999px;padding:2px 9px;white-space:nowrap}
+#troly .tl-say{font-size:14px;line-height:1.4;color:var(--chu,#eaf0ff);
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  min-height:20px;animation:tl-say-in .4s ease}
+#troly .tl-say b{color:#fff}
+#troly .tl-cn{font-size:11px;color:var(--neon,#19e3ff);font-weight:600;white-space:nowrap}
+#troly .tl-bar{height:3px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:7px;overflow:hidden}
+#troly .tl-bar i{display:block;height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,var(--neon,#19e3ff),var(--vang,#ffc62e))}
+#troly.chay .tl-bar i{animation:tl-run 3.8s linear}
+#troly .tl-x{flex:none;align-self:flex-start;border:0;background:transparent;color:var(--chu-mo,#8ea0c8);
+  font-size:17px;line-height:1;cursor:pointer;padding:2px 4px}
 #troly .tl-x:hover{color:var(--chu,#eaf0ff)}
-#troly .tl-dot{pointer-events:auto;display:none;width:40px;height:40px;border-radius:50%;cursor:pointer;
-  align-items:center;justify-content:center;font-size:18px;background:#14204a;border:1px solid var(--vien);
-  box-shadow:0 4px 12px rgba(0,0,0,.5)}
-#troly.thu .tl-bubble{display:none}
-#troly.thu .tl-dot{display:flex}
-@keyframes tl-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes tl-in{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes tl-pop{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.55),0 0 0 3px rgba(255,198,46,.25)}
-  50%{box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 7px rgba(255,198,46,.6)}}
+#troly.thu{gap:10px;padding:7px 12px}
+#troly.thu .tl-main .tl-top,#troly.thu .tl-bar{display:none}
+#troly.thu .tl-av{width:42px;height:42px;border-radius:11px;animation:none}
+#troly.thu .tl-say{-webkit-line-clamp:1;font-size:12.5px;color:var(--chu-mo,#8ea0c8)}
+#troly.thu .tl-x{transform:rotate(45deg)}
+@keyframes tl-nod{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+@keyframes tl-say-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes tl-run{from{width:0}to{width:100%}}
 @media(max-width:640px){
-  #troly .tl-av{width:66px;height:66px;border-width:2px}
-  #troly .tl-bubble{font-size:12px;max-width:72vw;padding:9px 11px 10px}
-  #troly{left:10px;bottom:10px;gap:8px}
+  #troly{gap:10px;padding:8px 11px}
+  #troly .tl-av{width:56px;height:56px;border-radius:13px}
+  #troly .tl-say{font-size:12.5px}
+  #troly .tl-k{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){
-  #troly .tl-av,#troly.moi .tl-av{animation:none}
-  #troly .tl-bubble{animation:none}
+  #troly .tl-av,#troly.chay .tl-bar i,#troly .tl-say{animation:none}
 }
 </style>
 
-<div id="troly" aria-live="polite">
-  <div class="tl-av" id="tl-av" role="button" tabindex="0" aria-label="Trợ lý Team Phi Long — bấm để xem lời tiếp theo">
-    <img src="troly-philong.png" alt="Trợ lý Phi Long" draggable="false">
-  </div>
-  <div class="tl-bubble" id="tl-bubble">
-    <button class="tl-x" id="tl-x" type="button" aria-label="Thu gọn trợ lý" title="Thu gọn">×</button>
-    <span class="tl-tag" id="tl-tag">Trợ lý Team Phi Long</span>
-    <span id="tl-text">Anh em Phi Long ơi, tăng tốc nào! 🚀</span>
-  </div>
-  <div class="tl-dot" id="tl-dot" role="button" tabindex="0" title="Mở lại trợ lý" aria-label="Mở lại trợ lý">🐉</div>
-</div>
-
 <script>
-/* TRỢ LÝ TEAM PHI LONG — hoàn toàn độc lập, chỉ ĐỌC từ #cup-box, không đổi dữ liệu/thứ hạng */
+/* TRỢ LÝ RỒNG PHI LONG — độc lập, CHỈ ĐỌC tên/vị trí từ các làn đua đã render; không đổi dữ liệu/thứ hạng */
 (function(){
-  var KEY_THU = 'pl-troly-thu';
-  var el = document.getElementById('troly');
-  var av = document.getElementById('tl-av');
-  var bub = document.getElementById('tl-bubble');
-  var txt = document.getElementById('tl-text');
-  var tag = document.getElementById('tl-tag');
-  var dot = document.getElementById('tl-dot');
-  var btnX = document.getElementById('tl-x');
-  if(!el) return;
+  var KEY_THU='pl-troly-thu';
 
-  /* Lời cổ vũ chung — tinh thần anh em */
-  var CO_VU = [
-    {t:'Trợ lý Team Phi Long', m:'Anh em Phi Long ơi, tăng tốc nào! 🚀'},
-    {t:'Cổ vũ', m:'Mỗi cuộc gọi, mỗi phiếu kiểm tra xe là một mét đường về đích 💪'},
-    {t:'Giữ nhịp', m:'Đường đua còn dài — giữ đều tay, mình còn bứt phá! 🔥'},
-    {t:'Tâm thế', m:'Khách hài lòng là mình thắng. Cả team cố lên nhé! ⭐'},
-    {t:'Nhích từng ngày', m:'Hôm nay nhích thêm một bậc, mai đã khác rồi 📈'},
-    {t:'Khẩu hiệu', m:'Phi Long — Tăng tốc về đích, bứt phá doanh số, cùng nhau! 🏁'},
-    {t:'Nhắc nhẹ', m:'Đừng quên 11 video TikTok + xin đánh giá 5 sao mỗi ngày nha 📱'},
-    {t:'Không bỏ cuộc', m:'Dẫn đầu hay bám đuổi, quan trọng là không bỏ cuộc 🏎️'},
-    {t:'Đồng đội', m:'Người đi trước kéo người đi sau — mình là một TEAM 🤝'}
+  var CO_VU=[
+    'Anh em Phi Long ơi — mỗi cung đường đều có mình đồng hành! 🐉',
+    'Giữ nhịp đều tay, cả team cùng tăng tốc về đích 🏁',
+    'Mỗi cuộc gọi, mỗi phiếu kiểm tra xe là một mét đường 💪',
+    'Khách hài lòng là mình thắng — Đồng hành · Phục vụ · Tận tâm ⭐',
+    'Hôm nay nhích thêm một bậc, mai đã khác rồi 📈',
+    'Đừng quên 11 video TikTok + xin đánh giá 5 sao mỗi ngày 📱',
+    'Dẫn đầu hay bám đuổi — quan trọng là không bỏ cuộc 🏎️'
   ];
 
-  function layDan(){
-    /* đọc 2 dòng đầu của #cup-box: [0]=kinh doanh, [1]=kỹ thuật viên; tên nằm trước dấu " · " */
-    var box = document.getElementById('cup-box');
-    var out = {kd:null, kt:null};
-    if(!box) return out;
-    var bs = box.querySelectorAll('.tram-row b');
-    function ten(n){ if(!n) return null; var s=(n.textContent||'').split('·')[0].trim();
-      return (!s || s==='—') ? null : s; }
-    if(bs[0]) out.kd = ten(bs[0]);
-    if(bs[1]) out.kt = ten(bs[1]);
+  /* dựng band, chèn LÊN TRÊN CÙNG của .wrap */
+  var wrap=document.querySelector('.wrap');
+  if(!wrap) return;
+  var el=document.createElement('div');
+  el.id='troly';
+  el.innerHTML=
+    '<div class="tl-av" id="tl-av" role="button" tabindex="0" aria-label="Trợ lý Rồng Phi Long — bấm để xem thành viên tiếp theo">'+
+      '<img src="troly-philong.png" alt="Rồng Phi Long" draggable="false"></div>'+
+    '<div class="tl-main">'+
+      '<div class="tl-top"><span class="tl-k" id="tl-k">Đồng hành cùng team</span>'+
+        '<span class="tl-count" id="tl-count">đang đọc…</span></div>'+
+      '<div class="tl-say" id="tl-say">Anh em Phi Long ơi — mình cùng ra đường đua nào! 🐉</div>'+
+      '<div class="tl-bar"><i id="tl-bar-i"></i></div></div>'+
+    '<button class="tl-x" id="tl-x" type="button" title="Thu gọn" aria-label="Thu gọn trợ lý">×</button>';
+  wrap.insertBefore(el, wrap.firstChild);
+
+  var av=el.querySelector('#tl-av'), kEl=el.querySelector('#tl-k'),
+      cEl=el.querySelector('#tl-count'), sEl=el.querySelector('#tl-say'),
+      xBtn=el.querySelector('#tl-x');
+
+  function docThanhVien(){
+    var out=[];
+    [['cnd-kd','Kinh doanh'],['cnd-kt','Kỹ thuật']].forEach(function(b){
+      var root=document.getElementById(b[0]); if(!root) return;
+      root.querySelectorAll('.cn-khoi').forEach(function(box){
+        var cnEl=box.querySelector('.cn-ten'); var cn=cnEl?cnEl.textContent.trim():'';
+        box.querySelectorAll('.lan').forEach(function(l){
+          var nmEl=l.querySelector('.lan-ten .nm'); if(!nmEl) return;
+          var raw=nmEl.textContent||'';
+          var ten=raw.replace('👑','').replace('⚠','').replace(/\s+/g,' ').trim();
+          if(!ten) return;
+          var htEl=l.querySelector('.lan-ht');
+          var ht=htEl?parseInt((htEl.textContent||'').replace(/\D/g,''),10):0;
+          var vEl=l.querySelector('.lan-so b'); var val=vEl?vEl.textContent.trim():'';
+          out.push({ten:ten, cn:cn, blk:b[1], ht:ht||99, val:val, vua:/👑/.test(raw)});
+        });
+      });
+    });
     return out;
   }
 
-  function danhSach(dan){
-    var ds = [];
-    if(dan.kd) ds.push({t:'🏆 Giữ cúp Kinh doanh', m:'<b>'+dan.kd+'</b> đang DẪN ĐẦU khối kinh doanh — cả team vỗ tay 👏'});
-    if(dan.kt) ds.push({t:'🏆 Giữ cúp Kỹ thuật', m:'<b>'+dan.kt+'</b> đang giữ cúp kỹ thuật viên — giữ phong độ nhé! 🔧🔥'});
-    /* trộn lời cổ vũ chung vào giữa các lời chúc dẫn đầu */
-    for(var i=0;i<CO_VU.length;i++) ds.push(CO_VU[i]);
-    return ds;
+  function loiCho(m){
+    if(!m) return null;
+    var who='<b>'+m.ten+'</b> <span class="tl-cn">'+m.cn+' · '+m.blk+'</span>';
+    var v=m.val?(' — '+m.val):'';
+    if(m.vua||m.ht===1) return {k:'👑 Đang dẫn đầu', t:who+v+'! Cả team vỗ tay, giữ vững ngôi đầu 🏆'};
+    if(m.ht<=3)        return {k:'🔥 Top '+m.ht+' hệ thống', t:who+v+', bám sát lắm — bứt phá nào!'};
+    if(m.ht<=6)        return {k:'🚀 Đang bứt tốc', t:who+v+', vượt thêm một bậc là vào top!'};
+    return {k:'💪 Đang tăng tốc', t:who+v+', cố thêm chút — mình luôn bên cạnh!'};
   }
 
-  var ds = danhSach({kd:null,kt:null});
-  var idx = 0, danCu = '';
-
-  function hien(item){
-    tag.innerHTML = item.t;
-    txt.innerHTML = item.m;
-    bub.style.animation='none'; void bub.offsetWidth; bub.style.animation='';
+  var ds=[], idx=0, dem=0;
+  function hien(k,t){
+    kEl.textContent=k; sEl.innerHTML=t;
+    sEl.style.animation='none'; void sEl.offsetWidth; sEl.style.animation='';
+    el.classList.remove('chay'); void el.offsetWidth; el.classList.add('chay');
   }
-  function tiep(){ idx=(idx+1)%ds.length; hien(ds[idx]); }
-
-  /* chào đón nhà vô địch MỚI khi người giữ cúp đổi */
-  function chaoMoi(dan){
-    var ai = dan.kd || dan.kt;
-    if(!ai) return;
-    el.classList.add('moi');
-    setTimeout(function(){ el.classList.remove('moi'); }, 2900);
-    var ten = dan.kd && dan.kt && dan.kd!==dan.kt ? (dan.kd+' & '+dan.kt) : ai;
-    hien({t:'🎉 Chào đón người về đích', m:'Xin chúc mừng <b>'+ten+'</b>! Anh em mình cổ vũ nào! 🥳🏆'});
-    idx = 0;
+  function tiep(){
+    ds=docThanhVien();
+    cEl.textContent=ds.length?(ds.length+' tay đua'):'đang đọc…';
+    if(!ds.length){ hien('Đồng hành cùng team', CO_VU[dem++%CO_VU.length]); return; }
+    /* cứ 4 người thì xen 1 lời cổ vũ chung cho nhịp nhàng */
+    if(dem>0 && dem%5===0){ dem++; hien('Cổ vũ', CO_VU[(dem/5|0)%CO_VU.length]); return; }
+    if(idx>=ds.length) idx=0;
+    var m=ds[idx++]; dem++;
+    var L=loiCho(m); hien(L.k, L.t);
   }
 
-  function capNhat(){
-    var dan = layDan();
-    var khoa = (dan.kd||'')+'|'+(dan.kt||'');
-    if(khoa !== danCu){
-      ds = danhSach(dan);
-      if(danCu !== '' && (dan.kd||dan.kt)) chaoMoi(dan);  /* chỉ chào khi đã có mốc trước đó rồi đổi */
-      danCu = khoa;
-    }
-  }
-
-  /* tương tác */
   av.addEventListener('click', tiep);
-  bub.addEventListener('click', function(e){ if(e.target!==btnX) tiep(); });
-  av.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tiep(); }});
-  btnX.addEventListener('click', function(e){ e.stopPropagation(); el.classList.add('thu');
-    try{ localStorage.setItem(KEY_THU,'1'); }catch(_){} });
-  dot.addEventListener('click', function(){ el.classList.remove('thu');
-    try{ localStorage.removeItem(KEY_THU); }catch(_){} hien(ds[idx]); });
+  av.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tiep(); }});
+  xBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    el.classList.toggle('thu');
+    try{ localStorage.setItem(KEY_THU, el.classList.contains('thu')?'1':'0'); }catch(_){}
+  });
   try{ if(localStorage.getItem(KEY_THU)==='1') el.classList.add('thu'); }catch(_){}
 
-  /* vòng đời: đọc người giữ cúp mỗi 3s, tự đổi lời mỗi 6,5s */
-  capNhat();
-  hien(ds[0]);
-  setInterval(capNhat, 3000);
-  setInterval(function(){ if(!el.classList.contains('thu')) tiep(); }, 6500);
+  tiep();
+  setInterval(tiep, 3800);            /* nhịp nhàng: đổi tên mỗi 3,8s */
 })();
 </script>
