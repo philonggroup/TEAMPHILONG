@@ -2490,61 +2490,69 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 })();
 </script>
 
-<!-- ═══════ TRỢ LÝ RỒNG PHI LONG — đồng hành & nhắc tên từng thành viên (trên cùng) ═══════ -->
+<!-- ═══════ TRỢ LÝ RỒNG PHI LONG — góc trên-phải, đồng hành & nhắc tên từng thành viên ═══════ -->
 <style>
-#troly{display:flex;align-items:center;gap:13px;position:sticky;top:0;z-index:70;
-  margin:0 0 16px;padding:10px 14px;border-radius:0 0 18px 18px;
-  font-family:var(--f-body,system-ui);
-  background:linear-gradient(100deg,#0c1430 0%,#132253 52%,#0c1430 100%);
-  border:1px solid var(--vien,#1e2b52);border-top:0;
-  box-shadow:0 10px 26px rgba(0,0,0,.45)}
+#troly{position:fixed;top:14px;right:14px;z-index:70;display:flex;align-items:flex-start;gap:6px;
+  font-family:var(--f-body,system-ui);pointer-events:none}
 html.khoa #troly{display:none}
-#troly .tl-av{position:relative;width:70px;height:70px;border-radius:16px;flex:none;overflow:hidden;
-  background:#fff;cursor:pointer;border:2px solid var(--vang,#ffc62e);
-  box-shadow:0 4px 14px rgba(0,0,0,.4);animation:tl-nod 3.8s ease-in-out infinite}
-#troly .tl-av img{width:100%;height:100%;object-fit:cover;object-position:50% 28%}
-#troly .tl-main{flex:1;min-width:0}
-#troly .tl-top{display:flex;align-items:center;gap:9px;margin-bottom:3px}
-#troly .tl-k{font-family:var(--f-dis,'Oswald');font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+#troly .tl-bubble{pointer-events:auto;position:relative;max-width:min(62vw,250px);margin-top:10px;
+  background:linear-gradient(160deg,#16244f,#0b1430);border:1px solid var(--vien,#1e2b52);
+  border-radius:14px 14px 4px 14px;padding:10px 12px 11px;color:var(--chu,#eaf0ff);cursor:pointer;
+  box-shadow:0 10px 26px rgba(0,0,0,.5),0 0 0 1px rgba(25,227,255,.08);animation:tl-in .4s ease}
+#troly .tl-bubble::after{content:"";position:absolute;right:-7px;top:16px;width:0;height:0;
+  border:7px solid transparent;border-left-color:#0b1430;border-right:0}
+#troly .tl-top{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+#troly .tl-k{font-family:var(--f-dis,'Oswald');font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--vang,#ffc62e);white-space:nowrap}
-#troly .tl-count{font-family:var(--f-dis,'Oswald');font-size:10.5px;letter-spacing:.06em;color:var(--chu-mo,#8ea0c8);
-  border:1px solid var(--vien,#1e2b52);border-radius:999px;padding:2px 9px;white-space:nowrap}
-#troly .tl-say{font-size:14px;line-height:1.4;color:var(--chu,#eaf0ff);
-  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  min-height:20px;animation:tl-say-in .4s ease}
+#troly .tl-count{font-family:var(--f-dis,'Oswald');font-size:9.5px;letter-spacing:.05em;color:var(--chu-mo,#8ea0c8);
+  border:1px solid var(--vien,#1e2b52);border-radius:999px;padding:1px 7px;white-space:nowrap}
+#troly .tl-say{font-size:13px;line-height:1.4;color:var(--chu,#eaf0ff);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:18px;animation:tl-say-in .4s ease}
 #troly .tl-say b{color:#fff}
 #troly .tl-cn{font-size:11px;color:var(--neon,#19e3ff);font-weight:600;white-space:nowrap}
 #troly .tl-bar{height:3px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:7px;overflow:hidden}
 #troly .tl-bar i{display:block;height:100%;width:0;border-radius:3px;
   background:linear-gradient(90deg,var(--neon,#19e3ff),var(--vang,#ffc62e))}
 #troly.chay .tl-bar i{animation:tl-run 3.8s linear}
-#troly .tl-x{flex:none;align-self:flex-start;border:0;background:transparent;color:var(--chu-mo,#8ea0c8);
-  font-size:17px;line-height:1;cursor:pointer;padding:2px 4px}
+#troly .tl-x{position:absolute;top:3px;right:6px;border:0;background:transparent;color:var(--chu-mo,#8ea0c8);
+  font-size:15px;line-height:1;cursor:pointer;padding:2px 3px}
 #troly .tl-x:hover{color:var(--chu,#eaf0ff)}
-#troly.thu{gap:10px;padding:7px 12px}
-#troly.thu .tl-main .tl-top,#troly.thu .tl-bar{display:none}
-#troly.thu .tl-av{width:42px;height:42px;border-radius:11px;animation:none}
-#troly.thu .tl-say{-webkit-line-clamp:1;font-size:12.5px;color:var(--chu-mo,#8ea0c8)}
-#troly.thu .tl-x{transform:rotate(45deg)}
-@keyframes tl-nod{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+#troly .tl-av{pointer-events:auto;position:relative;width:76px;height:108px;flex:none;cursor:pointer;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.55));animation:tl-bob 3.6s ease-in-out infinite}
+#troly .tl-av::before{content:"";position:absolute;inset:-10% -6% 4%;z-index:-1;border-radius:50%;
+  background:radial-gradient(60% 55% at 58% 42%,rgba(255,198,46,.38),rgba(25,227,255,.12) 55%,transparent 72%);
+  animation:tl-glow 3.6s ease-in-out infinite}
+#troly .tl-av img{width:100%;height:100%;object-fit:contain;object-position:center bottom}
+#troly.moi .tl-av{animation:tl-pop .6s ease 3, tl-bob 3.6s ease-in-out infinite}
+#troly.thu .tl-bubble{display:none}
+#troly.thu .tl-av{width:52px;height:74px}
+#troly .tl-mo{position:absolute;top:-3px;left:-3px;width:16px;height:16px;border-radius:50%;
+  background:var(--vang,#ffc62e);color:#2a1c00;font:700 11px/16px var(--f-dis,'Oswald');text-align:center;
+  display:none;pointer-events:auto;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+#troly.thu .tl-mo{display:block}
+@keyframes tl-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes tl-glow{0%,100%{opacity:.55;transform:scale(.98)}50%{opacity:.9;transform:scale(1.04)}}
+@keyframes tl-in{from{opacity:0;transform:translateX(8px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes tl-say-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @keyframes tl-run{from{width:0}to{width:100%}}
+@keyframes tl-pop{0%,100%{filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+  50%{filter:drop-shadow(0 0 14px rgba(255,198,46,.9)) drop-shadow(0 6px 10px rgba(0,0,0,.55))}}
 @media(max-width:640px){
-  #troly{gap:10px;padding:8px 11px}
-  #troly .tl-av{width:56px;height:56px;border-radius:13px}
-  #troly .tl-say{font-size:12.5px}
-  #troly .tl-k{font-size:10px}
+  #troly{top:8px;right:8px}
+  #troly .tl-av{width:58px;height:84px}
+  #troly .tl-bubble{max-width:58vw;font-size:12px;padding:8px 10px 9px}
+  #troly .tl-say{font-size:12px;-webkit-line-clamp:3}
 }
 @media(prefers-reduced-motion:reduce){
-  #troly .tl-av,#troly.chay .tl-bar i,#troly .tl-say{animation:none}
+  #troly .tl-av,#troly .tl-av::before,#troly.chay .tl-bar i,#troly .tl-say{animation:none}
 }
 </style>
 
 <script>
-/* TRỢ LÝ RỒNG PHI LONG — độc lập, CHỈ ĐỌC tên/vị trí từ các làn đua đã render; không đổi dữ liệu/thứ hạng */
+/* TRỢ LÝ RỒNG PHI LONG — góc trên-phải; CHỈ ĐỌC tên/vị trí từ làn đua đã render, không đổi dữ liệu/thứ hạng */
 (function(){
   var KEY_THU='pl-troly-thu';
-
   var CO_VU=[
     'Anh em Phi Long ơi — mỗi cung đường đều có mình đồng hành! 🐉',
     'Giữ nhịp đều tay, cả team cùng tăng tốc về đích 🏁',
@@ -2555,25 +2563,24 @@ html.khoa #troly{display:none}
     'Dẫn đầu hay bám đuổi — quan trọng là không bỏ cuộc 🏎️'
   ];
 
-  /* dựng band, chèn LÊN TRÊN CÙNG của .wrap */
-  var wrap=document.querySelector('.wrap');
-  if(!wrap) return;
+  var host=document.querySelector('.wrap')||document.body;
   var el=document.createElement('div');
   el.id='troly';
   el.innerHTML=
-    '<div class="tl-av" id="tl-av" role="button" tabindex="0" aria-label="Trợ lý Rồng Phi Long — bấm để xem thành viên tiếp theo">'+
-      '<img src="troly-philong.png" alt="Rồng Phi Long" draggable="false"></div>'+
-    '<div class="tl-main">'+
-      '<div class="tl-top"><span class="tl-k" id="tl-k">Đồng hành cùng team</span>'+
+    '<div class="tl-bubble" id="tl-bubble">'+
+      '<button class="tl-x" id="tl-x" type="button" title="Thu gọn" aria-label="Thu gọn trợ lý">×</button>'+
+      '<div class="tl-top"><span class="tl-k" id="tl-k">✨ Đồng hành cùng team</span>'+
         '<span class="tl-count" id="tl-count">đang đọc…</span></div>'+
       '<div class="tl-say" id="tl-say">Anh em Phi Long ơi — mình cùng ra đường đua nào! 🐉</div>'+
-      '<div class="tl-bar"><i id="tl-bar-i"></i></div></div>'+
-    '<button class="tl-x" id="tl-x" type="button" title="Thu gọn" aria-label="Thu gọn trợ lý">×</button>';
-  wrap.insertBefore(el, wrap.firstChild);
+      '<div class="tl-bar"><i></i></div></div>'+
+    '<div class="tl-av" id="tl-av" role="button" tabindex="0" aria-label="Trợ lý Rồng Phi Long — bấm để xem thành viên tiếp theo">'+
+      '<span class="tl-mo" id="tl-mo" title="Mở trợ lý">🐉</span>'+
+      '<img src="troly-philong.png" alt="Rồng Phi Long" draggable="false"></div>';
+  host.appendChild(el);
 
   var av=el.querySelector('#tl-av'), kEl=el.querySelector('#tl-k'),
       cEl=el.querySelector('#tl-count'), sEl=el.querySelector('#tl-say'),
-      xBtn=el.querySelector('#tl-x');
+      xBtn=el.querySelector('#tl-x'), moBtn=el.querySelector('#tl-mo');
 
   function docThanhVien(){
     var out=[];
@@ -2595,7 +2602,6 @@ html.khoa #troly{display:none}
     });
     return out;
   }
-
   function loiCho(m){
     if(!m) return null;
     var who='<b>'+m.ten+'</b> <span class="tl-cn">'+m.cn+' · '+m.blk+'</span>';
@@ -2615,24 +2621,23 @@ html.khoa #troly{display:none}
   function tiep(){
     ds=docThanhVien();
     cEl.textContent=ds.length?(ds.length+' tay đua'):'đang đọc…';
-    if(!ds.length){ hien('Đồng hành cùng team', CO_VU[dem++%CO_VU.length]); return; }
-    /* cứ 4 người thì xen 1 lời cổ vũ chung cho nhịp nhàng */
-    if(dem>0 && dem%5===0){ dem++; hien('Cổ vũ', CO_VU[(dem/5|0)%CO_VU.length]); return; }
+    if(!ds.length){ hien('✨ Đồng hành cùng team', CO_VU[dem++%CO_VU.length]); return; }
+    if(dem>0 && dem%5===0){ dem++; hien('✨ Cổ vũ', CO_VU[((dem/5)|0)%CO_VU.length]); return; }
     if(idx>=ds.length) idx=0;
     var m=ds[idx++]; dem++;
     var L=loiCho(m); hien(L.k, L.t);
   }
 
-  av.addEventListener('click', tiep);
-  av.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tiep(); }});
-  xBtn.addEventListener('click',function(e){
-    e.stopPropagation();
-    el.classList.toggle('thu');
-    try{ localStorage.setItem(KEY_THU, el.classList.contains('thu')?'1':'0'); }catch(_){}
-  });
+  av.addEventListener('click',function(){ if(el.classList.contains('thu')) return; tiep(); });
+  av.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&!el.classList.contains('thu')){ e.preventDefault(); tiep(); }});
+  el.querySelector('#tl-bubble').addEventListener('click',function(e){ if(e.target!==xBtn) tiep(); });
+  xBtn.addEventListener('click',function(e){ e.stopPropagation(); el.classList.add('thu');
+    try{ localStorage.setItem(KEY_THU,'1'); }catch(_){} });
+  moBtn.addEventListener('click',function(e){ e.stopPropagation(); el.classList.remove('thu');
+    try{ localStorage.setItem(KEY_THU,'0'); }catch(_){} hien(kEl.textContent, sEl.innerHTML); });
   try{ if(localStorage.getItem(KEY_THU)==='1') el.classList.add('thu'); }catch(_){}
 
   tiep();
-  setInterval(tiep, 3800);            /* nhịp nhàng: đổi tên mỗi 3,8s */
+  setInterval(tiep, 3800);
 })();
 </script>
