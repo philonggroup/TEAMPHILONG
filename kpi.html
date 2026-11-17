@@ -44,7 +44,7 @@ body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;ba
 .top .t2{font-size:12.5px;opacity:.9;margin-top:2px}
 .wrap{max-width:520px;margin:-26px auto 0;padding:0 14px}
 
-/* ---- dải động viên + linh vật Rồng Phi Long (3C · 5S · PLG) ---- */
+/* ---- dải động viên + linh vật Team Phi Long (3C · 5S · PLG) ---- */
 .mot{position:relative;display:flex;align-items:flex-end;gap:10px;background:var(--card);background:linear-gradient(135deg,color-mix(in srgb,var(--vc,var(--grn)) 12%,var(--card)),var(--card) 62%);border:1px solid var(--line);border-radius:18px;padding:10px 12px 15px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;user-select:none}
 .mot:focus-visible{outline:2px solid var(--grn);outline-offset:2px}
 .mot .rong{position:relative;flex:0 0 84px;width:84px;animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both}
@@ -131,16 +131,16 @@ tr.tot td{border-top:2px solid var(--line);padding-top:10px;font-weight:800;colo
 <div class="wrap">
 
   <div class="mot" id="motBox" data-v="kpi" role="button" tabindex="0"
-       aria-label="Rồng Phi Long cổ vũ — chạm để xem lời tiếp theo" aria-live="polite"
+       aria-label="Team Phi Long cổ vũ — chạm để xem lời tiếp theo" aria-live="polite"
        onclick="nextMot()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nextMot();}">
     <div class="rong">
-      <img id="ava" src="rong-philong-full.png" alt="Rồng Phi Long"><span class="fb hide" id="avaFb">🐉</span>
+      <img id="ava" src="rong-philong-full.png" alt="Team Phi Long"><span class="fb hide" id="avaFb">🐉</span>
       <span class="prop" id="motProp">💪</span>
     </div>
     <div class="bub">
       <div class="hi" id="hi">CHÀO NGÀY MỚI</div>
       <div class="msg" id="msg">Mỗi cuốc xe hôm nay là một bước lên mức cao hơn.</div>
-      <span class="tag" id="motTag">RỒNG PHI LONG</span>
+      <span class="tag" id="motTag">TEAM PHI LONG</span>
     </div>
     <div class="bar"><i></i></div>
   </div>
@@ -266,7 +266,7 @@ function hoaHong(v,t1,t2,r,gate){
   return t1*r[0]+(t2-t1)*r[1]+(v-t2)*r[2];
 }
 
-/* ---------------- Rồng Phi Long động viên: 3C · 5S · PLG ---------------- */
+/* ---------------- Team Phi Long động viên: 3C · 5S · PLG ---------------- */
 /* Lời cổ vũ theo mức KPI đang đạt */
 var MOT = {
   1:[ 'Khởi đầu nào cũng từ con số 0 — hôm nay cứ chốt thêm một xe là kim nhích lên.',
@@ -279,7 +279,7 @@ var MOT = {
       'Nửa đường rồi. Phần còn lại trả công cao hơn phần đã đi.' ],
   3:[ 'Mức 3 — bậc cao nhất, không có trần. Mỗi xe thêm là tiền thêm.',
       'Đã lên đỉnh thang thì việc còn lại là giữ cho tháng sau cũng vậy.',
-      'Rồng Phi Long chào người đang dẫn đầu. Kéo anh em cùng lên nhé!',
+      'Team Phi Long chào người đang dẫn đầu. Kéo anh em cùng lên nhé!',
       'Mức 3 không tự đến. Giữ được mới là bản lĩnh.' ]
 };
 
@@ -328,7 +328,7 @@ function buildMotQueue(lv,total){
     ? ['Chưa có số liệu tháng này. Nhập doanh thu để xem mình đang ở đâu.']
     : (MOT[lv]||MOT[1]);
   for(var i=0;i<VAL.length;i++){
-    q.push({ k:(total<=0?'RỒNG PHI LONG':'MỨC '+lv), v:'kpi', prop:(total<=0?'🐉':KPI_PROP[lv]||'💪'),
+    q.push({ k:(total<=0?'TEAM PHI LONG':'MỨC '+lv), v:'kpi', prop:(total<=0?'🐉':KPI_PROP[lv]||'💪'),
              bg:'var(--grn)', fg:'#FFFFFF', t:kpiList[(seed+i)%kpiList.length] });
     var v=VAL[i];
     q.push({ k:v.k, v:v.v, prop:v.prop, bg:v.bg, fg:v.fg, t:v.list[(seed+i)%v.list.length] });
