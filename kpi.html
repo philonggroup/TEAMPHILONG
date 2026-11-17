@@ -45,25 +45,37 @@ body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;ba
 .wrap{max-width:520px;margin:-26px auto 0;padding:0 14px}
 
 /* ---- dải động viên + linh vật Rồng Phi Long (3C · 5S · PLG) ---- */
-.mot{position:relative;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:11px 13px 16px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;user-select:none}
+.mot{position:relative;display:flex;align-items:flex-end;gap:10px;background:var(--card);background:linear-gradient(135deg,color-mix(in srgb,var(--vc,var(--grn)) 12%,var(--card)),var(--card) 62%);border:1px solid var(--line);border-radius:18px;padding:10px 12px 15px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;user-select:none}
 .mot:focus-visible{outline:2px solid var(--grn);outline-offset:2px}
-.mot .ava{position:relative;flex:0 0 58px;width:58px;height:58px;border-radius:50%;overflow:hidden;background:#fff;border:2px solid var(--lv1);display:flex;align-items:center;justify-content:center;animation:mot-pop .55s ease both,mot-bob 4.2s ease-in-out 1s infinite}
-.mot .ava img{position:absolute;width:280%;height:auto;left:-76%;top:-32%}
-.mot .ava .fb{font-size:28px}
-.mot .mt{flex:1;min-width:0}
-.mot .hi{font-size:11.5px;font-weight:700;color:var(--grn);letter-spacing:.03em;text-transform:uppercase}
-.mot .msg{font-size:13.2px;font-weight:600;margin-top:3px;line-height:1.45}
+.mot .rong{position:relative;flex:0 0 84px;width:84px;animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both}
+.mot .rong img{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 9px rgba(0,0,0,.22))}
+.mot .rong .fb{display:block;font-size:46px;text-align:center}
+.mot .prop{position:absolute;right:-9px;top:44%;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid var(--vc,var(--grn));display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.mot .bub{position:relative;flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:9px 11px 10px;margin-bottom:6px}
+.mot .bub::before{content:"";position:absolute;left:-7px;bottom:16px;width:0;height:0;border:7px solid transparent;border-right-color:var(--line)}
+.mot .bub::after{content:"";position:absolute;left:-5px;bottom:16px;width:0;height:0;border:6px solid transparent;border-right-color:var(--bg)}
+.mot .hi{font-size:11px;font-weight:700;color:var(--grn);letter-spacing:.03em;text-transform:uppercase}
+.mot .msg{font-size:13px;font-weight:600;margin-top:3px;line-height:1.42}
 .mot .msg b{font-weight:800}
-.mot .tag{display:inline-block;margin-top:7px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 10px;background:var(--grn);color:#fff}
-.mot .bar{position:absolute;left:13px;right:13px;bottom:6px;height:3px;border-radius:3px;background:var(--track);opacity:.75}
-.mot .bar i{display:block;height:100%;width:0;border-radius:3px;background:var(--lv1)}
+.mot .tag{display:inline-block;margin-top:7px;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;padding:3px 9px;background:var(--grn);color:#fff}
+.mot .bar{position:absolute;left:12px;right:12px;bottom:6px;height:3px;border-radius:3px;background:var(--track);opacity:.75}
+.mot .bar i{display:block;height:100%;width:0;border-radius:3px;background:var(--vc,var(--lv1))}
 .mot.run .bar i{animation:mot-run 9s linear forwards}
 .mot .fade{animation:mot-fade .45s ease}
-@keyframes mot-pop{0%{transform:scale(.4) rotate(-12deg);opacity:0}70%{transform:scale(1.07) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-@keyframes mot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+/* dáng điệu đổi theo từng giá trị */
+.mot[data-v="c3"]  .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-chao 2.4s ease-in-out .6s infinite}
+.mot[data-v="s5"]  .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-quet 2.1s ease-in-out .6s infinite}
+.mot[data-v="plg"] .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-buoc 3.1s ease-in-out .6s infinite}
+.mot[data-v="goal"].rong,.mot[data-v="goal"] .rong,.mot[data-v="kpi"] .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-nhay 1.9s ease-in-out .6s infinite}
+@keyframes rong-in{0%{transform:translateY(16px) scale(.86);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pose-chao{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}60%{transform:rotate(3deg)}}
+@keyframes pose-quet{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(5px) rotate(2.5deg)}}
+@keyframes pose-buoc{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+@keyframes pose-nhay{0%,100%{transform:translateY(0)}45%{transform:translateY(-7px)}70%{transform:translateY(0) scaleY(.98)}}
 @keyframes mot-run{from{width:0}to{width:100%}}
 @keyframes mot-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.mot .ava,.mot.run .bar i,.mot .fade{animation:none!important}}
+@media (max-width:340px){.mot .rong{flex:0 0 68px;width:68px}.mot .msg{font-size:12.4px}}
+@media (prefers-reduced-motion:reduce){.mot .rong,.mot.run .bar i,.mot .fade{animation:none!important}}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
 .gauge-wrap{display:flex;flex-direction:column;align-items:center}
@@ -118,11 +130,14 @@ tr.tot td{border-top:2px solid var(--line);padding-top:10px;font-weight:800;colo
 
 <div class="wrap">
 
-  <div class="mot" id="motBox" role="button" tabindex="0"
+  <div class="mot" id="motBox" data-v="kpi" role="button" tabindex="0"
        aria-label="Rồng Phi Long cổ vũ — chạm để xem lời tiếp theo" aria-live="polite"
        onclick="nextMot()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nextMot();}">
-    <div class="ava"><img id="ava" src="troly-philong.png" alt="Rồng Phi Long"><span class="fb hide" id="avaFb">🐉</span></div>
-    <div class="mt">
+    <div class="rong">
+      <img id="ava" src="rong-philong-full.png" alt="Rồng Phi Long"><span class="fb hide" id="avaFb">🐉</span>
+      <span class="prop" id="motProp">💪</span>
+    </div>
+    <div class="bub">
       <div class="hi" id="hi">CHÀO NGÀY MỚI</div>
       <div class="msg" id="msg">Mỗi cuốc xe hôm nay là một bước lên mức cao hơn.</div>
       <span class="tag" id="motTag">RỒNG PHI LONG</span>
@@ -268,28 +283,29 @@ var MOT = {
       'Mức 3 không tự đến. Giữ được mới là bản lĩnh.' ]
 };
 
-/* Bộ giá trị văn hoá Phi Long — xoay vòng cùng lời KPI */
+/* Bộ giá trị văn hoá Phi Long — xoay vòng cùng lời KPI (mỗi giá trị một dáng điệu) */
 var VAL = [
-  { k:'GIÁ TRỊ 3C', bg:'var(--lv1)', fg:'#4A3700', list:[
+  { k:'GIÁ TRỊ 3C', v:'c3', prop:'👋', bg:'var(--lv1)', fg:'#4A3700', list:[
       '<b>CƯỜI</b> — Khách vừa bước vào, thứ họ thấy đầu tiên là gương mặt mình. Cười trước, nói sau.',
       '<b>CHÀO</b> — Chào to, chào trước, chào cả khách của đồng nghiệp. Lời chào mở đường cho đơn hàng.',
       '<b>CẢM ƠN</b> — Xe rời xưởng mà chưa nghe một tiếng cảm ơn là mình còn thiếu một việc.',
       '<b>3C</b> — Cười · Chào · Cảm ơn: không tốn một đồng nào, nhưng là thứ khách nhớ lâu nhất về Phi Long.' ] },
-  { k:'5S TẠI XƯỞNG', bg:'#2CA9BC', fg:'#FFFFFF', list:[
+  { k:'5S TẠI XƯỞNG', v:'s5', prop:'🧹', bg:'#2CA9BC', fg:'#FFFFFF', list:[
       '<b>SÀNG LỌC</b> — Thứ cả tháng không đụng tới thì đừng để nó chiếm chỗ trong khoang làm việc.',
       '<b>SẮP XẾP</b> — Mỗi món đồ nghề một chỗ cố định, với tay là có. Mất thời gian tìm đồ là mất tiền.',
       '<b>SẠCH SẼ</b> — Nền xưởng sạch thì xe khách mới sạch. Khách nhìn sàn xưởng là đoán được tay nghề.',
       '<b>SĂN SÓC</b> — Giữ cho hôm nay gọn như hôm qua, đừng để tuần sau phải dọn lại từ đầu.',
       '<b>SẴN SÀNG</b> — Đầu ca kiểm đủ đồ nghề, đủ vật tư. Sẵn sàng là thắng ngay từ chiếc xe đầu tiên.' ] },
-  { k:'PLG', bg:'var(--lv3)', fg:'#FFFFFF', list:[
+  { k:'PLG', v:'plg', prop:'🧭', bg:'var(--lv3)', fg:'#FFFFFF', list:[
       '<b>P — PLAN · Lập kế hoạch</b>: Đầu ngày biết mình cần bao nhiêu xe, bao nhiêu doanh thu thì tay mới nhanh.',
       '<b>L — LOVE · Yêu thương</b>: Chăm xe của khách như xe nhà mình. Tận tâm là thứ không ai sao chép được.',
       '<b>G — GROW · Phát triển</b>: Mỗi ngày tốt hơn 1%. Một năm sau nhìn lại là một con người khác.',
       '<b>PLG</b> — Plan · Love · Grow: làm đủ ba việc đó mỗi ngày thì KPI tự đi lên.' ] },
-  { k:'MỤC TIÊU CHUNG', bg:'var(--grn-d)', fg:'#FFFFFF', list:[
+  { k:'MỤC TIÊU CHUNG', v:'goal', prop:'🎯', bg:'var(--grn-d)', fg:'#FFFFFF', list:[
       'Trải nghiệm khách hàng tốt hơn → doanh thu tăng → thu nhập của chính mình tăng. Ba việc đó đi cùng nhau.',
       '<b>Đồng hành · Phục vụ · Tận tâm</b> — khách quay lại lần hai mới là lúc mình thắng.' ] }
 ];
+var KPI_PROP={1:'💪',2:'🔥',3:'🏆'};
 
 var HI = [
   [5,11,'CHÀO BUỔI SÁNG'],
@@ -312,10 +328,10 @@ function buildMotQueue(lv,total){
     ? ['Chưa có số liệu tháng này. Nhập doanh thu để xem mình đang ở đâu.']
     : (MOT[lv]||MOT[1]);
   for(var i=0;i<VAL.length;i++){
-    q.push({ k:(total<=0?'RỒNG PHI LONG':'MỨC '+lv), bg:'var(--grn)', fg:'#FFFFFF',
-             t:kpiList[(seed+i)%kpiList.length] });
+    q.push({ k:(total<=0?'RỒNG PHI LONG':'MỨC '+lv), v:'kpi', prop:(total<=0?'🐉':KPI_PROP[lv]||'💪'),
+             bg:'var(--grn)', fg:'#FFFFFF', t:kpiList[(seed+i)%kpiList.length] });
     var v=VAL[i];
-    q.push({ k:v.k, bg:v.bg, fg:v.fg, t:v.list[(seed+i)%v.list.length] });
+    q.push({ k:v.k, v:v.v, prop:v.prop, bg:v.bg, fg:v.fg, t:v.list[(seed+i)%v.list.length] });
   }
   return q;
 }
@@ -329,7 +345,10 @@ function showMot(i){
   tag.textContent=it.k;
   tag.style.background=it.bg;
   tag.style.color=it.fg;
-  box.querySelector('.bar i').style.background=it.bg;
+  box.style.setProperty('--vc',it.bg);
+  var prop=document.getElementById('motProp');
+  if(prop) prop.textContent=it.prop||'🐉';
+  if(box.getAttribute('data-v')!==it.v) box.setAttribute('data-v',it.v||'kpi');
   /* chạy lại hiệu ứng */
   msg.classList.remove('fade'); tag.classList.remove('fade');
   box.classList.remove('run');
