@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KPI quản lý chi nhánh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --lv1:#F2B705; --lv2:#45BC8A; --lv3:#0E7A52;
+  --grn:#1B9D6F; --grn-d:#0E7A52; --neg:#C0392B; --blu:#2CA9BC;
+  --bg:#F4F8F4; --card:#FFFFFF; --ink:#16211B; --ink2:#5C6B62; --ink3:#8A978E;
+  --line:#E1EAE2; --track:#EDF2EE; --shadow:0 2px 12px rgba(14,122,82,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1512; --card:#162019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
+    --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
+    --lv2:#5ECFA0; --lv3:#1FA773;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1512; --card:#162019; --ink:#EAF1EC; --ink2:#9DAFA3; --ink3:#71857A; --neg:#FF8A8A;
+  --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
+  --lv2:#5ECFA0; --lv3:#1FA773;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:26px}
+.top{background:linear-gradient(135deg,var(--grn),var(--grn-d));color:#fff;padding:16px 18px 40px;border-radius:0 0 26px 26px}
+.top .t1{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.top .t2{font-size:12.5px;opacity:.92;margin-top:2px}
+.wrap{max-width:520px;margin:-26px auto 0;padding:0 14px}
+
+/* ---- dải động viên + linh vật Rồng Phi Long (3C · 5S · PLG) ---- */
+.mot{position:relative;display:flex;align-items:flex-end;gap:10px;background:var(--card);background:linear-gradient(135deg,color-mix(in srgb,var(--vc,var(--grn)) 12%,var(--card)),var(--card) 62%);border:1px solid var(--line);border-radius:18px;padding:10px 12px 15px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;user-select:none}
+.mot:focus-visible{outline:2px solid var(--grn);outline-offset:2px}
+.mot .rong{position:relative;flex:0 0 84px;width:84px;animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both}
+.mot .rong img{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 9px rgba(0,0,0,.22))}
+.mot .rong .fb{display:block;font-size:46px;text-align:center}
+.mot .prop{position:absolute;right:-9px;top:44%;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid var(--vc,var(--grn));display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.mot .bub{position:relative;flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:9px 11px 10px;margin-bottom:6px}
+.mot .bub::before{content:"";position:absolute;left:-7px;bottom:16px;width:0;height:0;border:7px solid transparent;border-right-color:var(--line)}
+.mot .bub::after{content:"";position:absolute;left:-5px;bottom:16px;width:0;height:0;border:6px solid transparent;border-right-color:var(--bg)}
+.mot .hi{font-size:11px;font-weight:700;color:var(--grn);letter-spacing:.03em;text-transform:uppercase}
+.mot .msg{font-size:13px;font-weight:600;margin-top:3px;line-height:1.42}
+.mot .msg b{font-weight:800}
+.mot .tag{display:inline-block;margin-top:7px;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;padding:3px 9px;background:var(--grn);color:#fff}
+.mot .bar{position:absolute;left:12px;right:12px;bottom:6px;height:3px;border-radius:3px;background:var(--track);opacity:.75}
+.mot .bar i{display:block;height:100%;width:0;border-radius:3px;background:var(--vc,var(--lv1))}
+.mot.run .bar i{animation:mot-run 9s linear forwards}
+.mot .fade{animation:mot-fade .45s ease}
+.mot[data-v="c3"]  .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-chao 2.4s ease-in-out .6s infinite}
+.mot[data-v="s5"]  .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-quet 2.1s ease-in-out .6s infinite}
+.mot[data-v="plg"] .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-buoc 3.1s ease-in-out .6s infinite}
+.mot[data-v="goal"] .rong,.mot[data-v="kpi"] .rong{animation:rong-in .6s cubic-bezier(.2,1.3,.4,1) both,pose-nhay 1.9s ease-in-out .6s infinite}
+@keyframes rong-in{0%{transform:translateY(16px) scale(.86);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pose-chao{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}60%{transform:rotate(3deg)}}
+@keyframes pose-quet{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(5px) rotate(2.5deg)}}
+@keyframes pose-buoc{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+@keyframes pose-nhay{0%,100%{transform:translateY(0)}45%{transform:translateY(-7px)}70%{transform:translateY(0) scaleY(.98)}}
+@keyframes mot-run{from{width:0}to{width:100%}}
+@keyframes mot-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (max-width:340px){.mot .rong{flex:0 0 68px;width:68px}.mot .msg{font-size:12.4px}}
+@media (prefers-reduced-motion:reduce){.mot .rong,.mot.run .bar i,.mot .fade{animation:none!important}}
+
+.seg{display:flex;background:var(--track);border-radius:999px;padding:3px;gap:3px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:none;font:700 12.5px/1 'Be Vietnam Pro',sans-serif;color:var(--ink2);padding:9px 6px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
+h2{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:11px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h2 span{font-size:11px;font-weight:700;color:var(--ink2);letter-spacing:0;text-transform:none}
+.hero{display:flex;align-items:center;gap:14px}
+.ring{position:relative;flex:0 0 96px;width:96px;height:96px}
+.ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+.ring .rv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:18px;line-height:1.1}
+.ring .rv small{font-size:9.5px;font-weight:700;color:var(--ink3);letter-spacing:.04em;margin-top:1px}
+.hero .hv{flex:1;min-width:0}
+.hero .hl{font-size:11.5px;font-weight:700;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase}
+.hero .hn{font-size:26px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:1px}
+.hero .hs{font-size:12.5px;font-weight:600;color:var(--ink2);margin-top:2px}
+.rows{display:flex;flex-direction:column}
+.r{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}
+.r:last-child{border-bottom:none}
+.r .dot{flex:0 0 9px;width:9px;height:9px;border-radius:3px;margin-top:1px}
+.r .nm{flex:1;min-width:0;font-size:13px;font-weight:600;line-height:1.35}
+.r .nm i{display:block;font-style:normal;font-size:11px;font-weight:600;color:var(--ink3);margin-top:1px}
+.r .vl{text-align:right;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.r .pc{flex:0 0 54px;text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.kc{border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:var(--bg)}
+.kl{font-size:11.5px;font-weight:600;color:var(--ink2);line-height:1.35;min-height:31px}
+.kv{font-size:19px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ksub{font-size:10.5px;color:var(--ink3);font-weight:600;margin-top:2px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:0 2px 7px}
+th:first-child{text-align:left}
+td{padding:7px 2px;font-size:13px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+td:first-child{text-align:left;font-weight:600}
+tr:last-child td{border-bottom:none}
+.foot{font-size:11px;color:var(--ink3);text-align:center;margin-top:14px;line-height:1.6}
+.msgbox{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 15px;text-align:center;font-size:13.5px;font-weight:600;color:var(--ink2);box-shadow:var(--shadow)}
+.hide{display:none!important}
+.up{color:var(--lv3)} .down{color:var(--neg)} .mid{color:var(--lv1)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="t1" id="qlName">KPI quản lý chi nhánh</div>
+  <div class="t2" id="qlSub">Đang tải số liệu…</div>
+</div>
+
+<div class="wrap">
+
+  <div class="mot" id="motBox" data-v="kpi" role="button" tabindex="0"
+       aria-label="Rồng Phi Long cổ vũ — chạm để xem lời tiếp theo" aria-live="polite"
+       onclick="nextMot()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nextMot();}">
+    <div class="rong">
+      <img id="ava" src="rong-philong-full.png" alt="Rồng Phi Long"><span class="fb hide" id="avaFb">🐉</span>
+      <span class="prop" id="motProp">🎯</span>
+    </div>
+    <div class="bub">
+      <div class="hi" id="hi">CHÀO NGÀY MỚI</div>
+      <div class="msg" id="msg">Đang lấy số liệu chi nhánh…</div>
+      <span class="tag" id="motTag">RỒNG PHI LONG</span>
+    </div>
+    <div class="bar"><i></i></div>
+  </div>
+
+  <div class="seg hide" id="segBox" role="group" aria-label="Chọn chi nhánh">
+    <button id="tab-CN1" aria-pressed="false" onclick="setCN('CN1')">CN1</button>
+    <button id="tab-CN2" aria-pressed="false" onclick="setCN('CN2')">CN2</button>
+    <button id="tab-CN3" aria-pressed="false" onclick="setCN('CN3')">CN3</button>
+  </div>
+
+  <div class="msgbox" id="loading">Đang tải báo cáo KPI ngày…</div>
+
+  <div id="body" class="hide">
+
+    <div class="card">
+      <h2>Hôm nay <span id="dayLbl"></span></h2>
+      <div class="hero">
+        <div class="ring" id="ringDay"></div>
+        <div class="hv">
+          <div class="hl">Doanh thu ngày</div>
+          <div class="hn" id="dtDay">—</div>
+          <div class="hs" id="dtDaySub">—</div>
+        </div>
+      </div>
+      <div class="rows" id="dtParts" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Lũy kế tháng <span id="dayCount"></span></h2>
+      <div class="hero">
+        <div class="ring" id="ringMonth"></div>
+        <div class="hv">
+          <div class="hl">Doanh thu lũy kế</div>
+          <div class="hn" id="lkVal">—</div>
+          <div class="hs" id="lkSub">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>KPI còn lại phải đạt</h2>
+      <div class="kgrid" id="conLai"></div>
+    </div>
+
+    <div class="card">
+      <h2>Chỉ số dẫn dắt <span>số liệu ngày · KPI ngày</span></h2>
+      <div class="rows" id="danDat"></div>
+    </div>
+
+    <div class="card">
+      <h2>Online · Marketing</h2>
+      <div class="rows" id="mkt"></div>
+    </div>
+
+    <div class="card">
+      <h2>Lốp bán ra</h2>
+      <div class="rows" id="lop"></div>
+    </div>
+
+    <div class="card">
+      <h2>Chất lượng &amp; công nợ</h2>
+      <div class="rows" id="clcn"></div>
+    </div>
+
+    <div class="card hide" id="weekCard">
+      <h2>Theo tuần</h2>
+      <table id="weekTbl"></table>
+    </div>
+
+    <p class="foot" id="foot"></p>
+  </div>
+</div>
+
+<script>
+/* ================= NGUỒN DỮ LIỆU: tab "BÁO CÁO KPI NGÀY T11" của 3 file chi nhánh ========= */
+var SRC = {
+  CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049',  ql:'PHẠM THÀNH LUÂN' },
+  CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108', ql:'NGUYỄN THỊ THUỲ TRÂM' },
+  CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852',  ql:'HIỀN' }
+};
+/* ========================================================================================= */
+
+var CN='CN2', ROWS=[], ADMIN=false;
+
+/* ---------- tiện ích ---------- */
+function strip(s){ return (s==null?'':String(s)).replace(/\s+/g,' ').trim(); }
+function noAcc(s){ return strip(s).toLowerCase()
+  .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g,'a').replace(/[èéẹẻẽêềếệểễ]/g,'e')
+  .replace(/[ìíịỉĩ]/g,'i').replace(/[òóọỏõôồốộổỗơờớợởỡ]/g,'o')
+  .replace(/[ùúụủũưừứựửữ]/g,'u').replace(/[ỳýỵỷỹ]/g,'y').replace(/đ/g,'d'); }
+function num(s){
+  s=strip(s).replace(/[●○\s]/g,'');
+  if(!s) return null;
+  s=s.replace(/[^\d,.\-]/g,'');
+  if(!s||s==='-') return null;
+  if(s.indexOf(',')>-1 && s.indexOf('.')>-1) s=s.replace(/\./g,'').replace(',','.');
+  else if(s.indexOf(',')>-1) s=(s.split(',')[1]||'').length<=2 ? s.replace(',','.') : s.replace(/,/g,'');
+  else if((s.match(/\./g)||[]).length>1 || /\.\d{3}$/.test(s)) s=s.replace(/\./g,'');
+  var v=parseFloat(s);
+  return isNaN(v)?null:v;
+}
+function pct(s){ var v=num(s); return v===null?null:v; }
+function fm(n){ return n===null||n===undefined?'—':Math.round(n).toLocaleString('vi-VN'); }
+function fmShort(n){
+  if(n===null||n===undefined) return '—';
+  var x=Math.round(n);
+  if(Math.abs(x)>=1e9) return (x/1e9).toFixed(Math.abs(x)%1e9===0?0:2).replace('.',',')+' tỷ';
+  if(Math.abs(x)>=1e6) return (x/1e6).toFixed(Math.abs(x)%1e6===0?0:1).replace('.',',')+' tr';
+  return fm(x);
+}
+function p1(v){ return v===null?'—':(Math.round(v*10)/10).toString().replace('.',',')+'%'; }
+function cls(p){ return p===null?'':(p>=100?'up':(p>=70?'mid':'down')); }
+function col(p){ return p===null?'var(--ink3)':(p>=100?'var(--lv3)':(p>=70?'var(--lv1)':'var(--neg)')); }
+
+/* ---------- đọc CSV ---------- */
+function parseCSV(t){
+  var rows=[],row=[],f='',q=false;
+  for(var i=0;i<t.length;i++){
+    var c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c;
+  }
+  row.push(f); rows.push(row);
+  return rows;
+}
+function findRow(frag){
+  var k=noAcc(frag);
+  for(var i=0;i<ROWS.length;i++){
+    var b=noAcc(ROWS[i][1]||'');
+    if(b && b.indexOf(k)>-1) return ROWS[i];
+  }
+  return null;
+}
+function cell(r,i){ return r&&r[i]!==undefined?r[i]:''; }
+
+/* ---------- Rồng Phi Long: 3C · 5S · PLG (giống màn KPI nhân viên) ---------- */
+var VAL = [
+  { k:'GIÁ TRỊ 3C', v:'c3', prop:'👋', bg:'var(--lv1)', fg:'#4A3700', list:[
+      '<b>CƯỜI</b> — Quản lý cười trước thì cả xưởng mới cười theo. Khách nhìn người đứng đầu để đoán cả đội.',
+      '<b>CHÀO</b> — Mỗi ca đi một vòng chào khách đang chờ. Khách thấy có người để ý là khác hẳn.',
+      '<b>CẢM ƠN</b> — Cảm ơn khách, và cảm ơn cả anh em vừa làm xong một xe khó.',
+      '<b>3C</b> — Cười · Chào · Cảm ơn: không nằm trong bảng KPI, nhưng quyết định khách có quay lại hay không.' ] },
+  { k:'5S TẠI XƯỞNG', v:'s5', prop:'🧹', bg:'#2CA9BC', fg:'#FFFFFF', list:[
+      '<b>SÀNG LỌC</b> — Đi một vòng xưởng, thứ gì cả tháng không dùng thì cho ra khỏi khoang làm việc.',
+      '<b>SẮP XẾP</b> — Đồ nghề có chỗ cố định thì thợ tăng được số xe mỗi ngày. 5S là tiền, không phải hình thức.',
+      '<b>SẠCH SẼ</b> — Khách ngồi chờ nhìn sàn xưởng trước khi nhìn hoá đơn.',
+      '<b>SĂN SÓC</b> — Chuẩn hôm qua đạt rồi thì hôm nay giữ, đừng để tuần sau làm lại từ đầu.',
+      '<b>SẴN SÀNG</b> — Đầu ca kiểm người, kiểm đồ, kiểm vật tư. Thiếu một thứ là mất cả buổi.' ] },
+  { k:'PLG', v:'plg', prop:'🧭', bg:'var(--lv3)', fg:'#FFFFFF', list:[
+      '<b>P — PLAN · Lập kế hoạch</b>: Đầu ngày chia rõ ai làm gì, cần bao nhiêu xe, bao nhiêu doanh thu.',
+      '<b>L — LOVE · Yêu thương</b>: Quản tốt là lo được cho anh em đủ việc, đủ thu nhập, không ai bị bỏ lại.',
+      '<b>G — GROW · Phát triển</b>: Mỗi tuần một người giỏi thêm một việc — đó mới là năng lực chi nhánh.',
+      '<b>PLG</b> — Plan · Love · Grow: ba việc này làm đủ thì chỉ số dẫn dắt tự lên.' ] },
+  { k:'MỤC TIÊU CHUNG', v:'goal', prop:'🎯', bg:'var(--grn-d)', fg:'#FFFFFF', list:[
+      'Trải nghiệm khách hàng tốt hơn → doanh thu tăng → thu nhập của cả đội tăng. Ba việc đó đi cùng nhau.',
+      '<b>Đồng hành · Phục vụ · Tận tâm</b> — khách quay lại lần hai mới là lúc chi nhánh thắng.' ] }
+];
+var HI = [[5,11,'CHÀO BUỔI SÁNG'],[11,13,'CHÀO BUỔI TRƯA'],[13,18,'CHÀO BUỔI CHIỀU'],[18,24,'CHÀO BUỔI TỐI'],[0,5,'CHÀO ANH EM TRỰC ĐÊM']];
+var motQ=[], motI=0, motTimer=null, motKey='';
+function motSeed(){ var d=new Date(); var doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5); return doy*4+Math.floor(d.getHours()/6); }
+function kpiLines(p){
+  if(p===null) return ['Chưa đọc được số liệu chi nhánh. Kiểm tra lại quyền chia sẻ của file KPI.'];
+  if(p>=100) return ['Chi nhánh đã vượt KPI tháng. Giữ nhịp này và chốt luôn tháng sau.',
+                     'Về đích sớm là nhờ cả đội. Nhớ nói với anh em một câu.'];
+  if(p>=70)  return ['Đang bám sát kế hoạch tháng. Phần còn lại nằm ở chỉ số dẫn dắt, không nằm ở may mắn.',
+                     'Giữ lượt xe vào xưởng và tỷ lệ chuyển đổi là doanh thu tự theo.'];
+  if(p>=40)  return ['Đang hụt so với kế hoạch tháng. Chọn 2 chỉ số dẫn dắt yếu nhất để đẩy trong tuần này.',
+                     'Còn ngày là còn cửa — nhưng phải đổi cách làm, không chỉ làm nhiều hơn.'];
+  return ['Khoảng hụt đang lớn. Họp đội 15 phút đầu ca, chốt rõ mỗi người chịu trách nhiệm chỉ số nào.',
+          'Số thấp không đáng sợ bằng việc không ai biết mình phải kéo chỉ số nào lên.'];
+}
+function buildMotQueue(p){
+  var seed=motSeed(), q=[], kl=kpiLines(p);
+  var prop = p===null?'🐉':(p>=100?'🏆':(p>=70?'🔥':'💪'));
+  var k = p===null?'RỒNG PHI LONG':('KPI THÁNG '+p1(p));
+  for(var i=0;i<VAL.length;i++){
+    q.push({k:k, v:'kpi', prop:prop, bg:'var(--grn)', fg:'#FFFFFF', t:kl[(seed+i)%kl.length]});
+    var v=VAL[i];
+    q.push({k:v.k, v:v.v, prop:v.prop, bg:v.bg, fg:v.fg, t:v.list[(seed+i)%v.list.length]});
+  }
+  return q;
+}
+function showMot(i){
+  if(!motQ.length) return;
+  var it=motQ[i%motQ.length];
+  var box=document.getElementById('motBox'), msg=document.getElementById('msg'), tag=document.getElementById('motTag');
+  msg.innerHTML=it.t; tag.textContent=it.k;
+  tag.style.background=it.bg; tag.style.color=it.fg;
+  box.style.setProperty('--vc',it.bg);
+  var prop=document.getElementById('motProp'); if(prop) prop.textContent=it.prop||'🐉';
+  if(box.getAttribute('data-v')!==it.v) box.setAttribute('data-v',it.v||'kpi');
+  msg.classList.remove('fade'); tag.classList.remove('fade'); box.classList.remove('run');
+  void box.offsetWidth;
+  msg.classList.add('fade'); tag.classList.add('fade'); box.classList.add('run');
+  if(motTimer) clearTimeout(motTimer);
+  motTimer=setTimeout(nextMot,9000);
+}
+function nextMot(){ motI=(motI+1)%motQ.length; showMot(motI); }
+function motivate(p){
+  var h=new Date().getHours(), hi='CHÀO NGÀY MỚI';
+  for(var i=0;i<HI.length;i++){ if(h>=HI[i][0]&&h<HI[i][1]){ hi=HI[i][2]; break; } }
+  document.getElementById('hi').textContent=hi;
+  var key=CN+'|'+(p===null?'x':Math.round(p/5));
+  if(key===motKey) return;
+  motKey=key; motQ=buildMotQueue(p); motI=0; showMot(0);
+}
+
+/* ---------- vẽ vòng tròn % ---------- */
+function ring(el,p,label){
+  var r=42, c=2*Math.PI*r, v=Math.max(0,Math.min(100,p===null?0:p)), off=c*(1-v/100);
+  el.innerHTML='<svg viewBox="0 0 96 96">'
+    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="var(--track)" stroke-width="10"/>'
+    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="'+col(p)+'" stroke-width="10" stroke-linecap="round"'
+    +' stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>'
+    +'<div class="rv" style="color:'+col(p)+'">'+(p===null?'—':Math.round(p)+'%')+'<small>'+label+'</small></div>';
+}
+
+/* ---------- dòng chỉ số ---------- */
+function rowHTML(name,sub,val,kpi,p,isMoney){
+  var v = isMoney? fmShort(val) : (val===null?'—':fm(val));
+  var k = kpi===null? '' : (isMoney? fmShort(kpi) : fm(kpi));
+  return '<div class="r"><i class="dot" style="background:'+col(p)+'"></i>'
+    +'<div class="nm">'+name+(sub?'<i>'+sub+'</i>':'')+'</div>'
+    +'<div class="vl">'+v+(k?'<i style="display:block;font-style:normal;font-size:10.5px;font-weight:600;color:var(--ink3)">KPI '+k+'</i>':'')+'</div>'
+    +'<div class="pc '+cls(p)+'">'+(p===null?'':Math.round(p)+'%')+'</div></div>';
+}
+function metric(frag,isMoney){
+  var r=findRow(frag);
+  if(!r) return {val:null,kpi:null,p:null,name:frag};
+  var val=num(cell(r,2)), kpi=num(cell(r,3)), p=pct(cell(r,4));
+  if(p===null && kpi) p=val===null?null:val/kpi*100;
+  return {val:val,kpi:kpi,p:p,name:strip(cell(r,1))};
+}
+
+/* ---------- dựng màn hình ---------- */
+function render(){
+  var s=SRC[CN];
+  var head=strip((ROWS[0]&&ROWS[0][0])||'');
+  document.getElementById('qlName').textContent='KPI quản lý · '+(s.ql||CN);
+  var ngay=strip(cell(findRowDate(),2))||'';
+  document.getElementById('qlSub').textContent=CN+' Phi Long · ngày xem '+(ngay||'—');
+  document.getElementById('dayLbl').textContent=ngay?('· '+ngay):'';
+
+  var dt=metric('DOANH THU MUC TIEU',true);
+  ring(document.getElementById('ringDay'),dt.p,'ĐẠT NGÀY');
+  document.getElementById('dtDay').textContent=fmShort(dt.val);
+  document.getElementById('dtDaySub').innerHTML='KPI ngày '+fmShort(dt.kpi)
+    +' · <b class="'+cls(dt.p)+'">'+(dt.p===null?'—':(dt.p>=100?'vượt ':'còn thiếu ')+fmShort(Math.abs((dt.kpi||0)-(dt.val||0))))+'</b>';
+
+  var parts=['DT lop','DT dich vu','DT BD-SC-PK'];
+  document.getElementById('dtParts').innerHTML=parts.map(function(f){
+    var m=metric(f,true); return rowHTML(m.name||f,'',m.val,m.kpi,m.p,true);
+  }).join('');
+
+  var lk=num(cell(findRow('Doanh thu luy ke'),2));
+  var can=num(cell(findRow('KPI luy ke can dat'),2));
+  var chenh=num(cell(findRow('Chenh lech luy ke'),2));
+  var ptrm=pct(cell(findRow('% hoan thanh KPI thang'),2));
+  var ngayDong=strip(cell(findRow('So ngay da dong so'),2));
+  if(ptrm===null && lk!==null && can!==null && can>0) ptrm=lk/can*100;
+  ring(document.getElementById('ringMonth'),ptrm,'KPI THÁNG');
+  document.getElementById('lkVal').textContent=fmShort(lk);
+  document.getElementById('lkSub').innerHTML='Cần đến hôm nay '+fmShort(can)
+    +' · <b class="'+(chenh!==null&&chenh<0?'down':'up')+'">'+(chenh===null?'—':(chenh<0?'hụt ':'dư ')+fmShort(Math.abs(chenh)))+'</b>';
+  document.getElementById('dayCount').textContent=ngayDong?('· đã đóng sổ '+ngayDong):'';
+
+  var cl=[['Tong KPI con lai','Tổng KPI còn lại',true],['So ngay con lai','Số ngày còn lại',false],
+          ['KPI / ngay con lai','KPI mỗi ngày còn lại',true],['KPI / tuan con lai','KPI mỗi tuần còn lại',true],
+          ['1 to / tuan','1 tổ / tuần (2 tổ)',true]];
+  document.getElementById('conLai').innerHTML=cl.map(function(c){
+    var r=findRow(c[0]); var v=r?num(cell(r,2)):null;
+    return '<div class="kc"><div class="kl">'+c[1]+'</div><div class="kv">'+(c[2]?fmShort(v):fm(v))+'</div>'
+      +(c[2]&&v!==null?'<div class="ksub">'+fm(v)+' đ</div>':'')+'</div>';
+  }).join('');
+
+  var dd=[['DT trung binh / luot hoan tat',true],['Luot xe vao xuong',false],['Luot xe hoan tat',false],
+          ['Ty le chuyen doi',false],['Khach duoc kiem tra ATX',false],['Bao Gia  Len Trong ngay',false],
+          ['Cuoc goi cham soc',false],['Luot xe dat lich',false],['Can chinh thuoc lai',false]];
+  document.getElementById('danDat').innerHTML=dd.map(function(d){
+    var m=metric(d[0],d[1]);
+    if(noAcc(d[0]).indexOf('ty le chuyen doi')>-1){
+      var vao=metric('Luot xe vao xuong',false), ht=metric('Luot xe hoan tat',false);
+      if(m.val===null && vao.val){ m.val=ht.val/vao.val*100; }
+      if(m.p===null && m.kpi) m.p=m.val===null?null:m.val/m.kpi*100;
+      return '<div class="r"><i class="dot" style="background:'+col(m.p)+'"></i>'
+        +'<div class="nm">Tỷ lệ chuyển đổi<i>hoàn tất ÷ vào xưởng</i></div>'
+        +'<div class="vl">'+(m.val===null?'—':p1(m.val))+(m.kpi===null?'':'<i style="display:block;font-style:normal;font-size:10.5px;font-weight:600;color:var(--ink3)">KPI '+p1(m.kpi)+'</i>')+'</div>'
+        +'<div class="pc '+cls(m.p)+'">'+(m.p===null?'':Math.round(m.p)+'%')+'</div></div>';
+    }
+    return rowHTML(m.name||d[0],'',m.val,m.kpi,m.p,d[1]);
+  }).join('');
+
+  var mk=[['Dang bai facebook','Đăng bài Facebook Lốp Xe Phi Long'],
+          ['Google Maps','Google Maps / Zalo OA: ảnh thật, xin đánh giá'],
+          ['Video ngan','Video ngắn TikTok / Facebook mỗi ngày']];
+  document.getElementById('mkt').innerHTML=mk.map(function(m){
+    var x=metric(m[0],false); return rowHTML(m[1],'',x.val===null?0:x.val,x.kpi,x.p===null&&x.kpi?0:x.p,false);
+  }).join('');
+
+  var lp=[['TONG SO LUONG LOP BAN RA','Tổng lốp bán ra'],['Lop Bridgestone','Bridgestone'],
+          ['Lop Kumho','Kumho'],['Lop Michelin','Michelin'],['Lop khac','Lốp khác']];
+  document.getElementById('lop').innerHTML=lp.map(function(l){
+    var x=metric(l[0],false); return rowHTML(l[1],'',x.val===null?0:x.val,x.kpi,x.p,false);
+  }).join('');
+
+  var cc=[['xe bi phan tu','Xe phản tu / quay lại lần 2','an'],['xe cham tien do','Xe chậm tiến độ','an'],
+          ['Cong no phat sinh','Công nợ phát sinh trong ngày','money']];
+  document.getElementById('clcn').innerHTML=cc.map(function(c){
+    var r=findRow(c[0]); var v=r?num(cell(r,2)):null; v=(v===null?0:v);
+    var good=(v===0);
+    return '<div class="r"><i class="dot" style="background:'+(good?'var(--lv3)':'var(--neg)')+'"></i>'
+      +'<div class="nm">'+c[1]+'</div><div class="vl">'+(c[2]==='money'?fmShort(v):fm(v))+'</div>'
+      +'<div class="pc '+(good?'up':'down')+'">'+(good?'AN TOÀN':'!')+'</div></div>';
+  }).join('');
+
+  var wk=findRow('DOANH THU MUC TIEU');
+  var hasWeek = wk && (num(cell(wk,6))!==null || num(cell(wk,9))!==null);
+  var wc=document.getElementById('weekCard');
+  if(hasWeek){
+    wc.classList.remove('hide');
+    var r2=ROWS[1]||[];
+    var names=[strip(r2[5])||'Tuần 1',strip(r2[8])||'Tuần 2',strip(r2[11])||'Tuần 3'];
+    var defs=[['DOANH THU MUC TIEU','Doanh thu',true],['Luot xe vao xuong','Lượt xe vào xưởng',false],
+              ['Luot xe hoan tat','Lượt xe hoàn tất',false],['TONG SO LUONG LOP BAN RA','Lốp bán ra',false]];
+    var h='<tr><th>Chỉ số</th><th>'+names[0]+'</th><th>'+names[1]+'</th><th>'+names[2]+'</th></tr>';
+    defs.forEach(function(d){
+      var r=findRow(d[0]); if(!r) return;
+      var cells=[[6,7],[9,10],[12,13]].map(function(ix){
+        var th=num(cell(r,ix[0])), p=pct(cell(r,ix[1]));
+        if(p===null){ var kp=num(cell(r,ix[0]-1)); if(kp) p=th===null?null:th/kp*100; }
+        return '<td class="'+cls(p)+'">'+(d[2]?fmShort(th):fm(th))+(p===null?'':' · '+Math.round(p)+'%')+'</td>';
+      }).join('');
+      h+='<tr><td>'+d[1]+'</td>'+cells+'</tr>';
+    });
+    document.getElementById('weekTbl').innerHTML=h;
+  } else wc.classList.add('hide');
+
+  document.getElementById('foot').innerHTML='Nguồn: tab “BÁO CÁO KPI NGÀY T11” — file KPI '+CN
+    +'<br>Cập nhật lúc '+new Date().toLocaleTimeString('vi-VN')+' · chạm vào Rồng để đổi lời cổ vũ';
+
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('body').classList.remove('hide');
+  motivate(ptrm);
+}
+function findRowDate(){
+  for(var i=0;i<Math.min(6,ROWS.length);i++){
+    if(noAcc(ROWS[i][1]||'').indexOf('chon ngay')>-1) return ROWS[i];
+  }
+  return null;
+}
+
+/* ---------- tải dữ liệu ---------- */
+function urls(s){
+  var t=Date.now();
+  return ['https://docs.google.com/spreadsheets/d/'+s.id+'/export?format=csv&gid='+s.gid+'&_='+t,
+          'https://docs.google.com/spreadsheets/d/'+s.id+'/gviz/tq?tqx=out:csv&gid='+s.gid+'&_='+(t+1)];
+}
+function load(){
+  var s=SRC[CN], list=urls(s), i=0;
+  document.getElementById('body').classList.add('hide');
+  document.getElementById('loading').classList.remove('hide');
+  document.getElementById('loading').textContent='Đang tải báo cáo KPI ngày của '+CN+'…';
+  function next(){
+    if(i>=list.length){
+      document.getElementById('loading').innerHTML='Không đọc được file KPI '+CN
+        +'.<br>Kiểm tra file đã bật chia sẻ “bất kỳ ai có liên kết · người xem” chưa.';
+      motivate(null); return;
+    }
+    fetch(list[i++],{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(t){ ROWS=parseCSV(t); if(ROWS.length<10) throw 0; render(); })
+      .catch(function(){ next(); });
+  }
+  next();
+}
+function setCN(c){
+  CN=c;
+  ['CN1','CN2','CN3'].forEach(function(x){
+    var b=document.getElementById('tab-'+x); if(b) b.setAttribute('aria-pressed', x===c);
+  });
+  try{ if(ADMIN) localStorage.setItem('kpiql_cn',c); }catch(e){}
+  load();
+}
+
+(function init(){
+  var q; try{ q=new URLSearchParams(location.search); }catch(e){ q=new URLSearchParams(''); }
+  var ten=q.get('ten')||'', cn=(q.get('cn')||'').toUpperCase();
+  ADMIN = q.get('admin')==='1' || q.get('all')==='1';
+  if(!cn && ten){
+    var n=noAcc(ten);
+    if(n.indexOf('luan')>-1) cn='CN1';
+    else if(n.indexOf('tram')>-1) cn='CN2';
+    else if(n.indexOf('hien')>-1) cn='CN3';
+  }
+  if(!cn){ try{ cn=localStorage.getItem('kpiql_cn')||''; }catch(e){} }
+  if(!SRC[cn]) cn='CN2';
+  if(ten) SRC[cn].ql=ten.toUpperCase();
+  if(ADMIN){
+    document.getElementById('segBox').classList.remove('hide');
+  }
+  var img=document.getElementById('ava');
+  function noAva(){ img.classList.add('hide'); document.getElementById('avaFb').classList.remove('hide'); }
+  img.addEventListener('error',noAva);
+  if(img.complete && !img.naturalWidth) noAva();
+  motivate(null);
+  setCN(cn);
+})();
+</script>
+</body>
+</html>
