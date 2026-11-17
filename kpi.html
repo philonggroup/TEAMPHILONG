@@ -172,6 +172,7 @@ var TR = 1e6;
 var CFG = {
   sale: {
     label:'TỔNG DOANH THU TRỰC TIẾP', floor:2,
+    totalLabel:'Tổng doanh thu trực tiếp',
     floorText:'KPI sàn của SALE = MỨC 2 (lốp ≥ 350tr VÀ bảo dưỡng–sửa chữa ≥ 100tr).',
     parts:[
       {key:'lx', short:'Lốp xe', name:'Lốp xe (LX)',          t1:350*TR, t2:700*TR, rates:[0.003,0.005,0.010]},
@@ -183,16 +184,24 @@ var CFG = {
     ]
   },
   ktv: {
-    label:'TIỀN CÔNG LƯU ĐỘNG', floor:3,
-    floorText:'KPI lưu động của KTV phải đạt MỨC 3 = 20tr/tháng tiền công lưu động.',
-    parts:[{key:'ld', short:'Lưu động', name:'Tiền công lưu động', t1:10*TR, t2:20*TR, rates:[0.30,0.40,0.50]}],
-    fields:[{key:'ld', label:'Tiền công dịch vụ lưu động — đồng (không gồm vật tư / lốp bán kèm)'}]
+    label:'TỔNG CÔNG DV + LƯU ĐỘNG', floor:3,
+    totalLabel:'Tổng công DV + lưu động',
+    floorText:'KPI sàn của KTV = MỨC 3 (công DV ≥ 20tr VÀ tiền công lưu động ≥ 20tr).',
+    parts:[
+      {key:'dv', short:'Công DV',  name:'Công dịch vụ (DVL+DVNL)', t1:10*TR, t2:20*TR, rates:[0.10,0.15,0.20],
+       gate:10*TR, gateText:'phải đạt 10tr mới được tính hoa hồng'},
+      {key:'ld', short:'Lưu động', name:'Tiền công lưu động',      t1:10*TR, t2:20*TR, rates:[0.30,0.40,0.50]}
+    ],
+    fields:[
+      {key:'dv', label:'Tiền công dịch vụ tại xưởng (DVL + DVNL) — đồng'},
+      {key:'ld', label:'Tiền công dịch vụ lưu động — đồng (không gồm vật tư / lốp bán kèm)'}
+    ]
   }
 };
 var STEP = 10*TR;
 /* ======================================================================== */
 
-var mode='sale', V={lx:0,bd:0,ld:0}, APP=false;
+var mode='sale', V={lx:0,bd:0,dv:0,ld:0}, APP=false;
 var CX=160, CY=160, R=112, A0=135, SWEEP=270;
 
 function fm(n){ return Math.round(n||0).toLocaleString('vi-VN'); }
@@ -217,7 +226,8 @@ function frac(v,t1,t2){
 }
 function levelOf(v,t1,t2){ return v>=t2?3:(v>=t1?2:1); }
 function lvColor(l){ return l===3?'var(--lv3)':(l===2?'var(--lv2)':'var(--lv1)'); }
-function hoaHong(v,t1,t2,r){
+function hoaHong(v,t1,t2,r,gate){
+  if(gate && v<gate) return 0;
   if(v<=t1) return v*r[0];
   if(v<=t2) return t1*r[0]+(v-t1)*r[1];
   return t1*r[0]+(t2-t1)*r[1]+(v-t2)*r[2];
@@ -288,11 +298,11 @@ function render(){
   var c=CFG[mode];
   var parts=c.parts.map(function(p){
     var v=V[p.key]||0, lv=levelOf(v,p.t1,p.t2);
-    return { p:p, v:v, lv:lv, fr:frac(v,p.t1,p.t2), hh:hoaHong(v,p.t1,p.t2,p.rates),
+    return { p:p, v:v, lv:lv, fr:frac(v,p.t1,p.t2), hh:hoaHong(v,p.t1,p.t2,p.rates,p.gate),
              next: lv===1?p.t1:(lv===2?p.t2:null),
              gap:  lv===1?p.t1-v:(lv===2?p.t2-v:0),
              marg: p.rates[lv-1],
-             goal: lv===1?p.t1:p.t2 };
+             goal: Math.max(lv===1?p.t1:p.t2, c.floor===3?p.t2:p.t1) };
   });
   var total=parts.reduce(function(s,x){return s+x.v;},0);
   var totHH=parts.reduce(function(s,x){return s+x.hh;},0);
@@ -354,14 +364,16 @@ function render(){
          + '<div class="kd '+dCls+'">'+dHtml+'</div>'+(sub?'<div class="ksub">'+sub+'</div>':'')+'</div>';
   }
   var cards=parts.map(function(x){
-    var r=x.v/x.goal*100, cls=r>=100?'up':'down', ar=r>=100?'↑':'↓';
-    return kcard(x.p.name, fmShort(x.v), ar+' '+pct1(Math.abs(r-100))+'%', cls,
-      (r>=100?'vượt':'thiếu')+' so với mốc '+fmShort(x.goal)+' · Mức '+x.lv);
+    var r=x.v/x.goal*100, eq=Math.round(Math.abs(r-100)*10)/10===0;
+    var cls=eq?'flat':(r>=100?'up':'down'), ar=eq?'=':(r>=100?'↑':'↓');
+    return kcard(x.p.name, fmShort(x.v),
+      eq?'= đúng mốc':(ar+' '+pct1(Math.abs(r-100))+'%'), cls,
+      (eq?'đạt đúng mốc ':(r>=100?'vượt so với mốc ':'thiếu so với mốc '))+fmShort(x.goal)+' · Mức '+x.lv);
   });
   if(parts.length>1){
     var gTot=parts.reduce(function(s,x){return s+x.goal;},0);
     var rt=gTot?total/gTot*100:0;
-    cards.push(kcard('Tổng doanh thu trực tiếp', fmShort(total),
+    cards.push(kcard(c.totalLabel||'Tổng', fmShort(total),
       (rt>=100?'↑ ':'↓ ')+pct1(Math.abs(rt-100))+'%', rt>=100?'up':'down',
       'so với tổng mốc '+fmShort(gTot)));
   }
@@ -380,7 +392,13 @@ function render(){
             : '<b>'+worst.p.name+'</b> đang kéo kết quả xuống.')
       : 'Đang ở <b>Mức '+lv+'</b> trên thang '+fmShort(parts[0].p.t1)+' / '+fmShort(parts[0].p.t2)+'.');
     parts.filter(function(x){return x.next;}).forEach(function(x){
-      var hhNext=hoaHong(x.next,x.p.t1,x.p.t2,x.p.rates);
+      var hhNext=hoaHong(x.next,x.p.t1,x.p.t2,x.p.rates,x.p.gate);
+      if(x.p.gate && x.v < x.p.gate){
+        li.push('<b>'+x.p.name+'</b>: còn <b>'+fmShort(x.p.gate-x.v)+'</b> nữa mới chạm ngưỡng '
+          +fmShort(x.p.gate)+' — <b>chưa đạt ngưỡng thì chưa có hoa hồng</b>. Chạm mốc là có ngay <b>'
+          +fm(hoaHong(x.p.gate,x.p.t1,x.p.t2,x.p.rates,x.p.gate))+' đ</b>.');
+        return;
+      }
       li.push('<b>'+x.p.name+'</b>: còn <b>'+fmShort(x.gap)+'</b> nữa là chạm mốc '+fmShort(x.next)
         +' (Mức '+(x.lv+1)+'). Khi chạm, hoa hồng phần này lên <b>'+fm(hhNext)+' đ</b> (+'
         +fm(hhNext-x.hh)+' đ) và đồng tiếp theo được hưởng <b>'+pct1(x.p.rates[x.lv]*100)+'%</b> thay vì '
@@ -388,7 +406,7 @@ function render(){
     });
     if(parts.length>1){
       var sim=parts.map(function(x){
-        return { n:x.p.short, g:hoaHong(x.v+STEP,x.p.t1,x.p.t2,x.p.rates)-x.hh };
+        return { n:x.p.short, g:hoaHong(x.v+STEP,x.p.t1,x.p.t2,x.p.rates,x.p.gate)-x.hh };
       }).sort(function(a,b){ return b.g-a.g; });
       li.push('<b>Đòn bẩy:</b> cùng bán thêm '+fmShort(STEP)+' lúc này — '
         + sim.map(function(s){ return s.n+' được '+fm(s.g)+' đ'; }).join(', ')
@@ -409,17 +427,18 @@ function render(){
 
   document.getElementById('foot').innerHTML=c.parts.map(function(p){
     return p.name+': '+pct1(p.rates[0]*100)+'% / '+pct1(p.rates[1]*100)+'% / '+pct1(p.rates[2]*100)
-      +'% lũy tiến theo mốc '+fmShort(p.t1)+' – '+fmShort(p.t2);
+      +'% lũy tiến theo mốc '+fmShort(p.t1)+' – '+fmShort(p.t2)
+      +(p.gateText?' — '+p.gateText:'');
   }).join('<br>');
 
   motivate(lv,total);
 }
 
-/* nhận dữ liệu từ app: ?lx=&bd=&ld=&mode=ktv&ten=&ky=&app=1  (&edit=1 để hiện ô nhập) */
+/* nhận dữ liệu từ app: ?lx=&bd=&dv=&ld=&mode=ktv&ten=&ky=&app=1  (&edit=1 để hiện ô nhập) */
 (function init(){
   var q;
   try{ q=new URLSearchParams(location.search); }catch(e){ q=new URLSearchParams(''); }
-  ['lx','bd','ld'].forEach(function(k){
+  ['lx','bd','dv','ld'].forEach(function(k){
     if(q.has(k)) V[k]=parseFloat(String(q.get(k)).replace(/[^\d.]/g,''))||0;
   });
   if(q.get('mode')==='ktv') mode='ktv';
@@ -427,12 +446,12 @@ function render(){
   if(ten) document.getElementById('who').textContent=ten+(ky?' · '+ky:'');
   else if(ky) document.getElementById('who').textContent='Kỳ '+ky;
 
-  APP = q.has('app') || q.has('lx') || q.has('bd') || q.has('ld');
+  APP = q.has('app') || q.has('lx') || q.has('bd') || q.has('dv') || q.has('ld');
   if(APP && q.get('edit')!=='1'){
     document.getElementById('inputCard').classList.add('hide');
     document.getElementById('hhCard').classList.add('hide');
     document.getElementById('foot').classList.add('hide');
-    if(q.has('mode')||q.has('ld')||q.has('lx')||q.has('bd')) document.getElementById('segBox').classList.add('hide');
+    if(q.has('mode')||q.has('ld')||q.has('dv')||q.has('lx')||q.has('bd')) document.getElementById('segBox').classList.add('hide');
   }
   var img=document.getElementById('ava');
   function noAva(){ img.classList.add('hide'); document.getElementById('avaFb').classList.remove('hide'); }
