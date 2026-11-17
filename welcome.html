@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chú Rồng PLG Chào Ngày Mới</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: màn hình chào dọc — sân khấu rồng chạy ở trên, 3 chữ PLG, dải 3C, dải 5S, mục tiêu chung */
+:root{
+  --xanh-dam:#0E5C3F;
+  --xanh:#1B9D6F;
+  --xanh-nhat:#7FD1AE;
+  --nang:#F2B705;
+  --nuoc:#2CA9BC;
+  --kem:#F4FBF7;
+  --than:#12301F;
+  --font-title:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--xanh-dam);color:var(--kem);
+  font-family:var(--font-body);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:860px;margin:0 auto}
+.band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- SÂN KHẤU ---------- */
+.stage{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#0E5C3F 0%,#167C55 45%,#1B9D6F 100%);
+  padding-block:18px 0;
+  border-bottom:6px solid var(--nang);
+}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative;z-index:3}
+.plg-badge{
+  width:54px;height:54px;flex:0 0 auto;border-radius:16px;
+  background:var(--xanh);border:2px solid rgba(255,255,255,.55);
+  display:grid;place-items:center;font-family:var(--font-title);font-weight:800;
+  font-size:21px;letter-spacing:.5px;color:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,.28)
+}
+.brand{min-width:0}
+.brand b{display:block;font-family:var(--font-title);font-size:clamp(20px,5.2vw,30px);font-weight:800;letter-spacing:.3px;line-height:1.1}
+.brand span{display:block;font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:#CFEFDF}
+.ngay{margin-left:auto;font-size:12.5px;color:#DFF6EA;background:rgba(0,0,0,.22);padding:7px 12px;border-radius:999px;white-space:nowrap}
+
+.scene{position:relative;height:clamp(330px,88vw,370px);margin-top:4px}
+.sun{position:absolute;top:96px;right:5%;width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#FFE483,var(--nang));
+  box-shadow:0 0 44px rgba(242,183,5,.55)}
+.cloud{position:absolute;height:26px;border-radius:999px;background:rgba(255,255,255,.26)}
+.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
+.cloud::before{width:30px;height:30px;top:-14px;left:16px}
+.cloud::after{width:22px;height:22px;top:-10px;left:46px}
+.c1{width:96px;top:118px;left:-110px;animation:bay 17s linear infinite}
+.c2{width:70px;top:166px;left:-110px;opacity:.7;animation:bay 24s linear infinite 3s}
+@keyframes bay{to{transform:translateX(calc(100vw + 220px))}}
+
+.doi{position:absolute;bottom:62px;left:0;right:0;height:92px;
+  background:
+    radial-gradient(60px 46px at 14% 100%,#0E5C3F 98%,transparent),
+    radial-gradient(90px 64px at 42% 100%,#0B4A33 98%,transparent),
+    radial-gradient(70px 50px at 76% 100%,#0E5C3F 98%,transparent);
+  opacity:.85}
+
+.duong{position:absolute;bottom:0;left:0;right:0;height:64px;background:#143A28;border-top:3px solid #0A2A1C}
+.vach{position:absolute;bottom:30px;left:0;right:0;height:5px;
+  background:repeating-linear-gradient(90deg,var(--nang) 0 34px,transparent 34px 72px);
+  animation:chay 1.1s linear infinite}
+@keyframes chay{to{background-position:-72px 0}}
+
+/* ---------- CHÚ RỒNG ---------- */
+.rong{position:absolute;bottom:30px;left:50%;width:min(236px,54vw);transform:translateX(-50%);
+  cursor:pointer;border:0;background:none;padding:0;z-index:2;animation:nhay 2.6s ease-in-out infinite}
+.rong:focus-visible{outline:3px solid var(--nang);outline-offset:6px;border-radius:12px}
+.rong svg{display:block;width:100%;height:auto;overflow:visible}
+@keyframes nhay{0%,54%,100%{transform:translateX(-50%) translateY(0)}
+  66%{transform:translateX(-50%) translateY(-34px)}78%{transform:translateX(-50%) translateY(-6px)}86%{transform:translateX(-50%) translateY(-14px)}}
+.than-rong{animation:nhun .42s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes nhun{from{transform:translateY(0) scaleY(1)}to{transform:translateY(-4px) scaleY(1.02)}}
+.canh{transform-box:fill-box;transform-origin:88% 92%;animation:vo .3s ease-in-out infinite alternate}
+@keyframes vo{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.chan{transform-box:fill-box;transform-origin:50% 6%}
+.ct1,.cs1{animation:buoc .42s ease-in-out infinite alternate}
+.ct2,.cs2{animation:buoc .42s ease-in-out infinite alternate-reverse}
+@keyframes buoc{from{transform:rotate(26deg)}to{transform:rotate(-26deg)}}
+.duoi{transform-box:fill-box;transform-origin:96% 40%;animation:lac .6s ease-in-out infinite alternate}
+@keyframes lac{from{transform:rotate(-9deg)}to{transform:rotate(11deg)}}
+.bui{animation:bui 1s linear infinite;transform-box:fill-box}
+@keyframes bui{0%{opacity:.75;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-46px,-16px) scale(1.5)}}
+
+.mat-nheo,.mieng-ha,.mieng-chu-o{display:none}
+svg[data-mood="nheo"] .mat-tron{display:none}
+svg[data-mood="nheo"] .mat-nheo{display:block}
+svg[data-mood="reo"] .mieng-cuoi{display:none}
+svg[data-mood="reo"] .mieng-ha{display:block}
+svg[data-mood="ngac"] .mieng-cuoi{display:none}
+svg[data-mood="ngac"] .mieng-chu-o{display:block}
+
+/* ---------- BÓNG THOẠI ---------- */
+.thoai{position:absolute;bottom:auto;top:8px;left:50%;transform:translateX(-50%);
+  max-width:min(330px,82vw);background:var(--kem);color:var(--than);
+  font-family:var(--font-title);font-weight:700;font-size:clamp(15px,4vw,19px);
+  text-align:center;padding:12px 18px;border-radius:18px;
+  box-shadow:0 10px 26px rgba(0,0,0,.3);z-index:3;animation:hien .45s ease}
+.thoai::after{content:"";position:absolute;bottom:-11px;left:calc(50% - 10px);
+  width:0;height:0;border:11px solid transparent;border-top-color:var(--kem);border-bottom:0}
+@keyframes hien{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.95)}}
+.goi-cham{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:12px;color:#CFEFDF;z-index:3}
+
+/* ---------- PLG ---------- */
+.plg{background:var(--kem);color:var(--than);padding-block:26px 30px}
+.tieu-de{font-family:var(--font-title);font-weight:800;text-align:center;
+  font-size:clamp(22px,5.6vw,32px);margin:0;color:var(--xanh-dam);text-wrap:balance}
+.phu{text-align:center;margin:6px 0 22px;color:#4A6B59;font-size:14.5px}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{min-width:0;background:#fff;border:1px solid #D7EDE1;border-radius:18px;padding:18px 18px 20px;
+  box-shadow:0 2px 0 #E4F2EA}
+.chu{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.chu i{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  font-family:var(--font-title);font-style:normal;font-weight:800;font-size:22px;color:#fff}
+.card:nth-child(1) .chu i{background:var(--nuoc)}
+.card:nth-child(2) .chu i{background:#E4572E}
+.card:nth-child(3) .chu i{background:var(--xanh)}
+.chu b{font-family:var(--font-title);font-size:18px;letter-spacing:.4px;color:var(--xanh-dam)}
+.chu small{display:block;font-family:var(--font-body);font-size:11.5px;letter-spacing:1.6px;
+  text-transform:uppercase;color:#6C8A79}
+.card p{margin:0;font-size:14.5px;color:#30503E}
+
+/* ---------- 3C & 5S ---------- */
+.gia-tri{background:var(--xanh-dam);padding-block:26px 30px}
+.hang{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:16px}
+.o{min-width:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;padding:14px;text-align:center}
+.o b{display:block;font-family:var(--font-title);font-size:17px;color:#fff}
+.o span{font-size:12.5px;color:#BFE6D3}
+.o.vang{border-color:rgba(242,183,5,.6)}
+.nhan{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-title);font-weight:800;
+  font-size:clamp(19px,5vw,25px);color:#fff}
+.nhan em{font-style:normal;background:var(--nang);color:#2A2000;border-radius:10px;padding:2px 10px;font-size:.8em}
+.ghi{font-size:13px;color:#9FD3B9;margin:8px 0 0}
+
+/* ---------- MỤC TIÊU ---------- */
+.muc-tieu{background:var(--kem);color:var(--than);padding-block:26px 34px}
+.chuoi{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:16px}
+.buoc{min-width:0;position:relative;background:#fff;border:1px solid #D7EDE1;border-radius:16px;padding:16px 16px 16px 58px}
+.buoc i{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;
+  background:var(--xanh);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:15px}
+.buoc b{display:block;font-family:var(--font-title);font-size:16.5px;color:var(--xanh-dam)}
+.buoc span{font-size:13.5px;color:#4A6B59}
+.chan-trang{text-align:center;padding-block:18px 26px;background:var(--xanh-dam);
+  font-family:var(--font-title);letter-spacing:1px;color:#BFE6D3;font-size:14px}
+.chan-trang small{display:block;font-family:var(--font-body);letter-spacing:0;color:#7FB79B;font-size:11.5px;margin-top:4px}
+
+@media (prefers-reduced-motion:reduce){
+  .rong,.than-rong,.canh,.chan,.duoi,.vach,.cloud,.bui{animation:none!important}
+}
+</style>
+
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<section class="stage band">
+  <div class="wrap topbar">
+    <div class="plg-badge">PLG</div>
+    <div class="brand">
+      <b>PHI LONG GROUP</b>
+      <span>Plan · Love · Grow</span>
+    </div>
+    <div class="ngay" id="ngay"></div>
+  </div>
+
+  <div class="wrap scene">
+    <div class="sun"></div>
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="doi"></div>
+    <div class="duong"></div>
+    <div class="vach"></div>
+
+    <div class="thoai" id="thoai">Chào buổi sáng! Cười – Chào – Cảm ơn nhé!</div>
+
+    <button class="rong" id="rong" type="button" aria-label="Chạm vào chú rồng để nhận một câu động viên">
+      <svg viewBox="0 0 300 250" data-mood="cuoi" id="svg-rong" role="img" aria-hidden="true">
+        <ellipse cx="150" cy="238" rx="78" ry="9" fill="rgba(0,0,0,.28)"/>
+        <g class="bui">
+          <circle cx="86" cy="220" r="7" fill="#DFF6EA"/>
+          <circle cx="68" cy="210" r="5" fill="#DFF6EA"/>
+        </g>
+        <g class="than-rong">
+          <!-- duoi -->
+          <path class="duoi" d="M96 158 C58 168 34 150 22 120 C40 138 62 142 86 132 Z" fill="#0E7A52"/>
+          <path class="duoi" d="M24 122 L14 104 L36 112 Z" fill="#F2B705"/>
+          <!-- canh -->
+          <path class="canh" d="M138 104 C118 60 148 42 186 48 C168 62 164 84 172 104 Z" fill="#2CA9BC"/>
+          <!-- than -->
+          <ellipse cx="152" cy="150" rx="58" ry="44" fill="#1B9D6F"/>
+          <ellipse cx="160" cy="166" rx="40" ry="26" fill="#7FD1AE"/>
+          <circle cx="124" cy="126" r="7" fill="#15875C"/>
+          <circle cx="146" cy="116" r="6" fill="#15875C"/>
+          <!-- yem tho may -->
+          <path d="M128 124 C140 150 176 152 190 132 L196 160 C176 182 134 180 118 156 Z" fill="#2CA9BC" opacity=".55"/>
+          <!-- chan sau -->
+          <g class="chan cs1"><rect x="118" y="178" width="20" height="44" rx="10" fill="#0E7A52"/></g>
+          <g class="chan cs2"><rect x="142" y="178" width="20" height="44" rx="10" fill="#15875C"/></g>
+          <!-- co + dau -->
+          <path d="M186 140 C196 112 206 100 220 94 L238 128 C220 136 206 148 200 162 Z" fill="#1B9D6F"/>
+          <ellipse cx="226" cy="98" rx="44" ry="37" fill="#23A878"/>
+          <ellipse cx="262" cy="110" rx="22" ry="17" fill="#7FD1AE"/>
+          <!-- sung -->
+          <path d="M206 64 L196 40 L220 58 Z" fill="#F2B705"/>
+          <path d="M232 60 L228 36 L248 58 Z" fill="#F2B705"/>
+          <!-- mu tho may -->
+          <path d="M190 72 C198 48 250 42 264 66 L262 74 C236 62 212 64 190 80 Z" fill="#F2B705"/>
+          <rect x="250" y="64" width="26" height="9" rx="4" fill="#D79C00"/>
+          <!-- mat -->
+          <g class="mat-tron">
+            <circle cx="234" cy="92" r="13" fill="#FFFFFF"/>
+            <circle cx="237" cy="93" r="6" fill="#12301F"/>
+            <circle cx="239" cy="90" r="2" fill="#FFFFFF"/>
+          </g>
+          <path class="mat-nheo" d="M222 92 C230 84 242 84 248 92" stroke="#12301F" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- mieng -->
+          <path class="mieng-cuoi" d="M250 120 C258 130 272 128 278 118" stroke="#0A3524" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path class="mieng-ha" d="M248 116 C256 136 274 136 280 114 Z" fill="#0A3524"/>
+          <ellipse class="mieng-chu-o" cx="264" cy="122" rx="10" ry="12" fill="#0A3524"/>
+          <circle cx="276" cy="104" r="3" fill="#0A3524"/>
+          <!-- chan truoc -->
+          <g class="chan ct1"><rect x="176" y="176" width="19" height="40" rx="9" fill="#15875C"/></g>
+          <g class="chan ct2"><rect x="196" y="174" width="19" height="40" rx="9" fill="#0E7A52"/></g>
+          <!-- co le -->
+          <g class="chan ct2"><rect x="198" y="206" width="30" height="8" rx="4" fill="#CFD8DC"/><circle cx="230" cy="210" r="7" fill="#CFD8DC"/><circle cx="230" cy="210" r="3" fill="#143A28"/></g>
+        </g>
+      </svg>
+    </button>
+    <p class="goi-cham">Chạm vào chú rồng để nhận một câu động viên</p>
+  </div>
+</section>
+
+<section class="plg band">
+  <div class="wrap">
+    <h1 class="tieu-de">PLG — PLAN · LOVE · GROW</h1>
+    <p class="phu">Ba từ triết lý văn hoá của Phi Long Group</p>
+    <div class="cards">
+      <div class="card">
+        <div class="chu"><i>P</i><div><b>PLAN</b><small>Lập kế hoạch</small></div></div>
+        <p>Có mục tiêu, định hướng rõ ràng và hành động có kỷ luật.</p>
+      </div>
+      <div class="card">
+        <div class="chu"><i>L</i><div><b>LOVE</b><small>Yêu thương</small></div></div>
+        <p>Làm việc bằng sự tận tâm, tôn trọng con người, kết nối đội ngũ và trao giá trị cho khách hàng.</p>
+      </div>
+      <div class="card">
+        <div class="chu"><i>G</i><div><b>GROW</b><small>Phát triển</small></div></div>
+        <p>Không ngừng học hỏi, cải tiến và trở nên tốt hơn 1% mỗi ngày.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gia-tri band">
+  <div class="wrap">
+    <div class="nhan"><em>3C</em> Mỗi khách — mỗi hành trình</div>
+    <div class="hang">
+      <div class="o"><b>CƯỜI</b><span>Gặp khách là nụ cười trước</span></div>
+      <div class="o"><b>CHÀO</b><span>Chào chủ động, gọi đúng tên</span></div>
+      <div class="o"><b>CẢM ƠN</b><span>Cảm ơn khi khách rời xưởng</span></div>
+    </div>
+
+    <div class="nhan" style="margin-top:28px"><em>5S</em> Xưởng gọn — việc nhanh</div>
+    <div class="hang">
+      <div class="o vang"><b>SÀNG LỌC</b><span>Bỏ thứ không cần</span></div>
+      <div class="o vang"><b>SẮP XẾP</b><span>Mỗi thứ một chỗ</span></div>
+      <div class="o vang"><b>SẠCH SẼ</b><span>Sạch sau mỗi xe</span></div>
+      <div class="o vang"><b>SĂN SÓC</b><span>Giữ chuẩn hằng ngày</span></div>
+      <div class="o vang"><b>SẴN SÀNG</b><span>Thành nếp, thành kỷ luật</span></div>
+    </div>
+    <p class="ghi">Cách diễn giải 5S đang dùng theo bản phổ thông — Phi Long có bản riêng thì chỉnh lại cho đúng.</p>
+  </div>
+</section>
+
+<section class="muc-tieu band">
+  <div class="wrap">
+    <h2 class="tieu-de">Mục tiêu chung</h2>
+    <p class="phu">PLG · 3C · 5S đi về cùng một đích</p>
+    <div class="chuoi">
+      <div class="buoc"><i>1</i><b>Nâng cao trải nghiệm khách hàng</b><span>Khách được cười – chào – cảm ơn, xe sạch, hẹn đúng giờ</span></div>
+      <div class="buoc"><i>2</i><b>Tăng doanh thu</b><span>Khách quay lại, giới thiệu thêm khách mới</span></div>
+      <div class="buoc"><i>3</i><b>Tăng thu nhập</b><span>Doanh thu tăng thì KPI đạt, lương thưởng tăng theo</span></div>
+    </div>
+  </div>
+</section>
+
+<p class="chan-trang band">ĐỒNG HÀNH · PHỤC VỤ · TẬN TÂM
+  <small>Phi Long Group — CN1 · CN2 · CN3 · CN5</small>
+</p>
+
+<script>
+(function(){
+  var cau = [
+    "Chào buổi sáng! Cười – Chào – Cảm ơn nhé!",
+    "Tốt hơn 1% mỗi ngày là đủ để đi xa.",
+    "Hôm nay mình làm gì để khách vui hơn hôm qua?",
+    "Kế hoạch rõ – tay làm chắc – việc gọn!",
+    "Xưởng sạch, lòng vui, khách tin mình.",
+    "Chấm công xong là bắt đầu một hành trình mới!",
+    "Yêu thương đồng đội, việc khó cũng thành nhẹ.",
+    "Một nụ cười của mình = một khách quay lại."
+  ];
+  var mood = ["cuoi","nheo","reo","ngac"];
+  var i = 0, m = 0;
+  var oThoai = document.getElementById("thoai");
+  var oSvg = document.getElementById("svg-rong");
+  var oRong = document.getElementById("rong");
+  var oNgay = document.getElementById("ngay");
+
+  function doi(){
+    i = (i + 1) % cau.length;
+    m = (m + 1) % mood.length;
+    oThoai.textContent = cau[i];
+    oSvg.setAttribute("data-mood", mood[m]);
+    oThoai.style.animation = "none";
+    void oThoai.offsetWidth;
+    oThoai.style.animation = "";
+  }
+  oRong.addEventListener("click", doi);
+  var tu = setInterval(doi, 4200);
+  oRong.addEventListener("click", function(){ clearInterval(tu); tu = setInterval(doi, 4200); });
+
+  try{
+    var t = new Date();
+    var thu = ["Chủ nhật","Thứ hai","Thứ ba","Thứ tư","Thứ năm","Thứ sáu","Thứ bảy"][t.getDay()];
+    var gio = t.getHours();
+    var chao = gio < 11 ? "Chào buổi sáng" : (gio < 14 ? "Chào buổi trưa" : (gio < 18 ? "Chào buổi chiều" : "Chào buổi tối"));
+    oNgay.textContent = chao + " · " + thu + ", " + t.getDate() + "/" + (t.getMonth()+1) + "/" + t.getFullYear();
+  }catch(e){ oNgay.textContent = "Chào ngày mới"; }
+})();
+</script>
+
+</body>
+</html>
