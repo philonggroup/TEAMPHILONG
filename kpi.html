@@ -10,9 +10,9 @@
 <style>
 :root{
   /* bảng màu PLG: xanh lá chủ đạo · vàng nắng (Michelin) · chút xanh biển */
-  --lv1:#F2B705;           /* MỨC 1 — vàng Michelin */
-  --lv2:#2458A8;           /* MỨC 2 — xanh biển */
-  --lv3:#1B9D6F;           /* MỨC 3 — xanh lá (màu app) */
+  --lv1:#F2B705;           /* MỨC 1 — vàng nắng (Michelin) */
+  --lv2:#45BC8A;           /* MỨC 2 — xanh lá nhạt */
+  --lv3:#0E7A52;           /* MỨC 3 — xanh lá đậm (màu app) */
   --grn:#1B9D6F; --grn-d:#0E7A52; --neg:#C0392B;
   --bg:#F4F8F4; --card:#FFFFFF; --ink:#16211B; --ink2:#5C6B62; --ink3:#8A978E;
   --line:#E1EAE2; --track:#EDF2EE; --shadow:0 2px 12px rgba(14,122,82,.07);
@@ -25,6 +25,7 @@
     --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
     --warn-bg:#352810; --warn-fg:#F2C078; --warn-bd:#54401A;
     --ok-bg:#133024; --ok-fg:#7CD9A0;
+    --lv2:#5ECFA0; --lv3:#1FA773;
   }
 }
 :root[data-theme="dark"]{
@@ -32,6 +33,7 @@
   --line:#26332B; --track:#202C25; --shadow:0 2px 12px rgba(0,0,0,.45);
   --warn-bg:#352810; --warn-fg:#F2C078; --warn-bd:#54401A;
   --ok-bg:#133024; --ok-fg:#7CD9A0;
+  --lv2:#5ECFA0; --lv3:#1FA773;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Be Vietnam Pro',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:26px}
@@ -144,7 +146,7 @@ tr.tot td{border-top:2px solid var(--line);padding-top:10px;font-weight:800;colo
         <span><i class="dot" style="background:var(--lv3)"></i>Mức 3</span>
       </div>
     </div>
-    <div class="note" id="note"></div>
+    <div class="note hide" id="note"></div>
   </div>
 
   <div class="card">
@@ -350,12 +352,12 @@ function render(){
   var note=document.getElementById('note');
   var lows=parts.filter(function(x){ return x.lv<c.floor; });
   if(lows.length){
-    note.className='note warn';
+    note.className='note warn hide';   /* ẩn — giao diện gọn */
     note.innerHTML='⚠ Chưa đạt KPI sàn. '+c.floorText+'<br>Đang hụt: '
       + lows.map(function(x){ var need=(c.floor===3?x.p.t2:x.p.t1)-x.v;
           return '<b>'+x.p.name+'</b> còn thiếu '+fmShort(need); }).join(' · ');
   } else {
-    note.className='note ok';
+    note.className='note ok hide';     /* ẩn — giao diện gọn */
     note.innerHTML='✓ Đã đạt KPI sàn (Mức '+c.floor+'). '+c.floorText;
   }
 
