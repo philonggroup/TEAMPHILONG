@@ -1383,6 +1383,11 @@ function apViecTuanTruoc(j) {
       sp[3].textContent = v.trang_thai || (xong ? 'Xong' : 'Chưa xong');
       sp[3].style.background = xong ? '#E7F5EC' : '#FDE2E2';
       sp[3].style.color = xong ? '#1E6B3A' : '#9B1C1C';
+      var chuanHoaCS = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, ''); };
+      var mCN = String(v.viec || '').match(/CN([123])/);
+      var oCN = null; if (mCN && j.chinhanh) for (var qq = 0; qq < j.chinhanh.length; qq++) if (j.chinhanh[qq].ma === 'CN' + mCN[1]) oCN = j.chinhanh[qq];
+      var kq = null; if (oCN && oCN.dong && v.chi_so) { var kch = chuanHoaCS(v.chi_so); for (var dd in oCN.dong) { var tch = chuanHoaCS(oCN.dong[dd].ten); if (tch && kch && (tch === kch || tch.indexOf(kch) >= 0 || kch.indexOf(tch) >= 0)) { kq = oCN.dong[dd]; break; } } }
+      if (kq) { var phu = document.createElement('div'); phu.style.cssText = 'font-size: 11px; color: #5F6B7A; margin-top: 2px'; phu.textContent = (v.chi_so || '') + ' · cả chi nhánh tuần này: ' + soVN(kq.thuc) + '/' + soVN(kq.kpi) + (kq.pct == null ? '' : ' · ' + pctVN(kq.pct)); sp[1].appendChild(phu); }
     }
     cha.appendChild(tr);
   });
