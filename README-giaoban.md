@@ -54,7 +54,7 @@ var CAU_HINH = {
   TEN_CN: { CN1: 'CN1 Phi Long', CN2: 'CN2 Phi Long', CN3: 'CN3 Phi Long' },
 ```
 
-7. Sửa `TEN_CN` thành tên chị muốn hiện trên màn Toàn cảnh (ví dụ `CN1: 'Bình Phước'`).
+7. Sửa `TEN_CN` thành tên chị muốn hiện trên màn Toàn cảnh (ví dụ `CN1: 'PHI LONG 2'`).
 8. Commit lại file. Xong — mỗi lần mở trang, số tự lấy từ 3 workbook, tự làm mới mỗi 3 phút.
 
 **Sang tháng mới không phải sửa gì**: script tự dò tên tab theo tháng hiện tại (`T11` → `T12`), thử lần lượt 4 cách đặt tên đang dùng, không thấy thì dò gần đúng.
