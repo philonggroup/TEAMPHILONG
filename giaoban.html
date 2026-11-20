@@ -953,6 +953,8 @@ var CAU_HINH = {
   API: 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec',
   // Khoá đơn giản, phải khớp biến KHOA trong Code.gs
   KHOA: 'PHILONG2026',
+  // Moc chot ngay lam viec: han chi co ngay (dd/MM) thi tinh tre ke hoach sau gio nay
+  GIO_CHOT_NGAY: '17:30',
   // Tên hiển thị của 3 chi nhánh trên màn Toàn cảnh (thứ tự = CN1, CN2, CN3)
   TEN_CN: { CN1: 'PHI LONG 1', CN2: 'PHI LONG 2', CN3: 'PHI LONG 3' },
   // Màn chi tiết nào ứng với chi nhánh nào
@@ -1367,7 +1369,19 @@ function trangThaiChuanApp(v) {
   var s = String((v && v.trang_thai) || '');
   if (/hoàn thành/i.test(s) || /^\s*3\./.test(s)) return { ma: 'xong', nhan: 'Hoàn thành', bg: '#E7F5EC', fg: '#1E6B3A' };
   var tre = /trễ/i.test(s) || /trễ/i.test(String((v && v.tien_do) || ''));
-  if (!tre) { var h = hanThanhGio((v && (v.han || v.deadline)) || ''); if (h && h.getTime() < Date.now()) tre = true; }
+  if (!tre) {
+    /* API chi gui han dang dd/MM (khong co gio) -> lay moc chot ngay lam viec cua Phi Long: 17:30.
+       Doi moc nay o CAU_HINH.GIO_CHOT_NGAY neu cong ty doi gio chot. */
+    var h = hanThanhGio((v && (v.han || v.deadline)) || '');
+    if (h) {
+      var coGio = /\d{1,2}:\d{2}/.test(String((v && (v.han || v.deadline)) || ''));
+      if (!coGio) {
+        var mc = String((CAU_HINH && CAU_HINH.GIO_CHOT_NGAY) || '17:30').split(':');
+        h.setHours(+mc[0] || 17, +mc[1] || 30, 0, 0);
+      }
+      if (h.getTime() < Date.now()) tre = true;
+    }
+  }
   if (tre) return { ma: 'tre', nhan: '🔥 Trễ kế hoạch', bg: '#FDE2E2', fg: '#9B1C1C' };
   if (/đang làm/i.test(s) || /^\s*2\./.test(s)) return { ma: 'dang', nhan: 'Đang làm', bg: '#E6F0FB', fg: '#17365D' };
   return { ma: 'cho', nhan: 'Chờ thực hiện', bg: '#FFF4D6', fg: '#8A6100' };
