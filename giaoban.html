@@ -111,6 +111,16 @@ label.lb{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin
 .tagnhom{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--brand);background:var(--brand-l);border-radius:4px;padding:1px 6px;margin-bottom:4px}
 .empty{color:var(--ink3);font-size:13px;font-style:italic;padding:6px 0}
 
+/* ---------- sticker linh vat Phi Long ---------- */
+.stkrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.stkb{width:46px;height:46px;border:1px solid transparent;border-radius:10px;background:none;cursor:pointer;padding:2px;transition:transform .12s}
+.stkb img{width:100%;height:100%;object-fit:contain;display:block}
+.stkb:hover{transform:scale(1.18)}
+.stkb.on{border-color:#F2B705;background:#FFF8E6}
+.stkbig{display:flex;align-items:center;gap:10px;margin-top:8px}
+.stkbig img{width:64px;height:64px;object-fit:contain}
+.stkbig .tx{font-size:13.5px;font-weight:800;color:var(--brand-d)}
+
 /* ---------- bảng chốt việc (bước 6) ---------- */
 .ctbl{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
 .ctrow{display:grid;grid-template-columns:minmax(0,1.7fr) 180px 86px minmax(0,1.1fr) 104px}
@@ -241,6 +251,24 @@ label.lb{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin
    ======================================================================= */
 
 var APP_CV='https://www.appsheet.com/start/866c1f09-779a-48ca-9b1c-094d9c81fef8?platform=desktop#appName=PHILONGGROUP-171475980&vss=H4sIAAAAAAAAA6WQX0_CMBTFv8t9LoaOxT99nYshhpEA8qAlpNC7uLity1pUsvS7ezcFY_RBRtKXnt7fuee0gdcM3-ZObV9APDXft3vcg4BGwmJfoQQhITKlq00ugUlIVPEpridx8iDBg2c94Gia3K2X4zjqHFbs4ODQgmhO2C7OSM4g01i6LM2wbo1ajAy-IHpuERI6gHpCsXNqk2OXkwBP0olV-8T9YfDvzEfqj-CH8d-zDGbGONK0ss8bo2pN0q1yitCiIj0YBpcDzgfBcMG5GF3TuQhveBjyq0fw7Y-kZruzqJdUs1c9Oy7j90qVemI0pUtVbtF_AF47u5muAgAA&view=_CONG_VIEC';
+var STK_URL='https://philonggroup.github.io/TEAMPHILONG/stickers/';
+var STK=[['PL_01_tot_lam','Tốt lắm'],['PL_25_chao_buoi_sang','Chào buổi sáng'],['PL_30_quyet_thang','Quyết thắng'],
+         ['PL_14_an_mung','Ăn mừng'],['PL_09_co_y_tuong','Có ý tưởng'],['PL_17_dang_lam_viec','Đang làm việc'],
+         ['PL_08_thac_mac','Thắc mắc'],['PL_12_lo_lang','Lo lắng'],['PL_16_dau_dau','Đau đầu'],
+         ['PL_10_buc_minh','Bực mình'],['PL_19_an_toan','An toàn'],['PL_28_tim_phi_long','Thương Phi Long']];
+function stkPick(key){
+  var cur=sGet(key,'');
+  var h='<label class="lb mt12">Tâm trạng hôm nay</label><div class="stkrow">';
+  STK.forEach(function(x){
+    h+='<button class="stkb'+(cur===x[0]?' on':'')+'" title="'+esc(x[1])+'" onclick="stkSet(\''+key+'\',\''+x[0]+'\')">'
+      +'<img src="'+STK_URL+x[0]+'.png" alt="'+esc(x[1])+'" loading="lazy"></button>';
+  });
+  h+='</div>';
+  var ten=''; STK.forEach(function(x){ if(x[0]===cur) ten=x[1]; });
+  if(cur) h+='<div class="stkbig"><img src="'+STK_URL+cur+'.png" alt=""><span class="tx">'+esc(ten)+'</span></div>';
+  return h;
+}
+function stkSet(key,v){ sSet(key, sGet(key,'')===v?'':v); paintStage(); }
 var SRC = {
   CN1:{ ten:'CN1', ql:'Phạm Thành Luân', id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gKPI:'489409049',  gKH:'586216157'  },
   CN2:{ ten:'CN2', ql:'Nguyễn Thị Thuỳ Trâm', id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gKPI:'1426227108', gKH:'1108806546' },
@@ -763,6 +791,7 @@ function stCheckIn(){
       +'<label style="display:flex;align-items:center;gap:8px;font-size:13.5px">'
       +'<input type="checkbox" class="ck" '+(sGet('present_'+c,true)?'checked':'')
       +' onchange="sSet(\'present_'+c+'\',this.checked)"> '+esc(SRC[c].ql)+' dự họp</label>'
+      +stkPick('mood_'+c)
       +'</div>';
   });
   h+='</div>';
