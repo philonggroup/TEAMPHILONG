@@ -269,6 +269,21 @@ function veDau(){
   var canh = (DU && DU.canh && DU.canh.length)
     ? ' ' + chip('⚠ ' + DU.canh.join(', ') + ' chưa tách tiền lốp / ngoài lốp trong file', '#6B4500', '#FFF2CC') : '';
   el.innerHTML = 'NGUỒN: 3 FILE KPI CHI NHÁNH · ' + ds + ' · đọc lúc ' + gio + canh;
+  veHuyHieu();
+}
+
+/* huy hiệu nguồn của riêng màn Vinh danh — màn này đọc file KPI, không phải số minh hoạ.
+   Script chính của trang đặt chung 1 nhãn cho mọi màn nên phải ghi đè lại định kỳ. */
+function veHuyHieu(){
+  var sec = document.getElementById('sc-GB4VinhDanh'); if (!sec) return;
+  var b = sec.querySelector('.pl-badge-nguon'); if (!b) return;
+  var ok = ['CN1','CN2','CN3'].filter(function (c) { return TT[c] && TT[c].ok; }).length;
+  if (ok === 3) { b.textContent = 'SỐ LIVE · FILE KPI 3 CHI NHÁNH';
+                  b.style.background = '#E7F5EC'; b.style.color = '#1E6B3A'; }
+  else if (ok > 0) { b.textContent = 'SỐ LIVE · ' + ok + '/3 FILE KPI';
+                  b.style.background = '#FFF2CC'; b.style.color = '#6B4500'; }
+  else { b.textContent = 'CHƯA ĐỌC ĐƯỢC FILE KPI';
+         b.style.background = '#FDE2E2'; b.style.color = '#9B1C1C'; }
 }
 
 function keo(){
@@ -291,6 +306,7 @@ function khoiDong(){
   if (!document.getElementById('vd-than')) return;
   ve();
   keo();
+  setInterval(veHuyHieu, 10000);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', khoiDong);
 else khoiDong();
