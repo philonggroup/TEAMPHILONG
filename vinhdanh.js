@@ -242,7 +242,7 @@ function ve(){
     var dat = r.dv >= CHUAN.ktDv;
     var huy = dat ? HUY[soCupKt++] : '';
     var nhan = dat ? 'QUA VẠCH CHUẨN · ' + Math.round(r.dv / CHUAN.ktDv * 100) + '%'
-                   : 'công DV còn ' + tr(Math.max(0, CHUAN.ktDv - r.dv)) + 'tr tới chuẩn';
+                   : 'còn ' + tr(Math.max(0, CHUAN.ktDv - r.dv)) + 'tr tới chuẩn';
     return lan({ huy:huy, ten:r.ten, phu:TEN_CN[r.cn] + ' · lưu động ' + tr(r.ld) + 'tr',
                  mau:MAU_XE[(i + 3) % MAU_XE.length], giaTri:r.dv, chuan:CHUAN.ktDv, dat:dat, nhan:nhan });
   }).join('');
