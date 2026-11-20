@@ -37,6 +37,32 @@
   .pl-frame { transform-origin: top left; }
   .pl-dt-hang { display: flex; gap: 30px; }
 
+
+  /* Bước 2 · Việc tuần trước: bảng việc dài thì cuộn trong khung, có nút KÉO LÊN / KÉO XUỐNG */
+  .pl-vtt-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+  .pl-vtt-box { position: relative; flex: 1 1 auto; min-height: 0;
+                overflow-y: auto !important; overflow-x: hidden !important;
+                scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+  .pl-vtt-box::-webkit-scrollbar { width: 10px; }
+  .pl-vtt-box::-webkit-scrollbar-thumb { background: #BBD0E6; border-radius: 6px; }
+  .pl-vtt-box > [data-k="vtt.r0"] { position: sticky; top: 0; z-index: 3; }
+  .pl-keo-cot { position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+                z-index: 6; display: flex; flex-direction: column; gap: 10px; }
+  .pl-keo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #17365D;
+            background: #FFFFFF; color: #17365D; box-shadow: 0 3px 10px rgba(23,54,93,.3);
+            cursor: pointer; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; line-height: 1.1; padding: 0;
+            font-family: 'Be Vietnam Pro', Arial, sans-serif; font-size: 10px; font-weight: 800;
+            letter-spacing: .4px; }
+  .pl-keo .mui { font-size: 22px; font-weight: 800; }
+  .pl-keo:hover { background: #17365D; color: #FFFFFF; }
+  .pl-keo[disabled] { opacity: .28; cursor: default; }
+  .pl-conmay { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+               z-index: 6; padding: 5px 15px; border-radius: 999px; background: #17365D;
+               color: #FFFFFF; font-family: 'Be Vietnam Pro', Arial, sans-serif;
+               font-size: 13px; font-weight: 700; box-shadow: 0 3px 10px rgba(23,54,93,.32);
+               pointer-events: none; }
+
   @media print {
     .pl-bar, .pl-hien-lai { display: none !important; }
     .pl-screen { display: block !important; page-break-after: always; }
@@ -1041,6 +1067,7 @@ function moMan(id) {
   document.title = (sec.getAttribute('data-title') || 'Giao ban tuần') + ' · Phi Long Auto';
   canChinhTiLe();
   khoiDongDongHo(sec);
+  if (id === 'GB2ViecCu') ganKhungKeo();
   window.scrollTo(0, 0);
 }
 function canChinhTiLe() {
@@ -1429,6 +1456,7 @@ function apViecTuanTruoc(j) {
     }
     cha.appendChild(tr);
   });
+  ganKhungKeo();
   // 3 thẻ số đầu màn
   var dem = { xong: 0, dang: 0, tre: 0, cho: 0 };
   ds.forEach(function (v) { dem[trangThaiChuanApp(v).ma]++; });
@@ -1436,6 +1464,65 @@ function apViecTuanTruoc(j) {
   if (the[0]) { the[0].innerHTML = dem.xong + '/' + ds.length + ' <span style="font-size: 16px">· ' + (ds.length ? Math.round(dem.xong / ds.length * 100) : 0) + '%</span>'; if (the[0].previousElementSibling) the[0].previousElementSibling.textContent = 'Hoàn thành'; }
   if (the[1]) { the[1].textContent = dem.dang + '/' + ds.length; if (the[1].previousElementSibling) the[1].previousElementSibling.textContent = 'Đang làm'; }
   if (the[2]) { the[2].textContent = dem.tre + '/' + ds.length; the[2].style.color = dem.tre ? '#9B1C1C' : '#17365D'; if (the[2].previousElementSibling) the[2].previousElementSibling.textContent = '🔥 Trễ kế hoạch'; }
+}
+
+/* --- 6c-bis. Bước 2 · cuộn được bảng việc dài + nút KÉO LÊN / KÉO XUỐNG --- */
+function ganKhungKeo() {
+  var sec = document.getElementById('sc-GB2ViecCu');
+  if (!sec) return;
+  var r0 = sec.querySelector('[data-k="vtt.r0"]');
+  if (!r0) return;
+  var box = r0.parentNode;
+  if (!box.parentNode || !box.parentNode.classList.contains('pl-vtt-wrap')) {
+    box.classList.add('pl-vtt-box');
+    var wrap = document.createElement('div');
+    wrap.className = 'pl-vtt-wrap';
+    box.parentNode.insertBefore(wrap, box);
+    wrap.appendChild(box);
+    var cot = document.createElement('div');
+    cot.className = 'pl-keo-cot';
+    cot.innerHTML =
+      '<button class="pl-keo" data-keo="len" type="button" title="Kéo lên">' +
+      '<span class="mui">&#9650;</span>LÊN</button>' +
+      '<button class="pl-keo" data-keo="xuong" type="button" title="Kéo xuống">' +
+      '<span class="mui">&#9660;</span>XUỐNG</button>';
+    wrap.appendChild(cot);
+    var may = document.createElement('div');
+    may.className = 'pl-conmay';
+    wrap.appendChild(may);
+    cot.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('[data-keo]') : null;
+      if (!b) return;
+      var buoc = Math.max(120, Math.round(box.clientHeight * 0.8));
+      box.scrollTop += (b.getAttribute('data-keo') === 'len' ? -buoc : buoc);
+    });
+    box.addEventListener('scroll', capNhatNutKeo);
+    window.addEventListener('resize', capNhatNutKeo);
+  }
+  capNhatNutKeo();
+}
+function capNhatNutKeo() {
+  var sec = document.getElementById('sc-GB2ViecCu');
+  if (!sec) return;
+  var box = sec.querySelector('.pl-vtt-box');
+  var cot = sec.querySelector('.pl-keo-cot');
+  var may = sec.querySelector('.pl-conmay');
+  if (!box || !cot) return;
+  var con = box.scrollHeight - box.clientHeight;
+  var du = con > 4;
+  cot.style.display = du ? 'flex' : 'none';
+  var bLen = cot.querySelector('[data-keo="len"]');
+  var bXuong = cot.querySelector('[data-keo="xuong"]');
+  if (bLen) bLen.disabled = box.scrollTop <= 2;
+  if (bXuong) bXuong.disabled = box.scrollTop >= con - 2;
+  if (may) {
+    var hang = Array.prototype.slice.call(box.children).slice(1);
+    var day = box.scrollTop + box.clientHeight;
+    var conlai = 0;
+    hang.forEach(function (h) { if (h.offsetTop + h.offsetHeight > day + 4) conlai++; });
+    may.textContent = conlai ? ('Còn ' + conlai + ' việc bên dưới ▼') : '';
+    may.style.display = (du && conlai) ? 'block' : 'none';
+  }
 }
 
 /* --- 6d. Bước 6 · chốt việc tuần (HOP_CAM_KET) --- */
