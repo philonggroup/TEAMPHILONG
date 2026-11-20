@@ -173,18 +173,18 @@ function lan(o){
   return '' +
   '<div style="display:flex;align-items:center;gap:10px;height:44px">' +
     '<div style="width:26px;text-align:center;font-size:20px;line-height:1">' + (o.huy || '') + '</div>' +
-    '<div style="width:186px;min-width:186px">' +
+    '<div style="width:214px;min-width:214px">' +
       '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
-      '<div style="font-size:11px;color:#5F6B7A">' + o.phu + '</div>' +
+      '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
     '<div style="flex:1;min-width:0;position:relative;height:30px;background:#E9EFF6;border-radius:15px;overflow:hidden">' +
       '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:15px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
       '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%)">' + xe(o.mau) + '</div>' +
     '</div>' +
-    '<div style="width:104px;text-align:right">' +
+    '<div style="width:118px;min-width:118px;text-align:right">' +
       '<div style="font-size:18px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> tr</span></div>' +
-      '<div style="font-size:11px;font-weight:700;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
+      '<div style="font-size:11px;font-weight:700;line-height:1.25;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
     '</div>' +
   '</div>';
 }
@@ -212,7 +212,7 @@ function ve(){
   var h1 = dsCn.map(function (r, i) {
     return lan({ huy:i === 0 ? '🏁' : '', ten:TEN_CN[r.cn], phu:'Doanh thu kinh doanh tháng',
                  mau:MAU_CN[r.cn], giaTri:r.v, chuan:dan, dat:i === 0,
-                 nhan:i === 0 ? 'DẪN ĐẦU' : '-' + tr(dan - r.v) + 'tr so với dẫn đầu' });
+                 nhan:i === 0 ? 'DẪN ĐẦU' : 'kém ' + tr(dan - r.v) + 'tr' });
   }).join('');
 
   /* 2 · kinh doanh — vạch chuẩn 450tr (lốp 350 + ngoài lốp 100) */
