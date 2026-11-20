@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Họp nhanh · Phi Long Auto</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230A4DA2'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='24' font-weight='bold' fill='%23fff' text-anchor='middle'%3EPLG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0A4DA2; --brand-d:#0B2545; --brand-l:#E8F0FA; --accent:#FCE500;
+  --ink:#16202B; --ink2:#49586A; --ink3:#8795A6; --line:#DCE4EC; --bg:#F2F6FA; --card:#fff;
+  --tim:#6B4FA8; --tim-bg:#F0EBF9; --xanh:#1E7A4C; --xanh-bg:#E6F4EC;
+  --vang:#8A6400; --vang-bg:#FFF6DC; --do:#B5503C; --do-bg:#FBEBE7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Be Vietnam Pro',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;
+     max-width:430px;margin:0 auto;padding-bottom:28px}
+button{font-family:inherit}
+
+.hd{background:var(--brand-d);color:#fff;padding:14px 16px 16px}
+.hd .brand{font-size:12px;font-weight:800;letter-spacing:1.1px;color:#9FB8D8}
+.hd .role{display:inline-block;margin-top:7px;background:rgba(255,255,255,.14);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:600}
+.hd h1{margin:7px 0 0;font-size:25px;font-weight:800;line-height:1.15}
+.hd .sub{font-size:12px;color:#9FB8D8;margin-top:3px}
+
+.wrap{padding:12px 13px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:11px}
+.card.warn{border-color:var(--do);border-width:2px}
+.cap{font-size:11.5px;font-weight:800;letter-spacing:.8px;color:var(--ink2);margin-bottom:7px}
+
+.ln{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid #EEF2F6}
+.ln:first-of-type{border-top:0}
+.ln .nm{flex:1;min-width:0;font-size:14.5px}
+.ln .vs{font-size:13px;color:var(--ink3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ln .pc{font-size:15px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.3px;white-space:nowrap}
+.t-tim{background:var(--tim-bg);color:var(--tim)}
+.t-xanh{background:var(--xanh-bg);color:var(--xanh)}
+.t-vang{background:var(--vang-bg);color:var(--vang)}
+.t-do{background:var(--do-bg);color:var(--do)}
+.t-nil{background:#EDF1F5;color:var(--ink2)}
+
+.it{padding:10px 0;border-top:1px solid #EEF2F6}
+.it:first-of-type{border-top:0}
+.it .t1{font-size:14.5px;font-weight:700}
+.it .t2{font-size:13px;color:var(--ink2);margin-top:2px}
+.rowx{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+
+.stats{display:flex;gap:9px;text-align:center}
+.stats>div{flex:1;background:var(--brand-l);border-radius:11px;padding:11px 6px}
+.stats .n{font-size:27px;font-weight:800;color:var(--brand);line-height:1.1}
+.stats .l{font-size:11.5px;color:var(--ink2);margin-top:2px;line-height:1.3}
+
+.btn{display:block;width:100%;min-height:50px;border-radius:11px;border:0;background:var(--brand);color:#fff;
+     font-size:15.5px;font-weight:700;margin-top:10px;text-align:center;text-decoration:none;line-height:50px;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand);line-height:48px}
+
+.note{background:#FFF8E6;border:1px dashed #D9B23A;border-radius:11px;padding:10px 12px;font-size:12.5px;color:#6B5200;margin-bottom:11px}
+.err{background:var(--do-bg);border:1px solid var(--do);border-radius:11px;padding:11px 13px;font-size:13px;color:var(--do);margin-bottom:11px}
+.empty{color:var(--ink3);font-size:13.5px;font-style:italic;padding:7px 0}
+.foot{padding:4px 15px 20px;font-size:11.5px;color:var(--ink3);line-height:1.5}
+.load{padding:48px 20px;text-align:center;color:var(--ink2)}
+.sp{width:28px;height:28px;border:3px solid #DCE4EC;border-top-color:var(--brand);border-radius:50%;margin:0 auto 12px;animation:s .8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.seg{display:flex;gap:5px;padding:10px 13px 0}
+.seg a{flex:1;text-align:center;padding:8px 4px;border-radius:9px;background:#fff;border:1px solid var(--line);
+       color:var(--ink2);text-decoration:none;font-size:12.5px;font-weight:700}
+.seg a[aria-current="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+</style>
+</head>
+<body>
+<div id="app"><div class="load"><div class="sp"></div>Đang tải số của bạn…</div></div>
+<script>
+/* ===================================================================
+   HỌP NHANH · màn hình theo vị trí, mở từ menu app PHI LONG GROUP
+   ?vai=ql|sale|tho   &cn=CN1|CN2|CN3   &ten=<tên hiển thị>
+   Số đọc LIVE, không gõ tay:
+     - tab " BÁO CÁO KPI NGÀY T11" của file chi nhánh
+     - bảng HOP_CO_HOI / HOP_CHUAN_BI trong file PHI LONG_GROUP
+   =================================================================== */
+var CN_SRC = {
+  CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049'  },
+  CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
+  CN3:{ id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852'  }
+};
+var PLG_ID='1zYikNTqsKFnqOBPxarg2RJk4yaTEZjp3mez74pfRJsI';
+var GID_CO_HOI='1058360904', GID_CHUAN_BI='1636866609';
+var APP_URL='https://www.appsheet.com/start/866c1f09-779a-48ca-9b1c-094d9c81fef8';
+
+var VAI={ ql:'Quản lý chi nhánh', sale:'Tư vấn dịch vụ', tho:'Kỹ thuật viên' };
+
+function strip(s){ return (s==null?'':String(s)).replace(/\s+/g,' ').trim(); }
+function noAcc(s){ return strip(s).toLowerCase()
+  .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g,'a').replace(/[èéẹẻẽêềếệểễ]/g,'e')
+  .replace(/[ìíịỉĩ]/g,'i').replace(/[òóọỏõôồốộổỗơờớợởỡ]/g,'o')
+  .replace(/[ùúụủũưừứựửữ]/g,'u').replace(/[ỳýỵỷỹ]/g,'y').replace(/đ/g,'d'); }
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function num(s){
+  s=strip(s).replace(/[●○\s]/g,''); if(!s) return null;
+  s=s.replace(/[^\d,.\-]/g,''); if(!s||s==='-') return null;
+  if(s.indexOf(',')>-1&&s.indexOf('.')>-1) s=s.replace(/\./g,'').replace(',','.');
+  else if(s.indexOf(',')>-1) s=(s.split(',')[1]||'').length<=2?s.replace(',','.'):s.replace(/,/g,'');
+  else if((s.match(/\./g)||[]).length>1||/\.\d{3}$/.test(s)) s=s.replace(/\./g,'');
+  var v=parseFloat(s); return isNaN(v)?null:v;
+}
+function fm(n){ return (n===null||n===undefined)?'—':Math.round(n).toLocaleString('vi-VN'); }
+function fmS(n){
+  if(n===null||n===undefined) return '—';
+  var x=Math.round(n);
+  if(Math.abs(x)>=1e9) return (x/1e9).toFixed(Math.abs(x)%1e9===0?0:2).replace('.',',')+' tỷ';
+  if(Math.abs(x)>=1e6) return (x/1e6).toFixed(Math.abs(x)%1e6===0?0:1).replace('.',',')+' tr';
+  return fm(x);
+}
+function parseCSV(t){
+  var rows=[],row=[],f='',q=false;
+  for(var i=0;i<t.length;i++){ var c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c; }
+  row.push(f); rows.push(row); return rows;
+}
+/* 4 màu đã chốt: TÍM >107 · XANH 100-107 · VÀNG >90 · ĐỎ ≤90 */
+function tone(p){ if(p===null||p===undefined) return 'nil'; if(p>107) return 'tim'; if(p>=100) return 'xanh'; if(p>90) return 'vang'; return 'do'; }
+function word(t){ return t==='tim'?'ĐỈNH':t==='xanh'?'ĐẠT':t==='vang'?'ĐƯỢC':t==='do'?'ĐUỐI':'CHƯA CÓ SỐ'; }
+function pill(p){ var t=tone(p); return '<span class="pill t-'+t+'">'+word(t)+'</span>'; }
+function pct(p){ return p===null?'—':Math.round(p)+'%'; }
+
+/* export?format=csv trước, gviz sau: gviz tự đoán kiểu cột nên vứt ô chữ trong cột số */
+function urls(id,gid){ var t=Date.now(); return [
+  'https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv&gid='+gid+'&_='+t,
+  'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&gid='+gid+'&_='+(t+1)]; }
+function load1(list,cb){
+  var i=0;(function nx(){ if(i>=list.length){cb(null);return;}
+    fetch(list[i++],{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(t){ var rr=parseCSV(t); if(rr.length<2) throw 0; cb(rr); }).catch(nx); })();
+}
+
+/* ------- đọc 1 chỉ số trong tab KPI ngày, dò theo TÊN nên dời dòng vẫn đúng ------- */
+var DEF={
+  dt   :{t:'Doanh thu',              m:'doanh thu muc tieu', money:true},
+  vao  :{t:'Lượt xe vào xưởng',      m:'luot xe vao xuong'},
+  ht   :{t:'Lượt xe hoàn tất',       m:'luot xe hoan tat'},
+  atx  :{t:'Phiếu kiểm tra an toàn', m:'khach duoc kiem tra atx'},
+  bg   :{t:'Báo giá lên trong ngày', m:'bao gia len trong ngay'},
+  goi  :{t:'Cuộc gọi chăm sóc khách',m:'cuoc goi cham soc khach'},
+  lich :{t:'Lượt xe đặt lịch',       m:'luot xe dat lich'},
+  can  :{t:'Cân chỉnh thước lái',    m:'can chinh thuoc lai'},
+  lop  :{t:'Tổng số lốp bán ra',     m:'tong so luong lop ban ra'},
+  phantu:{t:'Xe phản tu / quay lại', m:'xe bi phan tu'}
+};
+var KPI=null, WCOL=null;
+function findRow(k){
+  if(!KPI) return null;
+  var key=DEF[k].m;
+  for(var i=0;i<KPI.length;i++) if(noAcc(KPI[i][1]||'').indexOf(key)>-1) return KPI[i];
+  return null;
+}
+function weekCols(){
+  var r=(KPI&&KPI[1])||[], out=[];
+  for(var i=0;i<r.length;i++){ var s=strip(r[i]); if(noAcc(s).indexOf('tuan')!==0) continue;
+    var tail=s.indexOf('·')>-1?s.split('·').slice(1).join('·'):s;
+    var m=/(\d{1,2})\D+(\d{1,2})\s*\/\s*(\d{1,2})/.exec(tail);
+    out.push({col:i,label:s,d1:m?+m[1]:null,d2:m?+m[2]:null,mo:m?+m[3]:null}); }
+  return out;
+}
+function pickWeek(ws){
+  var d=new Date(), dd=d.getDate(), mm=d.getMonth()+1, i;
+  for(i=0;i<ws.length;i++) if(ws[i].mo===mm&&ws[i].d1!==null&&dd>=ws[i].d1&&dd<=ws[i].d2) return ws[i];
+  for(i=ws.length-1;i>=0;i--) if(ws[i].d1!==null&&ws[i].mo===mm&&dd>ws[i].d2) return ws[i];
+  return ws[0]||null;
+}
+function mNgay(k){ var r=findRow(k); if(!r) return null;
+  var tt=num(r[2]), kp=num(r[3]);
+  return {t:DEF[k].t, money:!!DEF[k].money, tt:tt, kpi:kp, p:(kp&&tt!==null)?tt/kp*100:null}; }
+function mTuan(k){ var r=findRow(k); if(!r||!WCOL) return null;
+  var kp=num(r[WCOL.col]), tt=num(r[WCOL.col+1]);
+  return {t:DEF[k].t, money:!!DEF[k].money, tt:tt, kpi:kp, p:(kp&&tt!==null)?tt/kp*100:null}; }
+function lnHtml(m){
+  if(!m) return '<div class="ln"><span class="nm">—</span><span class="pill t-nil">THIẾU</span></div>';
+  return '<div class="ln"><span class="nm">'+esc(m.t)+'</span>'
+    +'<span class="vs">'+(m.money?fmS(m.tt):fm(m.tt))+' / '+(m.money?fmS(m.kpi):fm(m.kpi))+'</span>'
+    +'<span class="pc">'+pct(m.p)+'</span>'+pill(m.p)+'</div>';
+}
+
+/* --------------- HOP_CO_HOI / HOP_CHUAN_BI trong PHI LONG_GROUP --------------- */
+var COHOI=null, CHUANBI=null, PLG_ERR=false;
+function tbl(rows){
+  if(!rows||rows.length<2) return [];
+  var h=rows[0].map(function(c){ return strip(c); });
+  return rows.slice(1).filter(function(r){ return strip(r[0]); }).map(function(r){
+    var o={}; h.forEach(function(k,i){ o[k]=strip(r[i]); }); return o; });
+}
+function coHoiCua(cn){ return (COHOI||[]).filter(function(r){ return r.chi_nhanh===cn; }); }
+
+/* --------------------------------- MÀN QUẢN LÝ --------------------------------- */
+function manQL(cn,ten){
+  var h='';
+  h+='<div class="card"><div class="cap">HÔM NAY · '+esc(hnLabel())+'</div>'
+    + lnHtml(mNgay('dt')) + lnHtml(mNgay('vao')) + lnHtml(mNgay('atx')) + lnHtml(mNgay('lich')) + '</div>';
+
+  h+='<div class="card"><div class="cap">TUẦN NÀY · '+esc(WCOL?WCOL.label:'—')+'</div>'
+    + lnHtml(mTuan('dt')) + lnHtml(mTuan('ht')) + lnHtml(mTuan('atx'))
+    + lnHtml(mTuan('bg'))  + lnHtml(mTuan('lich')) + '</div>';
+
+  var cb=(CHUANBI||[]).filter(function(r){ return r.chi_nhanh===cn && r.hien_thi!=='FALSE'; });
+  var chuaXong=cb.filter(function(r){ return noAcc(r.trang_thai).indexOf('xong')<0; }).length;
+  h+='<div class="card'+(chuaXong?' warn':'')+'"><div class="cap">TRƯỚC GIAO BAN · HẠN 17:00 CHỦ NHẬT</div>';
+  if(PLG_ERR) h+='<div class="empty">Chưa đọc được file PHI LONG_GROUP.</div>';
+  else if(!cb.length) h+='<div class="empty">Chưa có việc chuẩn bị nào cho chi nhánh này.</div>';
+  else cb.forEach(function(r){
+    var xong=noAcc(r.trang_thai).indexOf('xong')>-1;
+    h+='<div class="it"><div class="rowx"><div><div class="t1">'+esc(r.noi_dung)+'</div>'
+      +'<div class="t2">'+esc(r.nguoi_phu_trach||'chưa gán người')+'</div></div>'
+      +'<span class="pill '+(xong?'t-xanh':'t-do')+'">'+(xong?'ĐÃ XONG':'CHƯA LÀM')+'</span></div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="note"><b>ĐỘI NGŨ HÔM NAY chưa nối nguồn.</b> Số theo từng người nằm ở tab '
+    +'“APP '+esc(cn)+' KPI KỸ THUẬT VIÊN SALE” của file chi nhánh. Tracy chốt lấy tab đó thì tôi nối, '
+    +'chưa chốt thì tôi không điền số.</div>';
+
+  h+='<a class="btn" href="https://philonggroup.github.io/TEAMPHILONG/giaoban.html">Mở bảng điểm giao ban 3 chi nhánh</a>';
+  h+='<a class="btn ghost" href="'+APP_URL+'">Về app chấm công</a>';
+  return h;
+}
+
+/* ---------------------------------- MÀN SALE ---------------------------------- */
+function manSale(cn,ten){
+  var h='';
+  h+='<div class="card"><div class="cap">HÔM NAY · CHI NHÁNH '+esc(cn)+'</div>'
+    + lnHtml(mNgay('bg')) + lnHtml(mNgay('lich')) + lnHtml(mNgay('goi')) + '</div>';
+
+  h+='<div class="card"><div class="cap">TUẦN NÀY · '+esc(WCOL?WCOL.label:'—')+'</div>'
+    + lnHtml(mTuan('bg')) + lnHtml(mTuan('lich')) + lnHtml(mTuan('goi')) + lnHtml(mTuan('dt')) + '</div>';
+
+  var ch=coHoiCua(cn).filter(function(r){ return noAcc(r.trang_thai).indexOf('tu choi')<0; });
+  var moi=ch.filter(function(r){ return noAcc(r.trang_thai).indexOf('moi')>-1 || !r.trang_thai; });
+  h+='<div class="card'+(moi.length?' warn':'')+'"><div class="cap">CƠ HỘI KỸ THUẬT VIÊN CHUYỂN SANG</div>';
+  if(PLG_ERR) h+='<div class="empty">Chưa đọc được file PHI LONG_GROUP.</div>';
+  else if(!ch.length) h+='<div class="empty">Chưa có cơ hội nào kỹ thuật viên chuyển sang.</div>';
+  else ch.slice(0,12).forEach(function(r){
+    var m=noAcc(r.muc_do), cls=m.indexOf('gap')>-1?'t-do':(m.indexOf('nen lam')>-1?'t-vang':'t-nil');
+    h+='<div class="it"><div class="rowx"><div><div class="t1">'+esc(r.hang_muc_phat_hien)+'</div>'
+      +'<div class="t2">'+esc(r.bien_so_xe||'chưa ghi biển số')+' · KTV '+esc(r.ho_va_ten||r.ma_nv_bao||'—')+'</div></div>'
+      +'<span class="pill '+cls+'">'+esc(r.muc_do||'—')+'</span></div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="note"><b>BÁO GIÁ CHỜ KHÁCH QUYẾT chưa nối nguồn.</b> Danh sách báo giá theo từng khách '
+    +'nằm ở app PhiLong Auto chứ không nằm trong bộ KPI ngày. Nối được nhưng phải lấy từ app bán hàng, '
+    +'Tracy chốt thì tôi làm.</div>';
+
+  h+='<a class="btn" href="'+APP_URL+'">Mở app để tiếp nhận cơ hội</a>';
+  return h;
+}
+
+/* ----------------------------------- MÀN THỢ ----------------------------------- */
+function manTho(cn,ten){
+  var h='';
+  h+='<div class="card"><div class="cap">HÔM NAY · CHI NHÁNH '+esc(cn)+'</div>'
+    + lnHtml(mNgay('ht')) + lnHtml(mNgay('atx')) + lnHtml(mNgay('can')) + '</div>';
+
+  h+='<div class="card"><div class="cap">TUẦN NÀY · '+esc(WCOL?WCOL.label:'—')+'</div>'
+    + lnHtml(mTuan('ht')) + lnHtml(mTuan('atx')) + lnHtml(mTuan('can')) + lnHtml(mTuan('lop')) + '</div>';
+
+  var ch=coHoiCua(cn);
+  var tuan=ch; /* bảng còn mới, chưa lọc theo tuần */
+  var dongY=tuan.filter(function(r){ return noAcc(r.trang_thai).indexOf('dong y')>-1; }).length;
+  var khen=tuan.filter(function(r){ return strip(r.khen_dich_danh); }).length;
+  h+='<div class="card"><div class="cap">ONE TEAM · CƠ HỘI ĐÃ BÁO</div>';
+  if(PLG_ERR) h+='<div class="empty">Chưa đọc được file PHI LONG_GROUP.</div>';
+  else h+='<div class="stats"><div><div class="n">'+tuan.length+'</div><div class="l">cơ hội báo</div></div>'
+    +'<div><div class="n">'+dongY+'</div><div class="l">khách đồng ý</div></div>'
+    +'<div><div class="n">'+khen+'</div><div class="l">khen đích danh</div></div></div>';
+  h+='</div>';
+
+  h+='<div class="note"><b>XE ĐANG CHỜ TÔI chưa nối nguồn.</b> Danh sách xe theo từng thợ nằm ở app PhiLong Auto. '
+    +'Màn này đang hiện số của cả chi nhánh, chưa tách theo từng người.</div>';
+
+  h+='<a class="btn" href="'+APP_URL+'">Báo cơ hội cho Tư vấn dịch vụ</a>';
+  h+='<a class="btn ghost" href="https://philonggroup.github.io/TEAMPHILONG/duaxe.html">Đường đua tăng tốc</a>';
+  return h;
+}
+
+/* ------------------------------------ khung ------------------------------------ */
+function hnLabel(){
+  var d=new Date(), th=['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'][d.getDay()];
+  return th+' '+d.getDate()+'/'+(d.getMonth()+1);
+}
+function qs(k,d){ try{ return new URLSearchParams(location.search).get(k)||d; }catch(e){ return d; } }
+
+function paint(){
+  var vai=(qs('vai','ql')||'ql').toLowerCase(); if(!VAI[vai]) vai='ql';
+  var cn=(qs('cn','CN1')||'CN1').toUpperCase(); if(!CN_SRC[cn]) cn='CN1';
+  var ten=qs('ten','');
+  var h='<div class="hd"><div class="brand">PHI LONG AUTO</div>'
+    +'<div class="role">Đăng nhập: '+esc(VAI[vai])+'</div>'
+    +'<h1>'+esc(ten||cn)+'</h1>'
+    +'<div class="sub">'+esc(cn)+' · '+esc(hnLabel())+'</div></div>';
+  h+='<div class="seg">'
+    +'<a href="?vai=ql&cn='+cn+(ten?'&ten='+encodeURIComponent(ten):'')+'" aria-current="'+(vai==='ql')+'">Quản lý</a>'
+    +'<a href="?vai=sale&cn='+cn+(ten?'&ten='+encodeURIComponent(ten):'')+'" aria-current="'+(vai==='sale')+'">Tư vấn DV</a>'
+    +'<a href="?vai=tho&cn='+cn+(ten?'&ten='+encodeURIComponent(ten):'')+'" aria-current="'+(vai==='tho')+'">Kỹ thuật</a>'
+    +'</div>';
+  h+='<div class="wrap">';
+  if(!KPI) h+='<div class="err">Không đọc được file KPI của '+esc(cn)+'. Kiểm tra file đã bật chia sẻ “bất kỳ ai có liên kết · người xem” chưa.</div>';
+  if(PLG_ERR) h+='<div class="err">Không đọc được file PHI LONG_GROUP, nên khối Trước giao ban và Cơ hội đang trống. '
+    +'File này cần bật chia sẻ “bất kỳ ai có liên kết · người xem” giống 3 file chi nhánh.</div>';
+  h+= vai==='ql'?manQL(cn,ten) : vai==='sale'?manSale(cn,ten) : manTho(cn,ten);
+  h+='</div>';
+  h+='<div class="foot">Số đọc trực tiếp từ tab “BÁO CÁO KPI NGÀY T11” của file '+esc(cn)
+    +' và bảng họp trong PHI LONG_GROUP. Không gõ tay số nào.<br>'
+    +'TÍM trên 107% · XANH 100–107% · VÀNG trên 90% · ĐỎ từ 90% xuống. '
+    +'Cập nhật '+new Date().toLocaleTimeString('vi-VN')+'</div>';
+  document.getElementById('app').innerHTML=h;
+}
+
+(function init(){
+  var cn=(qs('cn','CN1')||'CN1').toUpperCase(); if(!CN_SRC[cn]) cn='CN1';
+  var need=3, got=0;
+  function tick(){ if(++got>=need){ if(KPI){ WCOL=pickWeek(weekCols()); } paint(); } }
+  load1(urls(CN_SRC[cn].id,CN_SRC[cn].gid), function(r){ KPI=r; tick(); });
+  load1(urls(PLG_ID,GID_CO_HOI),   function(r){ if(r) COHOI=tbl(r); else PLG_ERR=true; tick(); });
+  load1(urls(PLG_ID,GID_CHUAN_BI), function(r){ if(r) CHUANBI=tbl(r); else PLG_ERR=true; tick(); });
+})();
+</script>
+</body>
+</html>
