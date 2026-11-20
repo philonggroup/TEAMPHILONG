@@ -330,7 +330,7 @@ function viecTuanTruoc_() {
   var nay = new Date();
   var tu = new Date(nay.getTime() - 14 * 864e5), den = new Date(nay.getTime() + 1 * 864e5);
   var ra = [];
-  for (var i = 1; i < v.length && ra.length < 12; i++) {
+  for (var i = 1; i < v.length && ra.length < 30; i++) {
     var d = ngay_(v[i][iHan]);
     if (!d || d < tu || d > den) continue;
     if (!String(v[i][iTen] || '').trim()) continue;
