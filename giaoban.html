@@ -39,15 +39,15 @@
 
 
   /* Bước 2 · Việc tuần trước: bảng việc dài thì cuộn trong khung, có nút KÉO LÊN / KÉO XUỐNG */
-  .pl-vtt-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+  .pl-vtt-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; gap: 10px; }
   .pl-vtt-box { position: relative; flex: 1 1 auto; min-height: 0;
                 overflow-y: auto !important; overflow-x: hidden !important;
                 scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
   .pl-vtt-box::-webkit-scrollbar { width: 10px; }
   .pl-vtt-box::-webkit-scrollbar-thumb { background: #BBD0E6; border-radius: 6px; }
   .pl-vtt-box > [data-k="vtt.r0"] { position: sticky; top: 0; z-index: 3; }
-  .pl-keo-cot { position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-                z-index: 6; display: flex; flex-direction: column; gap: 10px; }
+  .pl-keo-cot { flex: 0 0 auto; align-self: center; z-index: 6;
+                display: flex; flex-direction: column; align-items: center; gap: 10px; }
   .pl-keo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #17365D;
             background: #FFFFFF; color: #17365D; box-shadow: 0 3px 10px rgba(23,54,93,.3);
             cursor: pointer; display: flex; flex-direction: column; align-items: center;
@@ -57,11 +57,9 @@
   .pl-keo .mui { font-size: 22px; font-weight: 800; }
   .pl-keo:hover { background: #17365D; color: #FFFFFF; }
   .pl-keo[disabled] { opacity: .28; cursor: default; }
-  .pl-conmay { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
-               z-index: 6; padding: 5px 15px; border-radius: 999px; background: #17365D;
-               color: #FFFFFF; font-family: 'Be Vietnam Pro', Arial, sans-serif;
-               font-size: 13px; font-weight: 700; box-shadow: 0 3px 10px rgba(23,54,93,.32);
-               pointer-events: none; }
+  .pl-conmay { padding: 4px 10px; border-radius: 999px; background: #17365D; color: #FFFFFF;
+               font-family: 'Be Vietnam Pro', Arial, sans-serif; font-size: 11px; font-weight: 800;
+               white-space: nowrap; pointer-events: none; }
 
   @media print {
     .pl-bar, .pl-hien-lai { display: none !important; }
@@ -1486,10 +1484,10 @@ function ganKhungKeo() {
       '<span class="mui">&#9650;</span>LÊN</button>' +
       '<button class="pl-keo" data-keo="xuong" type="button" title="Kéo xuống">' +
       '<span class="mui">&#9660;</span>XUỐNG</button>';
-    wrap.appendChild(cot);
     var may = document.createElement('div');
     may.className = 'pl-conmay';
-    wrap.appendChild(may);
+    cot.appendChild(may);
+    wrap.appendChild(cot);
     cot.addEventListener('click', function (e) {
       var b = e.target && e.target.closest ? e.target.closest('[data-keo]') : null;
       if (!b) return;
@@ -1520,7 +1518,7 @@ function capNhatNutKeo() {
     var day = box.scrollTop + box.clientHeight;
     var conlai = 0;
     hang.forEach(function (h) { if (h.offsetTop + h.offsetHeight > day + 4) conlai++; });
-    may.textContent = conlai ? ('Còn ' + conlai + ' việc bên dưới ▼') : '';
+    may.textContent = conlai ? ('còn ' + conlai + ' ▼') : '';
     may.style.display = (du && conlai) ? 'block' : 'none';
   }
 }
