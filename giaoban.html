@@ -264,6 +264,8 @@ function pctTxt(p){ return p===null?'—':Math.round(p)+'%'; }
 function pill(p){ var t=tone(p); return '<span class="pill t-'+t+'">'+toneWord(t)+'</span>'; }
 function barHtml(p){ var t=tone(p); var w=p===null?0:Math.max(2,Math.min(100,p)); return '<div class="bar"><i class="b-'+t+'" style="width:'+w+'%"></i></div>'; }
 
+var BUILDING=false;
+function dayKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
 function Q4YEAR(){ var d=new Date(); return d.getMonth()>=9 ? d.getFullYear() : d.getFullYear()-1; }
 function today0(){ var d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
 
@@ -924,14 +926,21 @@ function afterLoad(){
   for(var i=0;i<CNS.length;i++){ if(DATA[CNS[i]]&&DATA[CNS[i]].kh){ base=DATA[CNS[i]].kh; break; } }
   WKS = base?weeksKH(base):[];
   var want = null;
-  try{ want=localStorage.getItem('gb_week'); }catch(e){}
+  try{
+    var raw=localStorage.getItem('gb_week')||'';
+    var pr=raw.split('@');
+    if(pr.length===2 && pr[1]===dayKey()) want=pr[0];
+  }catch(e){}
   WQ = (want&&wkByNo(+want)) || pickWeekKH(WKS,ref) || null;
   storeReset();
 
   var sel=document.getElementById('wkSel');
+  BUILDING=true;
   sel.innerHTML = WKS.map(function(w){
     return '<option value="'+w.w+'"'+(WQ&&w.w===WQ.w?' selected':'')+'>W'+w.w+(w.txt?' · '+w.txt:'')+'</option>';
   }).join('') || '<option>—</option>';
+  if(WQ) sel.value=String(WQ.w);
+  BUILDING=false;
 
   var okn=CNS.filter(function(c){ return DATA[c]&&DATA[c].kpi; }).length;
   var A=buildAudit(), warn=A.filter(function(x){ return x[1]==='warn'; }).length;
@@ -952,8 +961,9 @@ document.getElementById('btnReset').onclick=function(){ tmrReset(); TM.run=false
 document.getElementById('btnAudit').onclick=openAudit;
 document.getElementById('btnReload').onclick=reload;
 document.getElementById('wkSel').onchange=function(){
+  if(BUILDING) return;
   WQ=wkByNo(+this.value)||WQ;
-  try{ localStorage.setItem('gb_week',String(WQ.w)); }catch(e){}
+  try{ localStorage.setItem('gb_week',WQ.w+'@'+dayKey()); }catch(e){}
   storeReset(); paintStage();
   var A=buildAudit(), warn=A.filter(function(x){return x[1]==='warn';}).length;
   document.getElementById('subTitle').innerHTML=esc(WQ.label.replace(/\s+/g,' '))+' · '+(warn?warn+' điểm cần tra soát':'số liệu sạch');
