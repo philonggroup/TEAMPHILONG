@@ -49,6 +49,7 @@ function doGet(e) {
       case 'luu_diem':      return ra_(luuDiem_(p));
       case 'luu_thong_diep':return ra_(luuThongDiep_(p));
       case 'them_cam_ket':  return ra_(themCamKet_(p));
+      case 'kh90':          return ra_(kh90_());
       case 'kiem_tra':      return ra_(kiemTra_());
       default:              return ra_({ ok: false, loi: 'Không rõ tham số viec=' + p.viec });
     }
@@ -148,6 +149,7 @@ function toanCanh_(p) {
     tuan: { so: tuan, ma: 'T' + tuan + '/' + thang, nhan: nhanTuan_(tuan, thang, nam) },
     chinhanh: dsCN,
     tuan4: tuan4,
+    kh90: kh90An_(),
     viec_tuan_truoc: viecTuanTruoc_(),
     cam_ket: camKet_('T' + tuan + '/' + thang),
     chuan_bi: chuanBi_(),
@@ -161,6 +163,159 @@ function so_(v) {
   var s = String(v).replace(/[^\d,.\-]/g, '').replace(/\./g, '').replace(',', '.');
   var n = parseFloat(s);
   return isNaN(n) ? 0 : n;
+}
+
+
+/* =====================================================================
+   BƯỚC 5 · CẦN HỖ TRỢ — đọc KẾT QUẢ KẾ HOẠCH 90 NGÀY QUÝ 4 của 3 chi nhánh
+   Nguồn: tab "Kế hoạch 90 ngày quý 4 " trong chính workbook hệ thống chuẩn
+   của từng chi nhánh. Đọc nguyên văn, KHÔNG tự tính thay sheet, KHÔNG gõ số.
+   Cột: B nhóm · C tên nhóm · D mô tả · E mục tiêu Q4 · H P-I-C
+        I..U = W1..W13 · V chỉ số dẫn dắt · W KẾT QUẢ Q4 · X tự đánh giá
+   Dòng mục tiêu: 5,6,7 (TIỀN) · 8,9 (HỆ THỐNG) · 10,11 (ĐỘI NGŨ) · 12,13 (CÁ NHÂN)
+   ===================================================================== */
+var MAU_TEN_TAB_KH90 = [
+  'Kế hoạch 90 ngày quý 4 ',
+  'Kế hoạch 90 ngày quý 4',
+  'Kế hoạch 90 ngày Quý 4',
+  'KẾ HOẠCH 90 DAY -  Quý 4'
+];
+var KH90_DONG = [5, 6, 7, 8, 9, 10, 11, 12, 13];
+var KH90_NHAN_TUAN = ['1/10–4/10', '5/10–11/10', '12/10–18/10', '19/10–25/10', '26/10–1/11',
+                      '2/11–8/11', '9/11–15/11', '16/11–22/11', '23/11–29/11', '30/11–6/12',
+                      '7/12–13/12', '14/12–20/12', '21/12–31/12'];
+/* Dòng nào cầm cờ cho từng nhóm trên dải 4 nhóm của Bước 5.
+   muc_0 = true nghĩa là chỉ số này càng về 0 càng tốt (dòng cảnh báo số liệu). */
+var KH90_CO_NHOM = [
+  { nhom: 'I',   dong: 6,  kieu: 'pct' },
+  { nhom: 'II',  dong: 8,  kieu: 'so', muc_0: true },
+  { nhom: 'III', dong: 10, kieu: 'so' },
+  { nhom: 'IV',  dong: 12, kieu: 'so' }
+];
+
+function moTabKH90_(ss) {
+  for (var i = 0; i < MAU_TEN_TAB_KH90.length; i++) {
+    var sh = ss.getSheetByName(MAU_TEN_TAB_KH90[i]);
+    if (sh) return sh;
+  }
+  var ds = ss.getSheets();
+  for (var j = 0; j < ds.length; j++) {
+    var t = ds[j].getName().toUpperCase().replace(/\s+/g, ' ').trim();
+    if (t.indexOf('90 NG') >= 0 && (t.indexOf('QUÝ 4') >= 0 || t.indexOf('Q4') >= 0 || t.indexOf('DAY') >= 0)) return ds[j];
+  }
+  return null;
+}
+
+/* Tuần của quý 4: W1 = 1–4/10, từ W2 mỗi tuần 7 ngày tính từ 5/10 (đúng tiêu đề tab) */
+function tuanQuy4_(d) {
+  var moc = new Date(2026, 9, 5);
+  var ngay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (ngay.getTime() < moc.getTime()) return 1;
+  var n = 2 + Math.floor((ngay.getTime() - moc.getTime()) / 86400000 / 7);
+  return Math.max(1, Math.min(13, n));
+}
+
+/* Tách các cặp "nhãn: số" trong ô KẾT QUẢ Q4 để trang vẽ được, vẫn giữ nguyên văn */
+function capSoKH90_(s) {
+  var ra = [];
+  String(s || '').split('·').forEach(function (m) {
+    var i = m.indexOf(':');
+    if (i < 0) return;
+    var nhan = m.slice(0, i).replace(/\s+/g, ' ').trim();
+    var chu = m.slice(i + 1).replace(/\s+/g, ' ').trim();
+    if (!nhan || !chu) return;
+    var sach = chu.replace(/\s/g, '');
+    var so = null, dvi = '';
+    if (/^[\d.,]+$/.test(sach)) {
+      so = so_(sach);
+    } else if (!/[%=]/.test(chu)) {
+      var m2 = chu.match(/^([\d.,]+)\s*(.*)$/);
+      if (m2) { so = so_(m2[1]); dvi = String(m2[2] || '').trim(); }
+    }
+    ra.push({ nhan: nhan, chu: chu, so: so, dvi: dvi });
+  });
+  return ra;
+}
+
+function dongDauTien_(s) { return String(s || '').split('\n')[0].replace(/\s+/g, ' ').trim(); }
+function gopDong_(s) { return String(s || '').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+function kh90_() {
+  var nay = new Date(Utilities.formatDate(new Date(), MUI_GIO, 'yyyy/MM/dd'));
+  var tuan = tuanQuy4_(nay);
+  var dauQuy = new Date(2026, 9, 1), cuoiQuy = new Date(2026, 11, 31);
+  var tongNgay = Math.round((cuoiQuy.getTime() - dauQuy.getTime()) / 86400000) + 1;   // 92
+  var daQua = Math.round((nay.getTime() - dauQuy.getTime()) / 86400000) + 1;
+  daQua = Math.max(1, Math.min(tongNgay, daQua));
+
+  var ra = {
+    ok: true,
+    tuan: tuan,
+    nhan_tuan: 'W' + tuan + ' · ' + KH90_NHAN_TUAN[tuan - 1],
+    nhan_tuan_toi: tuan < 13 ? ('W' + (tuan + 1) + ' · ' + KH90_NHAN_TUAN[tuan]) : '',
+    ngay_da_qua: daQua,
+    tong_ngay: tongNgay,
+    tien_do_quy: Math.round(daQua / tongNgay * 1000) / 10,
+    co_nhom: KH90_CO_NHOM,
+    chinhanh: [],
+    canh_bao: []
+  };
+
+  CHI_NHANH.forEach(function (cn) {
+    var o = { ma: cn.ma, tab: '', dong: [] };
+    try {
+      var ss = SpreadsheetApp.openById(cn.file);
+      var sh = moTabKH90_(ss);
+      if (!sh) {
+        ra.canh_bao.push(cn.ma + ': không tìm thấy tab Kế hoạch 90 ngày quý 4');
+        ra.chinhanh.push(o); return;
+      }
+      o.tab = sh.getName();
+      var soDong = Math.max(13, Math.min(14, sh.getLastRow()));
+      var v = sh.getRange(1, 1, soDong, 24).getDisplayValues();
+      var nhomMa = '', nhomTen = '';
+      KH90_DONG.forEach(function (r) {
+        var h = v[r - 1];
+        if (!h) return;
+        if (String(h[1] || '').trim()) { nhomMa = String(h[1]).trim(); nhomTen = dongDauTien_(h[2]); }
+        var ketQua = gopDong_(h[22]);
+        var loi = /^#/.test(ketQua);
+        var chuaDo = !ketQua || loi || /^nhập tay/i.test(ketQua);
+        var cap = loi ? [] : capSoKH90_(ketQua);
+        var mPct = ketQua.match(/(\d+(?:[.,]\d+)?)\s*%\s*KPI/i);
+        var soKhong = 0;
+        cap.forEach(function (c) { if (c.so === 0) soKhong++; });
+        o.dong.push({
+          dong: r,
+          nhom: nhomMa,
+          nhom_ten: nhomTen,
+          ten: gopDong_(h[3]),
+          muc_tieu: gopDong_(h[4]),
+          pic: gopDong_(h[7]),
+          viec_tuan_nay: gopDong_(h[7 + tuan]),
+          viec_tuan_toi: tuan < 13 ? gopDong_(h[8 + tuan]) : '',
+          chi_so: gopDong_(h[21]),
+          ket_qua: ketQua,
+          tu_danh_gia: gopDong_(h[23]),
+          cap: cap,
+          pct_kpi: mPct ? Number(String(mPct[1]).replace(',', '.')) : null,
+          chua_do: chuaDo,
+          loi_o: loi,
+          so_khong: soKhong
+        });
+      });
+    } catch (err) {
+      ra.canh_bao.push(cn.ma + ' (KH 90 ngày): ' + (err.message || err));
+    }
+    ra.chinhanh.push(o);
+  });
+  return ra;
+}
+
+/* Bọc kh90_() để lỗi đọc kế hoạch 90 ngày không làm sập cả gói toàn cảnh */
+function kh90An_() {
+  try { return kh90_(); }
+  catch (err) { return { ok: false, loi: String(err && err.message || err), chinhanh: [], canh_bao: [] }; }
 }
 
 /* ---------- Bước 2 · việc tuần trước, lấy từ bảng CONG_VIEC ---------- */

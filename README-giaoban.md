@@ -72,7 +72,8 @@ var CAU_HINH = {
 | Bước 2 · Việc tuần trước | **Live** | Bảng `CONG_VIEC`, lọc deadline trong 14 ngày gần nhất |
 | Bước 6 · Chốt việc tuần | **Live** | Bảng `HOP_CAM_KET` |
 | Khối "Việc xử lý sau họp" (sidebar mọi màn) | **Live** | Bảng `HOP_CHUAN_BI`, bỏ việc đã xong |
-| Bước 1, 4, 5, 7, 9 · 3 tab · 3 màn điện thoại | Số mẫu | nội dung điều phối, nhập tay tại chỗ |
+| Bước 5 · Cần hỗ trợ (`#GB5HoTro`) | **Live** | Tab `Kế hoạch 90 ngày quý 4` của 3 chi nhánh — dòng 5–13, cột E mục tiêu · H P-I-C · I:U việc theo tuần · V chỉ số dẫn dắt · W KẾT QUẢ Q4 |
+| Bước 1, 4, 7, 9 · 3 tab · 3 màn điện thoại | Số mẫu | nội dung điều phối, nhập tay tại chỗ |
 
 Màn nào chưa nối, nhãn góc phải ghi rõ **"SỐ MINH HỌA · màn này chưa nối live"**. Màn đã nối ghi **"SỐ LIỆU LIVE · giờ cập nhật"**.
 
@@ -82,6 +83,48 @@ Ba ô **chưa có nguồn** trong tab KPI ngày nên hiện thẳng chữ *chưa
 * **Ắc quy & phụ kiện** (tách riêng theo nhóm hàng) — tab KPI ngày chỉ có tổng DT dịch vụ.
 
 Khi chạy live, **nhãn của mỗi dòng cũng đổi theo đúng tên chỉ số trong tab nguồn** — không để tên "Chốt báo giá" ngồi trên số của "Báo giá lên trong ngày".
+
+---
+
+## 3b. Bước 5 · Cần hỗ trợ — chốt từ kết quả KH 90 ngày
+
+Màn này không còn số mẫu. Mỗi lần mở trang, script đọc tab `Kế hoạch 90 ngày quý 4 ` của
+từng chi nhánh và dựng 3 thẻ + dải 4 nhóm mục tiêu.
+
+**Chuẩn so sánh**: % thời gian quý 4 đã đi qua (01/10 → 31/12 = 92 ngày).
+Ngày 20/11 là ngày thứ 51 → chuẩn 55%. Chi nhánh nào % KPI doanh thu thấp hơn mức này là đang hụt.
+
+**Thứ tự 3 thẻ** không cố định: chi nhánh xa chuẩn tiến độ nhất đứng đầu, 2 thẻ đầu ghi
+`ĐƯỢC CHỌN` (đem ra bàn trong 14 phút), thẻ thứ 3 ghi `Xử lý sau họp`.
+
+**Việc cần hỗ trợ trên thẻ** tự chọn theo thứ tự: (1) doanh thu Q4 dưới chuẩn tiến độ →
+(2) mục tiêu có chỉ số vẫn bằng 0 cả quý → (3) mục tiêu chưa có số đo.
+
+**Dải 4 nhóm** lấy 1 dòng cầm cờ cho mỗi nhóm — đổi ở `KH90_CO_NHOM` trong `Code.gs`:
+
+| Nhóm | Dòng tab KH 90 ngày | Hiển thị | Màu |
+|---|---|---|---|
+| I · TIỀN | 6 Doanh thu | `% KPI` | theo `% KPI ÷ chuẩn tiến độ` |
+| II · HỆ THỐNG | 8 Số liệu | số dòng cảnh báo | xanh khi = 0, đỏ khi > 0 |
+| III · ĐỘI NGŨ | 10 KPI tuần | số, hoặc `chưa đo` | xám khi chưa đo |
+| IV · CÁ NHÂN | 12 Điều hành bằng số | số, hoặc `chưa đo` | xám khi chưa đo |
+
+Ô `KẾT QUẢ Q4` nào đang là `Nhập tay: …`, trống, hay `#REF` thì màn ghi thẳng **chưa đo** —
+không lấy số nào lấp vào. Chân mỗi thẻ đếm `n/9 mục tiêu chưa đo`.
+
+### Phải cập nhật Apps Script 1 lần
+Số mới nằm trong `Code.gs`, nên sau khi kéo file này lên repo vẫn phải đẩy code sang Apps Script:
+
+1. Mở file **PHI LONG_GROUP** → `Tiện ích mở rộng` → `Apps Script`.
+2. Dán lại **toàn bộ** `Code.gs` mới (ghi đè bản cũ) → **Lưu**.
+3. Chạy `chayKiemTra` 1 lần nếu Google xin thêm quyền.
+4. `Triển khai` → `Quản lý các triển khai` → bút chì ✏️ ở bản đang chạy →
+   `Phiên bản`: **Phiên bản mới** → `Triển khai`.
+   Giữ nguyên URL `/exec`, **không** tạo triển khai mới để khỏi phải sửa `giaoban.html`.
+5. Mở `giaoban.html#GB5HoTro`, nhãn góc phải phải đọc **SỐ LIỆU LIVE · giờ cập nhật**.
+   Còn ghi SỐ MINH HOẠ nghĩa là bước 4 chưa xong.
+
+Thử riêng gói số của bước 5: mở `…/exec?khoa=PHILONG2026&viec=kh90`.
 
 ---
 
