@@ -1349,6 +1349,30 @@ function apChiTiet(j) {
   });
 }
 
+/* --- 6b-bis. Trạng thái chuẩn theo app PHI LONG GROUP ---
+   1.Chờ thực hiện · 2.Đang làm · 3.Hoàn thành · quá hạn mà chưa xong = Trễ kế hoạch (ngọn lửa) */
+function hanThanhGio(x) {
+  if (x instanceof Date) return isNaN(x) ? null : x;
+  var t = String(x || '').trim();
+  if (!t) return null;
+  var m = t.match(/(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?(?:[^\d]+(\d{1,2}):(\d{2}))?/);
+  if (!m) { var d0 = new Date(t); return isNaN(d0) ? null : d0; }
+  var ngay = +m[1], thang = +m[2], nam = m[3] ? +m[3] : (new Date()).getFullYear();
+  if (nam < 100) nam += 2000;
+  var gio = (m[4] == null ? 23 : +m[4]), phut = (m[5] == null ? 59 : +m[5]);
+  var d = new Date(nam, thang - 1, ngay, gio, phut, 0);
+  return isNaN(d) ? null : d;
+}
+function trangThaiChuanApp(v) {
+  var s = String((v && v.trang_thai) || '');
+  if (/hoàn thành/i.test(s) || /^\s*3\./.test(s)) return { ma: 'xong', nhan: 'Hoàn thành', bg: '#E7F5EC', fg: '#1E6B3A' };
+  var tre = /trễ/i.test(s) || /trễ/i.test(String((v && v.tien_do) || ''));
+  if (!tre) { var h = hanThanhGio((v && (v.han || v.deadline)) || ''); if (h && h.getTime() < Date.now()) tre = true; }
+  if (tre) return { ma: 'tre', nhan: '🔥 Trễ kế hoạch', bg: '#FDE2E2', fg: '#9B1C1C' };
+  if (/đang làm/i.test(s) || /^\s*2\./.test(s)) return { ma: 'dang', nhan: 'Đang làm', bg: '#E6F0FB', fg: '#17365D' };
+  return { ma: 'cho', nhan: 'Chờ thực hiện', bg: '#FFF4D6', fg: '#8A6100' };
+}
+
 /* --- 6c. Bước 2 · việc tuần trước (bảng CONG_VIEC) --- */
 function apViecTuanTruoc(j) {
   var sec = document.getElementById('sc-GB2ViecCu');
@@ -1379,10 +1403,10 @@ function apViecTuanTruoc(j) {
       sp[0].textContent = v.ai || '—';
       sp[1].textContent = v.viec || '—';
       sp[2].textContent = v.han || '';
-      var xong = /xong|hoàn thành|3\./i.test(v.trang_thai || '') && !/chưa/i.test(v.trang_thai || '');
-      sp[3].textContent = v.trang_thai || (xong ? 'Xong' : 'Chưa xong');
-      sp[3].style.background = xong ? '#E7F5EC' : '#FDE2E2';
-      sp[3].style.color = xong ? '#1E6B3A' : '#9B1C1C';
+      var tt = trangThaiChuanApp(v);
+      sp[3].textContent = tt.nhan;
+      sp[3].style.background = tt.bg;
+      sp[3].style.color = tt.fg;
       var chuanHoaCS = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, ''); };
       var mCN = String(v.viec || '').match(/CN([123])/);
       var oCN = null; if (mCN && j.chinhanh) for (var qq = 0; qq < j.chinhanh.length; qq++) if (j.chinhanh[qq].ma === 'CN' + mCN[1]) oCN = j.chinhanh[qq];
@@ -1392,12 +1416,12 @@ function apViecTuanTruoc(j) {
     cha.appendChild(tr);
   });
   // 3 thẻ số đầu màn
-  var xongN = ds.filter(function (v) { return /xong|hoàn thành|3\./i.test(v.trang_thai || '') && !/chưa/i.test(v.trang_thai || ''); }).length;
+  var dem = { xong: 0, dang: 0, tre: 0, cho: 0 };
+  ds.forEach(function (v) { dem[trangThaiChuanApp(v).ma]++; });
   var the = $$('div[style*="font-size: 30px"]', sec);
-  if (the[0]) the[0].innerHTML = xongN + '/' + ds.length + ' <span style="font-size: 16px">· ' + (ds.length ? Math.round(xongN / ds.length * 100) : 0) + '%</span>';
-  var dangN = ds.filter(function (v) { return /đang làm/i.test(v.trang_thai || ''); }).length;
-  if (the[1]) { the[1].textContent = dangN + '/' + ds.length; if (the[1].previousElementSibling) the[1].previousElementSibling.textContent = 'Đang làm dở'; }
-  if (the[2]) { the[2].textContent = (ds.length - xongN - dangN) + '/' + ds.length; if (the[2].previousElementSibling) the[2].previousElementSibling.textContent = 'Chưa bắt đầu'; }
+  if (the[0]) { the[0].innerHTML = dem.xong + '/' + ds.length + ' <span style="font-size: 16px">· ' + (ds.length ? Math.round(dem.xong / ds.length * 100) : 0) + '%</span>'; if (the[0].previousElementSibling) the[0].previousElementSibling.textContent = 'Hoàn thành'; }
+  if (the[1]) { the[1].textContent = dem.dang + '/' + ds.length; if (the[1].previousElementSibling) the[1].previousElementSibling.textContent = 'Đang làm'; }
+  if (the[2]) { the[2].textContent = dem.tre + '/' + ds.length; the[2].style.color = dem.tre ? '#9B1C1C' : '#17365D'; if (the[2].previousElementSibling) the[2].previousElementSibling.textContent = '🔥 Trễ kế hoạch'; }
 }
 
 /* --- 6d. Bước 6 · chốt việc tuần (HOP_CAM_KET) --- */
