@@ -1038,6 +1038,20 @@ function chotList(){
   return out;
 }
 function ckKey(a){ return 'ck_'+noAcc(String(a.cn||'')+'|'+String(a.noi||'')).slice(0,60); }
+function doBang(a){
+  var d=strip(a.dan||'');
+  if(!d) return '';
+  var seg=d.split('·').map(function(x){ return strip(x); }).filter(Boolean);
+  if(seg.length<2) return d;
+  var w=noAcc(a.noi||'').split(/[^a-z0-9]+/).filter(function(x){ return x.length>3; });
+  var best=seg[0], bs=-1;
+  seg.forEach(function(x){
+    var nx=noAcc(x), sc=0;
+    w.forEach(function(t){ if(nx.indexOf(t)>-1) sc++; });
+    if(sc>bs){ bs=sc; best=x; }
+  });
+  return best;
+}
 function du4(a){ return !!(strip(a.noi)&&strip(a.nguoi)&&strip(a.ngay)&&strip(a.dan)); }
 function dongHo(pct,nhan){
   var p=Math.max(0,Math.min(100,pct||0));
@@ -1069,8 +1083,11 @@ function stChotViec(){
   var prev=WQ?wkByNo(WQ.w-1):null, chuaXong=0;
   try{
     var av=cvList().filter(function(a){ return !!a.cn; });
-    if(prev&&prev.from&&prev.to) av=av.filter(function(a){ return a.dlD&&a.dlD>=prev.from&&a.dlD<=prev.to; });
-    chuaXong=av.filter(function(a){ return !a.xong; }).length;
+    var tnay=today0();
+    var cu=av.filter(function(a){ return a.dlD && a.dlD<=tnay; });
+    if(!cu.length && prev && prev.from && prev.to)
+      cu=av.filter(function(a){ return a.dlD && a.dlD>=prev.from && a.dlD<=prev.to; });
+    chuaXong=cu.filter(function(a){ return !a.xong; }).length;
   }catch(e){}
 
   h+='<div class="card mt12">'
@@ -1102,10 +1119,10 @@ function stChotViec(){
       var k=ckKey(a), on=sGet(k,'')==='1';
       h+='<div class="ctrow'+(i%2?' alt':'')+'">'
         +'<div class="c c-viec">'+esc(a.noi||'(chưa ghi nội dung)')+'</div>'
-        +'<div class="c c-ai"><span class="cnm">'+esc(SRC[c].ten+' · '+(a.nhom||''))+'</span>'
+        +'<div class="c c-ai"><span class="cnm">'+esc(SRC[c].ten)+'</span>'
         +(strip(a.nguoi)?esc(a.nguoi):'<span class="ctmiss">chưa có người</span>')+'</div>'
         +'<div class="c c-han">'+(strip(a.ngay)?esc(a.ngay):'<span class="ctmiss">chưa có hạn</span>')+'</div>'
-        +'<div class="c c-do">'+(strip(a.dan)?esc(a.dan):'<span class="ctmiss">chưa có chỉ số</span>')+'</div>'
+        +'<div class="c c-do">'+(strip(doBang(a))?'<span title="'+esc(a.dan||'')+'">'+esc(doBang(a))+'</span>':'<span class="ctmiss">chưa có chỉ số</span>')+'</div>'
         +'<div class="c"><span class="ckchip '+(on?'yes':'no')+'" onclick="tickCK(\''+k+'\')">'
         +(on?'Cam kết':'Chờ xác nhận')+'</span></div>'
         +'</div>';
