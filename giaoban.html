@@ -113,28 +113,37 @@ label.lb{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin
 
 /* ---------- bảng chốt việc (bước 6) ---------- */
 .ctbl{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
-.ctrow{display:grid;grid-template-columns:36px minmax(0,1fr) 176px 108px 94px}
-.ctrow>.c{padding:9px 11px;border-bottom:1px solid var(--line);min-width:0}
+.ctrow{display:grid;grid-template-columns:minmax(0,1.7fr) 180px 86px minmax(0,1.1fr) 104px}
+.ctrow>.c{padding:10px 12px;border-bottom:1px solid var(--line);min-width:0}
 .ctrow:last-child>.c{border-bottom:0}
 .ctrow.alt>.c{background:#FAFBFC}
-.cthead>.c{background:#F2F6FA;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:var(--ink3);padding:7px 11px;text-transform:uppercase}
-.c-no{text-align:center;font-weight:800;color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
-.c-viec{font-size:13.5px;font-weight:600;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
-.c-viec .sub{display:block;font-size:10.5px;font-weight:800;color:var(--brand);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
-.c-nguoi{font-size:12.5px;font-weight:700;color:var(--brand-d);line-height:1.5;overflow-wrap:anywhere}
+.cthead>.c{background:#F2F6FA;font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--ink3);padding:8px 12px}
+.c-viec{font-size:13.5px;font-weight:700;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.c-ai{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
+.c-ai .cnm{display:block;font-size:10.5px;font-weight:800;color:var(--brand);letter-spacing:.4px}
 .c-han{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
-.c-tuan{font-size:11.5px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.c-do{font-size:12.5px;font-weight:600;color:var(--ink2,#44506A);line-height:1.5;overflow-wrap:anywhere}
 .ctmiss{color:#C2410C;font-weight:800}
+.ckchip{display:inline-block;font-size:11.5px;font-weight:800;border-radius:6px;padding:4px 10px;border:1px solid transparent;cursor:pointer;white-space:nowrap}
+.ckchip.yes{background:#E6F5EC;color:#1E7A4C;border-color:#BFE3CE}
+.ckchip.no{background:#FFF3D6;color:#8A6400;border-color:#F0DCA0}
+.gbchips{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.gbchip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:9px 13px;font-size:13px;font-weight:600;color:var(--ink)}
+.gbchip b{color:var(--brand-d);font-weight:800}
+.gbchip.warn{background:#FFF8E6;border-color:#F0DCA0;color:#5C4600}
+.gbfoot{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.gbnote{background:#FFF8E6;border:1px solid #F0DCA0;border-radius:11px;padding:14px 16px;font-size:13.5px;line-height:1.6;color:#5C4600}
 .appbtn{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #E0A800;background:#F2B705;color:#1F2937;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-@media(max-width:860px){
+@media(max-width:900px){
   .cthead{display:none}
-  .ctrow{grid-template-columns:30px minmax(0,1fr);border-bottom:1px solid var(--line);padding:5px 0}
+  .gbfoot{grid-template-columns:1fr}
+  .ctrow{grid-template-columns:1fr;border-bottom:1px solid var(--line);padding:6px 0}
   .ctrow:last-child{border-bottom:0}
-  .ctrow>.c{border-bottom:0;padding:3px 10px;background:none!important}
-  .c-no{grid-row:span 4;text-align:left}
-  .c-nguoi::before{content:'Người: ';color:var(--ink3);font-weight:700}
+  .ctrow>.c{border-bottom:0;padding:3px 12px;background:none!important}
+  .c-ai::before{content:'Ai: ';color:var(--ink3);font-weight:700}
   .c-han::before{content:'Hạn: ';color:var(--ink3);font-weight:700}
-  .c-tuan::before{content:'Tuần: ';color:var(--ink3);font-weight:700}
+  .c-do::before{content:'Đo bằng gì: ';color:var(--ink3);font-weight:700}
+}
 }
 
 /* ---------- audit ---------- */
@@ -1028,26 +1037,54 @@ function chotList(){
   });
   return out;
 }
+function ckKey(a){ return 'ck_'+noAcc(String(a.cn||'')+'|'+String(a.noi||'')).slice(0,60); }
+function du4(a){ return !!(strip(a.noi)&&strip(a.nguoi)&&strip(a.ngay)&&strip(a.dan)); }
+function dongHo(pct,nhan){
+  var p=Math.max(0,Math.min(100,pct||0));
+  var ang=-90+(p*1.8), r=52, cx=64, cy=64;
+  var mau = p>=100?'#1E7A4C':(p>=70?'#2CA9BC':'#C2410C');
+  var rad=ang*Math.PI/180, x2=cx+Math.cos(rad)*42, y2=cy+Math.sin(rad)*42;
+  var L=Math.PI*r, off=L*(1-p/100);
+  return '<div style="display:flex;align-items:center;gap:12px">'
+   +'<svg width="128" height="78" viewBox="0 0 128 78" aria-hidden="true">'
+   +'<path d="M12 64 A52 52 0 0 1 116 64" fill="none" stroke="#E6EBF2" stroke-width="13" stroke-linecap="round"/>'
+   +'<path d="M12 64 A52 52 0 0 1 116 64" fill="none" stroke="'+mau+'" stroke-width="13" stroke-linecap="round"'
+   +' stroke-dasharray="'+L.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'
+   +'<line x1="'+cx+'" y1="'+cy+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="#16233A" stroke-width="4" stroke-linecap="round"/>'
+   +'<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#16233A"/></svg>'
+   +'<div><div style="font-size:24px;font-weight:800;color:'+mau+'">'+p+'%</div>'
+   +'<div class="muted" style="font-size:11.5px">'+esc(nhan)+'</div></div></div>';
+}
 function stChotViec(){
   var next=WQ?wkByNo(WQ.w+1):null;
-  var h=pgHead('BƯỚC 6 · 6 PHÚT','Chốt việc tuần',
-    'Hành động của <b>'+esc(WQ?WQ.label:'—')+'</b> và <b>'+esc(next?next.label:'—')+'</b> trong KH 90 ngày, cộng các việc vừa chốt ở bước 5. Mỗi việc một người, một hạn.');
+  var h=pgHead('BƯỚC 6 · CHỐT VIỆC TUẦN · 6 PHÚT','Chốt việc và đọc biên bản',
+    'Thư ký đọc từng việc, người nhận nói <b>"Cam kết"</b>. Mỗi việc phải đủ 4 yếu tố: <b>ai · làm gì · hạn · đo bằng gì</b>.');
   var L=chotList();
-  var miss=L.filter(function(a){ return !strip(a.nguoi); }).length;
-  var noDl=L.filter(function(a){ return !strip(a.ngay);  }).length;
-  var tt=[];
-  if(miss) tt.push('<span class="ctmiss">'+miss+' việc chưa có người</span>');
-  if(noDl) tt.push('<span class="ctmiss">'+noDl+' việc chưa có hạn</span>');
-  if(!tt.length) tt.push('đủ người · đủ hạn');
+  var tong=L.length;
+  var du=L.filter(du4).length;
+  var ck=L.filter(function(a){ return sGet(ckKey(a),'')==='1'; }).length;
+  var pctDu = tong?Math.round(du/tong*100):0;
+
+  /* việc chưa xong tuần trước, lấy từ bảng công việc của app */
+  var prev=WQ?wkByNo(WQ.w-1):null, chuaXong=0;
+  try{
+    var av=cvList().filter(function(a){ return !!a.cn; });
+    if(prev&&prev.from&&prev.to) av=av.filter(function(a){ return a.dlD&&a.dlD>=prev.from&&a.dlD<=prev.to; });
+    chuaXong=av.filter(function(a){ return !a.xong; }).length;
+  }catch(e){}
 
   h+='<div class="card mt12">'
-    +'<div class="cnhead"><span class="cnname">'+L.length+' việc chốt cho tuần tới</span>'
-    +'<span class="muted">'+tt.join(' · ')+'</span></div>'
-    +'<div class="noprint" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">'
+    +'<div class="gbchips">'
+    +dongHo(pctDu,'việc đủ 4 yếu tố')
+    +'<div class="gbchip"><b>'+du+'/'+tong+'</b> việc đủ 4 yếu tố</div>'
+    +'<div class="gbchip"><b>'+ck+'/'+tong+'</b> đã nói "Cam kết"</div>'
+    +'<div class="gbchip">Chốt lúc <b>'+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+'</b></div>'
+    +'<div class="gbchip'+(chuaXong?' warn':'')+'">Việc chưa xong tuần trước: <b>'+chuaXong+'</b></div>'
+    +'</div>'
+    +'<div class="noprint" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">'
     +'<a class="appbtn" href="'+APP_CV+'" target="_blank" rel="noopener">📲 Nhập việc thẳng vào app</a>'
     +'<button class="actbtn ghost" onclick="copyChot()">Chép danh sách</button>'
     +'<button class="actbtn ghost" onclick="window.print()">In / lưu PDF</button></div>'
-    +'<div class="muted mt8">Bấm <b>Nhập việc thẳng vào app</b> để mở màn Danh sách công việc của app PHI LONG GROUP. Giao việc tại đó, cả team xem được ngay trên điện thoại.</div>'
     +'</div>';
 
   CNS.forEach(function(c){
@@ -1059,25 +1096,32 @@ function stChotViec(){
     }
     h+='<div class="ctbl">'
       +'<div class="ctrow cthead">'
-      +'<div class="c c-no">#</div>'
-      +'<div class="c">Việc cần làm</div>'
-      +'<div class="c">Người phụ trách</div>'
-      +'<div class="c">Hạn</div>'
-      +'<div class="c">Tuần</div></div>';
+      +'<div class="c">LÀM GÌ</div><div class="c">AI</div><div class="c">HẠN</div>'
+      +'<div class="c">ĐO BẰNG GÌ</div><div class="c">CAM KẾT</div></div>';
     mine.forEach(function(a,i){
+      var k=ckKey(a), on=sGet(k,'')==='1';
       h+='<div class="ctrow'+(i%2?' alt':'')+'">'
-        +'<div class="c c-no">'+(i+1)+'</div>'
-        +'<div class="c c-viec"><span class="sub">'+esc(a.nhom+(a.mucTieu?' · '+a.mucTieu:''))+'</span>'
-        +esc(a.noi||'(chưa ghi nội dung)')+'</div>'
-        +'<div class="c c-nguoi">'+(strip(a.nguoi)?esc(a.nguoi):'<span class="ctmiss">chưa có người</span>')+'</div>'
+        +'<div class="c c-viec">'+esc(a.noi||'(chưa ghi nội dung)')+'</div>'
+        +'<div class="c c-ai"><span class="cnm">'+esc(SRC[c].ten+' · '+(a.nhom||''))+'</span>'
+        +(strip(a.nguoi)?esc(a.nguoi):'<span class="ctmiss">chưa có người</span>')+'</div>'
         +'<div class="c c-han">'+(strip(a.ngay)?esc(a.ngay):'<span class="ctmiss">chưa có hạn</span>')+'</div>'
-        +'<div class="c c-tuan">'+esc(a.wkLabel)+'</div>'
+        +'<div class="c c-do">'+(strip(a.dan)?esc(a.dan):'<span class="ctmiss">chưa có chỉ số</span>')+'</div>'
+        +'<div class="c"><span class="ckchip '+(on?'yes':'no')+'" onclick="tickCK(\''+k+'\')">'
+        +(on?'Cam kết':'Chờ xác nhận')+'</span></div>'
         +'</div>';
     });
     h+='</div></div>';
   });
+
+  h+='<div class="gbfoot">'
+    +'<div class="card"><div class="eyebrow">VIỆC XỬ LÝ SAU HỌP · MỖI VIỆC CÓ NGƯỜI NHẬN</div>'
+    +'<textarea onchange="sSet(\'sauhop\',this.value)" placeholder="VD: Tuyển thợ máy gầm · QL CN1 · báo lại 25/11">'
+    +esc(sGet('sauhop',''))+'</textarea></div>'
+    +'<div class="gbnote"><b>Chưa ghi lên app là chưa chốt.</b> Thiếu một trong 4 yếu tố (ai, làm gì, hạn, đo bằng gì) thì thư ký gọi hỏi lại ngay tại họp, không để qua buổi.</div>'
+    +'</div>';
   return h;
 }
+function tickCK(k){ sSet(k, sGet(k,'')==='1'?'':'1'); paintStage(); }
 function chotText(){
   var L=chotList(), s='CHỐT VIỆC GIAO BAN '+(WQ?WQ.label:'')+' · '+new Date().toLocaleDateString('vi-VN')+'\n';
   CNS.forEach(function(c){
