@@ -111,6 +111,32 @@ label.lb{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin
 .tagnhom{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--brand);background:var(--brand-l);border-radius:4px;padding:1px 6px;margin-bottom:4px}
 .empty{color:var(--ink3);font-size:13px;font-style:italic;padding:6px 0}
 
+/* ---------- bảng chốt việc (bước 6) ---------- */
+.ctbl{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.ctrow{display:grid;grid-template-columns:36px minmax(0,1fr) 176px 108px 94px}
+.ctrow>.c{padding:9px 11px;border-bottom:1px solid var(--line);min-width:0}
+.ctrow:last-child>.c{border-bottom:0}
+.ctrow.alt>.c{background:#FAFBFC}
+.cthead>.c{background:#F2F6FA;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:var(--ink3);padding:7px 11px;text-transform:uppercase}
+.c-no{text-align:center;font-weight:800;color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
+.c-viec{font-size:13.5px;font-weight:600;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.c-viec .sub{display:block;font-size:10.5px;font-weight:800;color:var(--brand);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.c-nguoi{font-size:12.5px;font-weight:700;color:var(--brand-d);line-height:1.5;overflow-wrap:anywhere}
+.c-han{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.c-tuan{font-size:11.5px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.ctmiss{color:#C2410C;font-weight:800}
+.appbtn{min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #E0A800;background:#F2B705;color:#1F2937;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+@media(max-width:860px){
+  .cthead{display:none}
+  .ctrow{grid-template-columns:30px minmax(0,1fr);border-bottom:1px solid var(--line);padding:5px 0}
+  .ctrow:last-child{border-bottom:0}
+  .ctrow>.c{border-bottom:0;padding:3px 10px;background:none!important}
+  .c-no{grid-row:span 4;text-align:left}
+  .c-nguoi::before{content:'Người: ';color:var(--ink3);font-weight:700}
+  .c-han::before{content:'Hạn: ';color:var(--ink3);font-weight:700}
+  .c-tuan::before{content:'Tuần: ';color:var(--ink3);font-weight:700}
+}
+
 /* ---------- audit ---------- */
 .auditwrap{position:fixed;inset:0;background:rgba(10,30,60,.45);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto}
 .auditbox{background:#fff;border-radius:12px;max-width:860px;width:100%;padding:18px 20px}
@@ -205,6 +231,7 @@ label.lb{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin
    Đọc công khai qua gviz CSV, cùng cách trang kpiql.html đang dùng.
    ======================================================================= */
 
+var APP_CV='https://www.appsheet.com/start/866c1f09-779a-48ca-9b1c-094d9c81fef8?platform=desktop#appName=PHILONGGROUP-171475980&vss=H4sIAAAAAAAAA6WQX0_CMBTFv8t9LoaOxT99nYshhpEA8qAlpNC7uLity1pUsvS7ezcFY_RBRtKXnt7fuee0gdcM3-ZObV9APDXft3vcg4BGwmJfoQQhITKlq00ugUlIVPEpridx8iDBg2c94Gia3K2X4zjqHFbs4ODQgmhO2C7OSM4g01i6LM2wbo1ajAy-IHpuERI6gHpCsXNqk2OXkwBP0olV-8T9YfDvzEfqj-CH8d-zDGbGONK0ss8bo2pN0q1yitCiIj0YBpcDzgfBcMG5GF3TuQhveBjyq0fw7Y-kZruzqJdUs1c9Oy7j90qVemI0pUtVbtF_AF47u5muAgAA&view=_CONG_VIEC';
 var SRC = {
   CN1:{ ten:'CN1', ql:'Phạm Thành Luân', id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gKPI:'489409049',  gKH:'586216157'  },
   CN2:{ ten:'CN2', ql:'Nguyễn Thị Thuỳ Trâm', id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gKPI:'1426227108', gKH:'1108806546' },
@@ -1006,23 +1033,48 @@ function stChotViec(){
   var h=pgHead('BƯỚC 6 · 6 PHÚT','Chốt việc tuần',
     'Hành động của <b>'+esc(WQ?WQ.label:'—')+'</b> và <b>'+esc(next?next.label:'—')+'</b> trong KH 90 ngày, cộng các việc vừa chốt ở bước 5. Mỗi việc một người, một hạn.');
   var L=chotList();
-  h+='<div class="card mt12"><b>'+L.length+' việc</b> cho tuần tới.'
-    +' <button class="actbtn ghost noprint" style="margin-left:8px" onclick="copyChot()">Chép danh sách để dán vào sheet</button>'
-    +' <button class="actbtn ghost noprint" onclick="window.print()">In / lưu PDF</button></div>';
+  var miss=L.filter(function(a){ return !strip(a.nguoi); }).length;
+  var noDl=L.filter(function(a){ return !strip(a.ngay);  }).length;
+  var tt=[];
+  if(miss) tt.push('<span class="ctmiss">'+miss+' việc chưa có người</span>');
+  if(noDl) tt.push('<span class="ctmiss">'+noDl+' việc chưa có hạn</span>');
+  if(!tt.length) tt.push('đủ người · đủ hạn');
+
+  h+='<div class="card mt12">'
+    +'<div class="cnhead"><span class="cnname">'+L.length+' việc chốt cho tuần tới</span>'
+    +'<span class="muted">'+tt.join(' · ')+'</span></div>'
+    +'<div class="noprint" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">'
+    +'<a class="appbtn" href="'+APP_CV+'" target="_blank" rel="noopener">📲 Nhập việc thẳng vào app</a>'
+    +'<button class="actbtn ghost" onclick="copyChot()">Chép danh sách</button>'
+    +'<button class="actbtn ghost" onclick="window.print()">In / lưu PDF</button></div>'
+    +'<div class="muted mt8">Bấm <b>Nhập việc thẳng vào app</b> để mở màn Danh sách công việc của app PHI LONG GROUP. Giao việc tại đó, cả team xem được ngay trên điện thoại.</div>'
+    +'</div>';
+
   CNS.forEach(function(c){
     var mine=L.filter(function(a){ return a.cn===c; });
     h+='<div class="card mt12"><div class="cnhead"><span class="cnname">'+esc(SRC[c].ten)+'</span><span class="muted">'+mine.length+' việc</span></div>';
-    if(!mine.length) h+='<div class="empty">Không có hành động nào. Nếu tuần tới thật sự trống việc trong kế hoạch thì phải bổ sung vào tab KH 90 ngày.</div>';
-    mine.forEach(function(a){
-      var ok = !!strip(a.nguoi);
-      h+='<div class="item">'
-        +'<div class="hd"><div class="bd">'
-        +'<span class="tagnhom">'+esc(a.nhom+(a.mucTieu?' · '+a.mucTieu:''))+'</span> <span class="tiny">'+esc(a.wkLabel)+'</span><br>'
-        +esc(a.noi||'(không ghi nội dung)')
-        +'<div class="who">👤 '+esc(a.nguoi||'')+(ok?'':' <span class="warnmark">CHƯA CÓ NGƯỜI PHỤ TRÁCH</span>')+'</div>'
-        +'</div><div class="dt">'+esc(a.ngay||'chưa có hạn')+'</div></div></div>';
+    if(!mine.length){
+      h+='<div class="empty">Không có hành động nào. Nếu tuần tới thật sự trống việc trong kế hoạch thì phải bổ sung vào tab KH 90 ngày.</div></div>';
+      return;
+    }
+    h+='<div class="ctbl">'
+      +'<div class="ctrow cthead">'
+      +'<div class="c c-no">#</div>'
+      +'<div class="c">Việc cần làm</div>'
+      +'<div class="c">Người phụ trách</div>'
+      +'<div class="c">Hạn</div>'
+      +'<div class="c">Tuần</div></div>';
+    mine.forEach(function(a,i){
+      h+='<div class="ctrow'+(i%2?' alt':'')+'">'
+        +'<div class="c c-no">'+(i+1)+'</div>'
+        +'<div class="c c-viec"><span class="sub">'+esc(a.nhom+(a.mucTieu?' · '+a.mucTieu:''))+'</span>'
+        +esc(a.noi||'(chưa ghi nội dung)')+'</div>'
+        +'<div class="c c-nguoi">'+(strip(a.nguoi)?esc(a.nguoi):'<span class="ctmiss">chưa có người</span>')+'</div>'
+        +'<div class="c c-han">'+(strip(a.ngay)?esc(a.ngay):'<span class="ctmiss">chưa có hạn</span>')+'</div>'
+        +'<div class="c c-tuan">'+esc(a.wkLabel)+'</div>'
+        +'</div>';
     });
-    h+='</div>';
+    h+='</div></div>';
   });
   return h;
 }
