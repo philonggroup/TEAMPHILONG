@@ -1336,8 +1336,9 @@ function apViecTuanTruoc(j) {
   var xongN = ds.filter(function (v) { return /xong|hoàn thành|3\./i.test(v.trang_thai || '') && !/chưa/i.test(v.trang_thai || ''); }).length;
   var the = $$('div[style*="font-size: 30px"]', sec);
   if (the[0]) the[0].innerHTML = xongN + '/' + ds.length + ' <span style="font-size: 16px">· ' + (ds.length ? Math.round(xongN / ds.length * 100) : 0) + '%</span>';
-  if (the[1]) the[1].textContent = xongN + '/' + ds.length;
-  if (the[2]) the[2].textContent = 'theo CONG_VIEC';
+  var dangN = ds.filter(function (v) { return /đang làm/i.test(v.trang_thai || ''); }).length;
+  if (the[1]) { the[1].textContent = dangN + '/' + ds.length; if (the[1].previousElementSibling) the[1].previousElementSibling.textContent = 'Đang làm dở'; }
+  if (the[2]) { the[2].textContent = (ds.length - xongN - dangN) + '/' + ds.length; if (the[2].previousElementSibling) the[2].previousElementSibling.textContent = 'Chưa bắt đầu'; }
 }
 
 /* --- 6d. Bước 6 · chốt việc tuần (HOP_CAM_KET) --- */
