@@ -320,12 +320,8 @@
       return;
     }
 
-    if (e.target.id === 'b6-ghi') {
-      var n = new Date();
-      var gio = (n.getHours() < 10 ? '0' : '') + n.getHours() + ':' + (n.getMinutes() < 10 ? '0' : '') + n.getMinutes();
-      ghi('dash.' + n.toDateString(), gio);
-      ve();
-    }
+    if (e.target.id === 'b6-ghi') { ghiBienBan(); return; }
+    if (e.target.id === 'b6-pdf') { xuatPDF(); return; }
   }, true);
 
   document.addEventListener('blur', function (e) {
@@ -355,6 +351,129 @@
       e.preventDefault(); t.blur();
     }
   }, true);
+
+  /* ---------- 6b. gom danh sách việc đang hiển thị ---------- */
+  function dsHienTai() {
+    var tat = DS.slice();
+    docTick().concat(docThem()).forEach(function (v) { if (!trungVoi(tat, v)) tat.push(v); });
+    tat = tat.map(function (v) { if (!v.goc) v.goc = v.lam; return apSua(v); });
+    return tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
+  }
+  function tuanQuy() {
+    var e = document.querySelector('[data-k="nhan.sidebar"]');
+    var m = e ? (e.textContent || '').match(/tuần\s*(\d+)/i) : null;
+    return m ? ('W' + m[1]) : '';
+  }
+
+  /* ---------- 6c. ghi biên bản về file PHI LONG_GROUP ---------- */
+  var API = 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec';
+  var KHOA = 'PHILONG2026';
+  var dangGhi = false;
+
+  function bao(chu, mau) {
+    var e = el('b6-bao');
+    if (!e) return;
+    e.textContent = chu;
+    e.style.color = mau || '#5F6B7A';
+  }
+
+  function ghiBienBan() {
+    if (dangGhi) return;
+    var ds = dsHienTai().filter(function (v) { return !xongRoi(v.tt); });
+    if (!ds.length) { bao('Không có việc nào để ghi.', '#B42318'); return; }
+    var thieu = ds.filter(function (v) { return !du4(v); });
+    if (thieu.length) {
+      bao('Còn ' + thieu.length + ' việc thiếu yếu tố — thư ký hỏi lại rồi ghi.', '#B42318');
+      return;
+    }
+    var tuan = tuanQuy();
+    if (!tuan) { bao('Chưa đọc được số tuần họp.', '#B42318'); return; }
+
+    dangGhi = true;
+    bao('đang ghi về file PHI LONG_GROUP…', '#2F75B5');
+    var goi = ds.map(function (v) {
+      var tt = nhanTT(v);
+      return { lam: v.lam, ai: v.ai, han: v.han, do: v.do, chi_nhanh: v.cn,
+               cam_ket: (tt === 'hq' || tt === 'hk') ? 'huy' : (tt === '1' ? 1 : 0) };
+    });
+    var e8 = document.querySelector('[data-k8="tb"]');
+    var e7 = document.querySelector('[data-gt="B7 câu 1"]');
+    var th = new URLSearchParams({
+      viec: 'luu_bien_ban', khoa: KHOA, tuan: tuan,
+      chi_nhanh: cnDang === 'TAT' ? '' : cnDang,
+      diem_hop: e8 ? gon(e8.textContent) : '',
+      thong_diep: e7 ? gon(e7.textContent) : '',
+      viec_json: ''
+    });
+    /* gửi bằng POST vì danh sách việc có thể dài hơn giới hạn URL */
+    var body = th.toString() + '&viec=' + encodeURIComponent(JSON.stringify(goi));
+    fetch(API, { method: 'POST', body: body,
+                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        dangGhi = false;
+        if (!j || j.ok !== true) {
+          bao('Chưa ghi được: ' + ((j && j.loi) || 'không rõ lỗi')
+            + ' — có thể Apps Script chưa deploy bản mới.', '#B42318');
+          return;
+        }
+        var n = new Date();
+        var gio = (n.getHours() < 10 ? '0' : '') + n.getHours() + ':'
+                + (n.getMinutes() < 10 ? '0' : '') + n.getMinutes();
+        ghi('dash.' + n.toDateString(), gio);
+        bao('Đã ghi ' + (j.ghi ? (j.ghi.cam_ket + ' cam kết · ' + j.ghi.cong_viec
+            + ' việc sang app' + (j.ghi.bo_qua ? (' · bỏ qua ' + j.ghi.bo_qua + ' việc đã ghi trước') : ''))
+            : '') + ' lúc ' + (j.luc || gio), '#1E6B3A');
+        ve();
+      })
+      .catch(function (e) {
+        dangGhi = false;
+        bao('Chưa ghi được: ' + (e.message || e), '#B42318');
+      });
+  }
+
+  /* ---------- 6d. xuất biên bản ra PDF ---------- */
+  function xuatPDF() {
+    var ds = dsHienTai();
+    if (!ds.length) { bao('Không có việc nào để in.', '#B42318'); return; }
+    var n = new Date();
+    var ngay = n.getDate() + '/' + (n.getMonth() + 1) + '/' + n.getFullYear();
+    var cn = cnDang === 'TAT' ? 'cả 3 chi nhánh' : CN_TEN[cnDang];
+    var hang = ds.map(function (v, i) {
+      var tt = nhanTT(v);
+      var nhan = xongRoi(v.tt) ? 'Đã xong'
+               : (tt === 'hq' ? 'Huỷ · quá hạn' : (tt === 'hk' ? 'Huỷ · không khả thi'
+               : (tt === '1' ? 'Cam kết' : 'Chưa cam kết')));
+      return '<tr><td>' + (i + 1) + '</td><td>' + thoat(v.lam) + '</td><td>' + thoat(v.ai)
+           + '</td><td>' + thoat(v.han) + '</td><td>' + thoat(v.do)
+           + '</td><td>' + nhan + '</td></tr>';
+    }).join('');
+    var sCk = ds.filter(function (v) { return nhanTT(v) === '1'; }).length;
+    var w = window.open('', '_blank');
+    if (!w) { bao('Trình duyệt chặn cửa sổ in — cho phép pop-up rồi bấm lại.', '#B42318'); return; }
+    w.document.write('<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">'
+      + '<title>Bien ban giao ban ' + ngay + '</title><style>'
+      + 'body{font-family:Arial,Helvetica,sans-serif;color:#1F2933;margin:26px}'
+      + 'h1{font-size:19px;margin:0 0 3px}h2{font-size:13px;font-weight:400;color:#5F6B7A;margin:0 0 14px}'
+      + 'table{border-collapse:collapse;width:100%;font-size:12px}'
+      + 'th,td{border:1px solid #D9E2EC;padding:6px 8px;text-align:left;vertical-align:top}'
+      + 'th{background:#EEF3F8;font-size:11px;letter-spacing:.3px}'
+      + '.tt{font-size:11px;color:#5F6B7A;margin-top:12px;line-height:1.6}'
+      + '.ky{margin-top:34px;display:flex;gap:40px;font-size:12px}'
+      + '@page{size:A4;margin:14mm}</style></head><body>'
+      + '<h1>BIÊN BẢN GIAO BAN TUẦN · PHI LONG AUTO</h1>'
+      + '<h2>' + cn + ' · ' + ngay + ' · ' + (tuanQuy() || '—') + '</h2>'
+      + '<table><thead><tr><th>#</th><th>Việc cần làm</th><th>Ai</th><th>Hạn</th>'
+      + '<th>Đo bằng gì</th><th>Cam kết</th></tr></thead><tbody>' + hang + '</tbody></table>'
+      + '<div class="tt">Tổng ' + ds.length + ' việc · ' + sCk + ' việc người nhận đã nói "Cam kết".<br>'
+      + 'Chưa ghi lên dashboard là chưa chốt. Thiếu một trong 4 yếu tố (ai, làm gì, hạn, đo bằng gì) '
+      + 'thì thư ký hỏi lại ngay.</div>'
+      + '<div class="ky"><div>Thư ký ghi biên bản<br><br><br>_______________</div>'
+      + '<div>Người chủ trì<br><br><br>_______________</div></div>'
+      + '</body></html>');
+    w.document.close();
+    setTimeout(function () { w.focus(); w.print(); }, 350);
+  }
 
   /* ---------- 7. khởi động ---------- */
   window.PLG_B6 = function (j) {

@@ -50,6 +50,7 @@ function doGet(e) {
       case 'luu_diem':      return ra_(luuDiem_(p));
       case 'luu_thong_diep':return ra_(luuThongDiep_(p));
       case 'them_cam_ket':  return ra_(themCamKet_(p));
+      case 'luu_bien_ban':  return ra_(luuBienBan_(p));
       case 'kh90':          return ra_(kh90_());
       case 'kiem_tra':      return ra_(kiemTra_());
       default:              return ra_({ ok: false, loi: 'Không rõ tham số viec=' + p.viec });
@@ -458,6 +459,118 @@ function themCamKet_(p) {
   dat('trang_thai', 'Cam kết'); dat('ngay_tao', nay); dat('nguoi_tao', 'giaoban.html');
   sh.appendRow(hang);
   return { ok: true, dong: sh.getLastRow() };
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LƯU BIÊN BẢN BƯỚC 6 — một lần bấm ghi cả ba nơi
+   Tracy chốt 21/11/2026: việc chốt ở bước 6 thay thế danh sách công
+   việc trên app cho tuần mới; sau một tuần kết quả trả về mục
+   "Việc tuần trước".
+
+     1. HOP_CAM_KET — biên bản cam kết của phiên họp
+     2. CONG_VIEC   — danh sách việc tuần mới cho app PHI LONG GROUP
+     3. HOP_PHIEN   — đóng phiên: trạng thái, số cam kết, điểm họp
+
+   Nhận tham số POST: tuan, chi_nhanh, diem_hop, thong_diep, viec
+   trong đó viec là chuỗi JSON [{lam, ai, han, do, cam_ket, chi_nhanh}]
+   Ghi một lần cho mỗi việc, có cờ chống ghi trùng theo phiên.
+   ════════════════════════════════════════════════════════════════════ */
+function luuBienBan_(p) {
+  var ds;
+  try { ds = JSON.parse(p.viec || '[]'); } catch (e) { return { ok: false, loi: 'viec không phải JSON' }; }
+  if (!ds.length) return { ok: false, loi: 'Không có việc nào để lưu' };
+
+  var ss = SpreadsheetApp.openById(FILE_RA);
+  var nay = Utilities.formatDate(new Date(), MUI_GIO, 'dd/MM/yyyy');
+  var tuan = p.tuan || '';
+  var dem = { cam_ket: 0, cong_viec: 0, bo_qua: 0 };
+
+  /* ---- 1. HOP_CAM_KET ---- */
+  var shCK = ss.getSheetByName('HOP_CAM_KET');
+  var hCK = shCK.getRange(1, 1, 1, shCK.getLastColumn()).getValues()[0];
+  var cCK = {}; hCK.forEach(function (x, i) { cCK[String(x).trim()] = i; });
+  /* đọc id đã có để không ghi trùng khi bấm hai lần */
+  var daCo = {};
+  if (shCK.getLastRow() > 1) {
+    shCK.getRange(2, cCK['id'] + 1, shCK.getLastRow() - 1, 1).getValues()
+      .forEach(function (r) { daCo[String(r[0]).trim()] = 1; });
+  }
+
+  /* ---- 2. CONG_VIEC ---- */
+  var shCV = ss.getSheetByName('CONG_VIEC');
+  var hCV = shCV.getRange(1, 1, 1, shCV.getLastColumn()).getValues()[0];
+  var cCV = {}; hCV.forEach(function (x, i) { cCV[String(x).trim()] = i; });
+  var daCoCV = {};
+  if (shCV.getLastRow() > 1) {
+    shCV.getRange(2, cCV['id'] + 1, shCV.getLastRow() - 1, 1).getValues()
+      .forEach(function (r) { daCoCV[String(r[0]).trim()] = 1; });
+  }
+
+  ds.forEach(function (v, i) {
+    var cn = v.chi_nhanh || p.chi_nhanh || 'CHUNG';
+    var stt = ('0' + (i + 1)).slice(-2);
+    var idCK = 'CK-' + tuan + '-' + cn + '-' + stt;
+    var idCV = 'GB-' + tuan + '-' + cn + '-' + stt;
+
+    if (daCo[idCK] || daCoCV[idCV]) { dem.bo_qua++; return; }
+
+    /* biên bản */
+    var hang = new Array(hCK.length).fill('');
+    function d1(t, g) { if (cCK[t] !== undefined) hang[cCK[t]] = g; }
+    d1('id', idCK);
+    d1('phien_id', 'HP-' + tuan + '-' + cn);
+    d1('tuan_quy', tuan); d1('chi_nhanh', cn);
+    d1('ho_va_ten', v.ai || '');
+    d1('noi_dung_cam_ket', v.lam || '');
+    d1('chi_so_dan_dat', v.do || '');
+    d1('han_hoan_thanh', v.han || '');
+    d1('trang_thai', v.cam_ket === 'huy' ? 'Đã huỷ'
+                   : (v.cam_ket ? 'Cam kết' : 'Chưa cam kết'));
+    d1('ngay_tao', nay); d1('nguoi_tao', 'giaoban.html');
+    shCK.appendRow(hang);
+    dem.cam_ket++;
+
+    /* việc tuần mới cho app — bỏ qua việc đã huỷ */
+    if (v.cam_ket === 'huy') return;
+    var hv = new Array(hCV.length).fill('');
+    function d2(t, g) { if (cCV[t] !== undefined) hv[cCV[t]] = g; }
+    d2('id', idCV);
+    d2('loai_cong_viec', 'Giao ban tuần ' + tuan);
+    d2('ten_cong_viec', (cn !== 'CHUNG' ? (cn + ' · ') : '') + (v.lam || ''));
+    d2('ten_khach_hang', v.do || '');          /* cột này đang dùng cho chỉ số dẫn dắt */
+    d2('mo_ta_cong_viec', 'Chốt tại giao ban ' + nay
+       + (v.cam_ket ? ' · người nhận đã nói Cam kết' : ' · chưa có cam kết'));
+    d2('deadline', v.han || '');
+    d2('ho_va_ten', v.ai || '');
+    d2('trang_thai', '1.Chờ thực hiện');
+    d2('ngay_tao', nay);
+    d2('nguoi_tao', 'giaoban.html');
+    shCV.appendRow(hv);
+    dem.cong_viec++;
+  });
+
+  /* ---- 3. HOP_PHIEN ---- */
+  var shHP = ss.getSheetByName('HOP_PHIEN');
+  var cnDs = {};
+  ds.forEach(function (v) { cnDs[v.chi_nhanh || p.chi_nhanh || 'CHUNG'] = 1; });
+  Object.keys(cnDs).forEach(function (cn) {
+    var t = timPhien_(shHP, tuan, cn);
+    if (!t.dong) return;
+    function dat(ten, gt) {
+      if (t.cot[ten] !== undefined && gt !== '' && gt !== undefined) {
+        shHP.getRange(t.dong, t.cot[ten] + 1).setValue(gt);
+      }
+    }
+    dat('trang_thai', 'Đã họp');
+    dat('ngay_hop', nay);
+    dat('so_cam_ket', ds.filter(function (v) {
+      return (v.chi_nhanh || p.chi_nhanh) === cn && v.cam_ket && v.cam_ket !== 'huy';
+    }).length);
+    dat('diem_hop', p.diem_hop || '');
+    dat('thong_diep_tuan', p.thong_diep || '');
+  });
+
+  return { ok: true, ghi: dem, luc: Utilities.formatDate(new Date(), MUI_GIO, 'HH:mm dd/MM/yyyy') };
 }
 
 /* ---------- Tự kiểm tra: chạy trong Apps Script Editor để soi nguồn ---------- */
