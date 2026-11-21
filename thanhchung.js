@@ -21,7 +21,7 @@
   var MAN_CN = { CN1: 'GB3BinhDuong', CN2: 'GB3BinhPhuoc', CN3: 'GB3ChiNhanh3' };
 
   var KY = [['thang', 'Cả tháng'], ['homnay', 'Hôm nay'], ['homqua', 'Hôm qua'],
-            ['bay', '7 ngày gần nhất'], ['tuan', 'Tuần này'], ['tuchon', 'Tự chọn']];
+            ['bay', '7 ngày'], ['tuan', 'Tuần này'], ['tuchon', 'Tự chọn']];
   var CN = [['TAT', 'TẤT CẢ'], ['CN1', 'PHI LONG 1'], ['CN2', 'PHI LONG 2'], ['CN3', 'PHI LONG 3']];
 
   window.PLG_LOC = window.PLG_LOC || { ky: 'thang', cn: 'TAT' };
@@ -79,7 +79,7 @@
       + 'style="cursor:' + (mo ? 'pointer' : 'default') + ';border:1px solid '
       + (bat ? '#2F75B5' : '#D9E2EC') + ';background:' + (bat ? '#2F75B5' : '#FFFFFF')
       + ';color:' + (bat ? '#FFFFFF' : (mo ? '#5F6B7A' : '#AEBACA'))
-      + ';font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;font-family:inherit">'
+      + ';font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;font-family:inherit;white-space:nowrap">'
       + chu + '</button>';
   }
 
@@ -96,16 +96,16 @@
     var khoang = '';
     try { if (window.b5KhoangNgay) khoang = b5KhoangNgay().ten; } catch (e) { }
 
-    t.setAttribute('style', 'flex-shrink:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;'
-      + 'background:#FFFFFF;border:1px solid #D9E2EC;border-radius:8px;padding:4px 10px');
+    t.setAttribute('style', 'flex-shrink:0;display:flex;align-items:center;gap:5px;flex-wrap:nowrap;'
+      + 'overflow-x:auto;background:#FFFFFF;border:1px solid #D9E2EC;border-radius:8px;padding:3px 9px');
     t.innerHTML =
-      '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.4px">KỲ SỐ LIỆU</span>'
+      '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.3px;white-space:nowrap">KỲ SỐ LIỆU</span>'
       + KY.map(function (x) { return nut('ky', x[0], x[1], PLG_LOC.ky === x[0], moKy); }).join('')
-      + (khoang ? '<span style="font-size:11px;color:#2F75B5;font-weight:700">· ' + khoang + '</span>' : '')
+      + (khoang ? '<span style="font-size:10.5px;color:#2F75B5;font-weight:700;white-space:nowrap">· ' + khoang + '</span>' : '')
       + '<span style="width:1px;height:18px;background:#D9E2EC;margin:0 3px"></span>'
-      + '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.4px">BÀN CHI NHÁNH</span>'
+      + '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.3px;white-space:nowrap">BÀN CHI NHÁNH</span>'
       + CN.map(function (x) { return nut('cn', x[0], x[1], PLG_LOC.cn === x[0], moCN); }).join('')
-      + (moKy ? '' : '<span style="font-size:10.5px;color:#B4600A;font-weight:700">· màn này không đổi theo kỳ</span>');
+      + (moKy ? '' : '<span style="font-size:10px;color:#B4600A;font-weight:700;white-space:nowrap">· màn này không đổi theo kỳ</span>');
   }
 
   function veTatCa() { MAN.forEach(veMot); }
