@@ -135,10 +135,28 @@
       + (thieu ? thoat(goi) : thoat(chu)) + '</div>';
   }
 
+  /* so khớp nội dung việc để không đọc biên bản hai lần cùng một việc */
+  function chuan(t) {
+    return gon(t).toLowerCase().replace(/[^0-9a-zà-ỹ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function trungVoi(ds, v) {
+    var a = chuan(v.lam);
+    if (a.length < 18) return false;
+    return ds.some(function (x) {
+      var b = chuan(x.lam);
+      if (b.length < 18) return false;
+      return a === b || a.indexOf(b) >= 0 || b.indexOf(a) >= 0;
+    });
+  }
+
   function ve() {
     var than = el('b6-than'), trong = el('b6-trong');
     if (!than) return;
-    var tat = DS.concat(docTick(), docThem());
+    /* việc từ file giữ nguyên; chiến lược Bước 5 và việc gõ thêm bị bỏ nếu đã có */
+    var tat = DS.slice();
+    docTick().concat(docThem()).forEach(function (v) {
+      if (!trungVoi(tat, v)) tat.push(v);
+    });
     var ds = tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
 
     than.innerHTML = '';
