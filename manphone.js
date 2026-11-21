@@ -90,13 +90,15 @@
     var p = (kpi && dat !== null && dat !== undefined) ? (dat / kpi * 100) : null;
     hs.children[0].textContent = (dat === null || dat === undefined) ? '—'
       : (dvi === 'tr' ? tr(dat) : Math.round(dat)) + (kpi ? ('/' + (dvi === 'tr' ? tr(kpi) : Math.round(kpi))) : '');
-    if (hs.children[1]) {
-      var h = hang(p), b = hs.children[1].querySelector('span');
-      hs.children[1].textContent = (p === null ? '— ' : Math.round(p) + '% ');
-      if (b) {
-        b.textContent = h.chu; b.style.background = h.nen; b.style.color = h.mau;
-        hs.children[1].appendChild(b);
-      }
+    var h = hang(p);
+    /* màn điện thoại xếp: [số] [%] [badge] — badge là ô thứ ba, không phải
+       span nằm trong ô phần trăm như ở các tab */
+    var oP = hs.children[1], oB = hs.children[2] || (oP ? oP.querySelector('span') : null);
+    if (oP) oP.textContent = (p === null ? '—' : Math.round(p) + '%');
+    if (oB && oB !== oP) {
+      oB.textContent = h.chu;
+      oB.style.background = h.nen;
+      oB.style.color = h.mau;
     }
   }
 
