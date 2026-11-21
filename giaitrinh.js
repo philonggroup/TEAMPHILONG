@@ -235,7 +235,7 @@
     dat('[data-k$=".chiso"]',                '13px', '24px');
     dat('[data-gt^="B5 đã thử"]',            '13px', '20px');
     dat('[data-k$=".chuaxong"]', '11.5px', '18px', function (e, f) {
-      e.style.maxHeight = f ? '118px' : '132px';
+      e.style.maxHeight = f ? '92px' : '132px';
       e.style.lineHeight = f ? '1.75' : '1.45';
     });
     dat('.b5-dong',                          '12px', '20px', function (e, f) {
