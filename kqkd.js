@@ -17,6 +17,21 @@
   };
   var TEN_CN = { CN1: 'PHI LONG 1', CN2: 'PHI LONG 2', CN3: 'PHI LONG 3' };
   var DU = { kqkd: {}, dg6: {} };
+  /* lựa chọn riêng của 2 tab phân tích — không dùng chung với thanh
+     của 9 bước vì ở đây kỳ là Tuần · Tháng · Quý, không phải theo ngày */
+  var LOC = { cn: 'TAT', ky: 'thang' };
+  try {
+    var c0 = localStorage.getItem('plg.tab.cn'), k0 = localStorage.getItem('plg.tab.ky');
+    if (c0) LOC.cn = c0;
+    if (k0) LOC.ky = k0;
+  } catch (e) { }
+  function luuLoc() {
+    try {
+      localStorage.setItem('plg.tab.cn', LOC.cn);
+      localStorage.setItem('plg.tab.ky', LOC.ky);
+    } catch (e) { }
+  }
+  function dsCN() { return LOC.cn === 'TAT' ? ['CN1', 'CN2', 'CN3'] : [LOC.cn]; }
 
   function $$(s, g) { return Array.prototype.slice.call((g || document).querySelectorAll(s)); }
   function gon(t) { return (t || '').replace(/\s+/g, ' ').trim(); }
@@ -164,10 +179,57 @@
     if (b) { b.textContent = h.chu; b.style.background = h.nen; b.style.color = h.mau; sp.appendChild(b); }
   }
 
-  /* tổng 3 chi nhánh của KQKD */
+  /* ---------- gộp theo chi nhánh đang chọn và kỳ đang chọn ----------
+     Tuần  = 7 ngày gần nhất, cộng từ cột ngày của tab BÁO CÁO KPI NGÀY
+     Tháng = tổng tháng trong KQKD T<m>
+     Quý   = cộng 3 tháng của quý từ dòng THỰC HIỆN của ĐÁNH GIÁ 6 THÁNG
+     Cơ cấu nhóm dịch vụ chỉ có theo tháng, nên kỳ Tuần và Quý dùng tỉ
+     trọng tháng để ước phần nhóm — ghi rõ trên màn, không giấu.        */
+  function thangNay() { return new Date().getMonth(); }        /* 0..11 */
+  function quyNay() { return Math.floor(thangNay() / 3); }     /* 0..3  */
+
+  function tongTuan() {
+    if (!window.PLG_THANG) return null;
+    var dt = 0, kpi = 0, co = 0;
+    dsCN().forEach(function (ma) {
+      var th = window.PLG_THANG[ma];
+      if (!th || !th.theo || !th.theo[0]) return;
+      var ng = new Date().getDate();
+      var tu = Math.max(1, ng - 6);
+      var t = 0, coNgay = 0;
+      for (var d = tu; d <= ng; d++) {
+        var v = th.theo[0][d];
+        if (v !== null && v !== undefined && !isNaN(v)) { t += v; coNgay++; }
+      }
+      if (!coNgay) return;
+      dt += t; co++;
+      var k = th.chi && th.chi[0] ? th.chi[0].kpi : 0;
+      var soNgay = new Date(new Date().getFullYear(), thangNay() + 1, 0).getDate();
+      if (k) kpi += k / soNgay * (ng - tu + 1);
+    });
+    return co ? { dt: dt, kpi: kpi, soCN: co, ten: '7 ngày gần nhất' } : null;
+  }
+
+  function tongQuy() {
+    var dt = 0, kpi = 0, co = 0;
+    var t0 = quyNay() * 3;
+    dsCN().forEach(function (ma) {
+      var d = DU.dg6[ma];
+      if (!d || d.loi || !d.lam) return;
+      var t = 0, k = 0, coT = 0;
+      for (var i = t0; i < t0 + 3 && i < 12; i++) {
+        if (d.lam[i] !== null && d.lam[i] !== undefined) { t += d.lam[i]; coT++; }
+        if (d.kpi && d.kpi[i] !== null && d.kpi[i] !== undefined) k += d.kpi[i];
+      }
+      if (!coT) return;
+      dt += t; kpi += k; co++;
+    });
+    return co ? { dt: dt, kpi: kpi, soCN: co, ten: 'quý ' + (quyNay() + 1) } : null;
+  }
+
   function tongKQ() {
     var dt = 0, kpi = 0, cu = 0, co = 0, loai = {};
-    Object.keys(FILE).forEach(function (ma) {
+    dsCN().forEach(function (ma) {
       var k = DU.kqkd[ma];
       if (!k || k.loi || k.dt === null) return;
       co++; dt += k.dt; if (k.kpi) kpi += k.kpi; if (k.cungKy) cu += k.cungKy;
@@ -176,8 +238,65 @@
         loai[l.ma].tien += l.tien;
       });
     });
-    return co ? { dt: dt, kpi: kpi, cu: cu, soCN: co, loai: loai } : null;
+    if (!co) return null;
+    var thang = { dt: dt, kpi: kpi, cu: cu, soCN: co, loai: loai, ten: 'tháng ' + (thangNay() + 1) };
+    if (LOC.ky === 'thang') return thang;
+
+    var ky = (LOC.ky === 'tuan') ? tongTuan() : tongQuy();
+    if (!ky) return thang;
+    /* phần nhóm dịch vụ ước theo tỉ trọng tháng */
+    var ti = dt ? ky.dt / dt : 1, loai2 = {};
+    Object.keys(loai).forEach(function (m) {
+      loai2[m] = { ten: loai[m].ten, tien: loai[m].tien * ti };
+    });
+    return { dt: ky.dt, kpi: ky.kpi, cu: 0, soCN: ky.soCN, loai: loai2,
+             ten: ky.ten, uoc: LOC.ky !== 'thang' };
   }
+
+  /* ---------- thanh chọn chi nhánh và kỳ cho 2 tab phân tích ---------- */
+  var KY = [['tuan', 'Tuần'], ['thang', 'Tháng'], ['quy', 'Quý']];
+  var CNS = [['TAT', 'TẤT CẢ'], ['CN1', 'PHI LONG 1'], ['CN2', 'PHI LONG 2'], ['CN3', 'PHI LONG 3']];
+
+  function veThanh(man) {
+    var sec = document.getElementById('sc-' + man);
+    if (!sec) return;
+    var h1 = sec.querySelector('h1');
+    if (!h1 || !h1.parentNode) return;
+    var t = sec.querySelector('[data-tabloc]');
+    if (!t) {
+      t = document.createElement('div');
+      t.setAttribute('data-tabloc', man);
+      var sau = document.getElementById('tk-lech');
+      var moc = (sau && sec.contains(sau)) ? sau : h1;
+      moc.parentNode.insertBefore(t, moc.nextSibling);
+    }
+    function nut(loai, ma, chu, bat) {
+      return '<button type="button" data-tk="' + loai + '" data-ma="' + ma + '" '
+        + 'style="cursor:pointer;border:1px solid ' + (bat ? '#2F75B5' : '#D9E2EC')
+        + ';background:' + (bat ? '#2F75B5' : '#FFFFFF') + ';color:' + (bat ? '#FFFFFF' : '#5F6B7A')
+        + ';font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px;'
+        + 'font-family:inherit;white-space:nowrap">' + chu + '</button>';
+    }
+    t.setAttribute('style', 'display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:5px');
+    t.innerHTML =
+      '<span style="font-size:10px;font-weight:800;color:#5F6B7A;letter-spacing:.3px">KỲ</span>'
+      + KY.map(function (x) { return nut('ky', x[0], x[1], LOC.ky === x[0]); }).join('')
+      + '<span style="width:1px;height:16px;background:#D9E2EC;margin:0 2px"></span>'
+      + '<span style="font-size:10px;font-weight:800;color:#5F6B7A;letter-spacing:.3px">CHI NHÁNH</span>'
+      + CNS.map(function (x) { return nut('cn', x[0], x[1], LOC.cn === x[0]); }).join('');
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-tk]') : null;
+    if (!b) return;
+    var loai = b.getAttribute('data-tk');
+    if (loai === 'ky') LOC.ky = b.getAttribute('data-ma');
+    else LOC.cn = b.getAttribute('data-ma');
+    luuLoc();
+    /* buộc vẽ lại khối cơ cấu */
+    $$('[data-kq]').forEach(function (x) { x.removeAttribute('data-kq'); });
+    ve();
+  }, true);
 
   function veChiNhanh() {
     var sec = document.getElementById('sc-TabChiNhanh');
@@ -189,7 +308,7 @@
       var cha = o.parentNode;
       /* vẽ lại khi số chi nhánh đọc được thay đổi — vẽ một lần duy nhất
          sẽ chốt tỉ lệ theo số của chi nhánh về trước, sai hoàn toàn */
-      var dau = 'cn' + t.soCN;
+      var dau = 'cn' + t.soCN + '.' + LOC.cn + '.' + LOC.ky;
       if (cha.getAttribute('data-kq') !== dau) {
         cha.setAttribute('data-kq', dau);
         while (o.nextElementSibling) cha.removeChild(o.nextElementSibling);
@@ -207,10 +326,15 @@
     }
     /* dòng so cùng kỳ 2025 — thông tin KQKD có mà KPI ngày không có */
     var h1 = sec.querySelector('h1');
-    if (h1 && t.cu) {
-      var tg = Math.round((t.dt - t.cu) / t.cu * 100);
-      h1.textContent = 'Phân tích chi nhánh · nguồn KQKD tháng · so cùng kỳ 2025: '
-        + (tg >= 0 ? '+' : '') + tg + '%';
+    if (h1) {
+      var ten = LOC.cn === 'TAT' ? 'cả 3 chi nhánh' : TEN_CN[LOC.cn];
+      var chu = 'Phân tích ' + ten + ' · ' + (t.ten || '');
+      if (t.cu) {
+        var tg = Math.round((t.dt - t.cu) / t.cu * 100);
+        chu += ' · so cùng kỳ 2025: ' + (tg >= 0 ? '+' : '') + tg + '%';
+      }
+      if (t.uoc) chu += ' · nhóm dịch vụ ước theo tỉ trọng tháng';
+      h1.textContent = chu;
     }
   }
 
@@ -318,6 +442,7 @@
   }
 
   function ve() {
+    try { veThanh('TabChiNhanh'); veThanh('TabTongKet'); } catch (e) { }
     try { veChiNhanh(); } catch (e) { }
     try { veTongKet(); } catch (e) { }
     try { traSoat(); } catch (e) { }
