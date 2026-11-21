@@ -172,7 +172,7 @@ function lan(o){
               : (o.chuan > 0 ? Math.round(o.giaTri / o.chuan * 100) : 0);
   var pct = Math.max(0, Math.min(pctThat, 100));
   return '' +
-  '<div style="display:flex;align-items:center;gap:10px;height:44px">' +
+  '<div style="display:flex;align-items:center;gap:10px;height:36px">' +
     '<div style="width:26px;text-align:center;font-size:20px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
       '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
@@ -190,7 +190,7 @@ function lan(o){
   '</div>';
 }
 function khoi(tieu, phu, noi){
-  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:8px 14px 6px">' +
+  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:6px 12px 5px">' +
     '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:2px">' +
       '<div style="font-size:12px;font-weight:800;color:#2F75B5;letter-spacing:.6px">' + tieu + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A">' + phu + '</div>' +
@@ -213,9 +213,9 @@ function ngan_(t){ return (t || '').trim().split(' ').slice(-2).join(' '); }
 function oVinh(ico, nhan, ten, so, phu){
   return '' +
   '<div style="flex:1;min-width:0;background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;' +
-         'padding:8px 10px;display:flex;flex-direction:column;gap:2px">' +
+         'padding:6px 9px;display:flex;flex-direction:column;gap:1px">' +
     '<div style="font-size:11px;font-weight:700;color:#5F6B7A;letter-spacing:.3px">' + ico + ' ' + nhan + '</div>' +
-    '<div style="font-size:15px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;' +
+    '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;' +
            'text-overflow:ellipsis">' + (ten || '—') + '</div>' +
     '<div style="font-size:13px;font-weight:800;color:#2F75B5">' + (so || '—') + '</div>' +
     (phu ? '<div style="font-size:10px;color:#9AA7B5">' + phu + '</div>' : '') +
