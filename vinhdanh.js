@@ -212,7 +212,7 @@ function lan(o){
        ' style="display:flex;align-items:center;gap:10px;height:74px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
     '<div style="width:34px;text-align:center;font-size:30px;line-height:1">' + (o.huy || '') + '</div>' +
-    '<div style="width:214px;min-width:214px">' +
+    '<div style="width:268px;min-width:268px">' +
       '<div style="font-size:19px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
