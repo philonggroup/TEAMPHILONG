@@ -155,7 +155,13 @@ function docKpiCn(cn){
         var last = -1;
         for (k = 0; k < r.length; k++) { if (/%/.test(r[k] || '')) last = k; }
         if (last > 0) cot = last - 1;
-        if (cot >= 0) return { cn:cn, kpi:soVN(r[cot]) || 0, dat:soVN(r[cot + 2]) || 0 };
+        if (cot < 0) continue;
+        var bg = 0;
+        for (var m = 0; m < R.length; m++) {
+          var rb = R[m], kb = (rb[0] || '') + ' ' + (rb[1] || '');
+          if (/B[áa]o\s*Gi[áa]/i.test(kb)) { bg = soVN(rb[cot + 2]) || 0; break; }
+        }
+        return { cn:cn, kpi:soVN(r[cot]) || 0, dat:soVN(r[cot + 2]) || 0, baogia:bg };
       }
       return null;
     }).catch(function (e) { loi = e.message || String(e); return thu(); });
@@ -316,8 +322,26 @@ function daiTren(d){
             ' lượt xe phục vụ <span style="color:#9AA7B5;font-weight:400">(' + phu2('luot') + ' có nhập)</span>'
           : 'chưa có số lượt xe');
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
-  return '<div style="display:flex;gap:9px;align-items:stretch">' +
-    oTren('🔥', 'BỨT TỐC MẠNH NHẤT · KỸ THUẬT VIÊN', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
+  /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
+  var luotKd = dinhNhat(d.kd, 'luot');
+  function phuKd(f){ return d.kd.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kd.length; }
+  var bgTop = null;
+  if (KPI_CN) Object.keys(KPI_CN).forEach(function (c) {
+    if (CN_LOC && c !== CN_LOC) return;
+    var x = KPI_CN[c];
+    if (x && x.baogia > 0 && (!bgTop || x.baogia > bgTop.baogia)) bgTop = x;
+  });
+  var butTocKd =
+    '🚗 ' + (luotKd ? '<b>' + ngan_(luotKd.ten) + '</b> · ' + Math.round(luotKd.luot) +
+            ' lượt xe phục vụ <span style="color:#9AA7B5;font-weight:400">(' + phuKd('luot') + ' có nhập)</span>'
+          : 'chưa có số lượt xe') +
+    '<br>📄 ' + (bgTop ? '<b>' + TEN_CN[bgTop.cn] + '</b> · ' + Math.round(bgTop.baogia) +
+            ' báo giá <span style="color:#9AA7B5;font-weight:400">(theo chi nhánh)</span>'
+          : '<span style="color:#B4600A">báo giá: file KPI chưa có dòng theo từng người</span>');
+
+  return '<div style="display:flex;gap:8px;align-items:stretch">' +
+    oTren('🔥', 'BỨT TỐC · KỸ THUẬT VIÊN', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
+    oTren('🔥', 'BỨT TỐC · KINH DOANH', butTocKd, '#2F75B5', 'linear-gradient(135deg,#EAF2FB,#D7E6F7)') +
     oTren('🏆', 'ĐANG GIỮ CÚP VÀNG', cupTxt, '#F2B705', 'linear-gradient(135deg,#FFF8E1,#FFEFBF)') +
   '</div>';
 }
