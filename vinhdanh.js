@@ -161,7 +161,17 @@ function docKpiCn(cn){
           var rb = R[m], kb = (rb[0] || '') + ' ' + (rb[1] || '');
           if (/B[áa]o\s*Gi[áa]/i.test(kb)) { bg = soVN(rb[cot + 2]) || 0; break; }
         }
-        return { cn:cn, kpi:soVN(r[cot]) || 0, dat:soVN(r[cot + 2]) || 0, baogia:bg };
+        var nds = 0;
+        for (var q = 0; q < R.length; q++) {
+          var rq = R[q], kq2 = (rq[0] || '') + ' ' + (rq[1] || '');
+          if (!/ngày đã đóng sổ/i.test(kq2)) continue;
+          for (var z = 2; z < rq.length; z++) {
+            var mm = String(rq[z] || '').match(/(\d+)\s*\/\s*\d+/);
+            if (mm) { nds = parseInt(mm[1], 10); break; }
+          }
+          break;
+        }
+        return { cn:cn, kpi:soVN(r[cot]) || 0, dat:soVN(r[cot + 2]) || 0, baogia:bg, ngayDongSo:nds };
       }
       return null;
     }).catch(function (e) { loi = e.message || String(e); return thu(); });
@@ -293,6 +303,25 @@ function nutCn(){
     }).join('') + '</div>';
 }
 
+/* KPI phiếu kiểm tra an toàn: 2 phiếu/ngày × số ngày đi làm (bỏ Chủ nhật).
+   Tracy chốt 21/11/2026: chỉ vinh danh người ĐÃ ĐẠT KPI và có số phiếu cao nhất. */
+var PKT_NGAY = 2;
+function soNgayDiLam(){
+  var n = 0, thang = null, nam = null;
+  if (KPI_CN) Object.keys(KPI_CN).forEach(function (c) {
+    var x = KPI_CN[c];
+    if (x && x.ngayDongSo > n) n = x.ngayDongSo;
+  });
+  var hom = new Date();
+  thang = hom.getMonth(); nam = hom.getFullYear();
+  if (!n) n = Math.max(1, hom.getDate() - 1);           /* chưa đọc được thì lấy tới hôm qua */
+  var lam = 0;
+  for (var i = 1; i <= n; i++) {
+    if (new Date(nam, thang, i).getDay() !== 0) lam++;   /* 0 = Chủ nhật */
+  }
+  return { ngay:n, lam:lam, nguong:lam * PKT_NGAY };
+}
+
 function daiTren(d){
   var hang = [
     { ds:d.kd, f:'lop',  chuan:CHUAN.lop,      ten:'lốp' },
@@ -312,7 +341,9 @@ function daiTren(d){
   });
   function f0(h){ return h.f; }
   /* 🔥 BỨT TỐC = 2 chỉ số sức làm của KTV */
-  var pkt = dinhNhat(d.kt, 'pkt'), luot = dinhNhat(d.kt, 'luot');
+  var NG = soNgayDiLam();
+  var datKpi = d.kt.filter(function (r) { return (r.pkt || 0) >= NG.nguong; });
+  var pkt = dinhNhat(datKpi, 'pkt'), luot = dinhNhat(d.kt, 'luot');
   function phu2(f){ return d.kt.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kt.length; }
   var mo = 'color:#FFD9BF;font-weight:400;font-size:13px';
   function dongLua(ico, r, f, dvi, nhan){
@@ -325,8 +356,12 @@ function daiTren(d){
       ' · <b>' + Math.round(r[f]) + '</b> ' + nhan +
       ' <span style="' + mo + '">(' + phu2(f) + ' có nhập)</span></span>';
   }
-  var butToc = dongLua('🔧', pkt, 'pkt', 'phiếu', 'phiếu kiểm tra an toàn') +
-               '<br>' + dongLua('🚗', luot, 'luot', 'lượt', 'lượt xe phục vụ');
+  var chuThich = ' <span style="' + mo + '">· KPI ' + PKT_NGAY + ' phiếu/ngày × ' +
+                 NG.lam + ' ngày đi làm = cần ≥ ' + NG.nguong + '</span>';
+  var dongPkt = pkt
+    ? dongLua('🔧', pkt, 'pkt', 'phiếu', 'phiếu kiểm tra an toàn') + chuThich
+    : '🔧 <b style="font-size:17px">Chưa ai đạt KPI phiếu kiểm tra</b>' + chuThich;
+  var butToc = dongPkt + '<br>' + dongLua('🚗', luot, 'luot', 'lượt', 'lượt xe phục vụ');
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
   /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
   var luotKd = dinhNhat(d.kd, 'luot');
