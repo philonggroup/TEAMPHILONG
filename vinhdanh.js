@@ -192,7 +192,7 @@ function dung(ds){
 /* ---------- vẽ ---------- */
 function tr(v){ return Math.round(v || 0).toLocaleString('vi-VN'); }
 function xe(mau){
-  return '<svg viewBox="0 0 64 30" width="40" height="18" aria-hidden="true">' +
+  return '<svg viewBox="0 0 64 30" width="80" height="37" aria-hidden="true">' +
     '<path d="M3 22h58l-3-7-11-2-7-7H24l-5 7-13 2z" fill="' + mau + '"/>' +
     '<path d="M24 8h13l5 5H21z" fill="#FFFFFF" opacity=".75"/>' +
     '<circle cx="17" cy="24" r="5" fill="#1F2933"/><circle cx="17" cy="24" r="2" fill="#E3EBF5"/>' +
@@ -209,23 +209,23 @@ function lan(o){
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
        ' data-vd-dat="' + (o.dat ? '1' : '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
-       ' style="display:flex;align-items:center;gap:10px;height:28px;cursor:pointer;border-radius:8px"' +
+       ' style="display:flex;align-items:center;gap:10px;height:60px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
-    '<div style="width:26px;text-align:center;font-size:22px;line-height:1">' + (o.huy || '') + '</div>' +
+    '<div style="width:30px;text-align:center;font-size:26px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
-      '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
+      '<div style="font-size:17px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
-    '<div style="flex:1;min-width:0;position:relative;height:24px;background:#E9EFF6;border-radius:12px;overflow:hidden">' +
-      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:12px"></div>' +
+    '<div style="flex:1;min-width:0;position:relative;height:46px;background:#E9EFF6;border-radius:23px;overflow:hidden">' +
+      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:23px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
       '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
         (o.huy ? '<div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);' +
-                 'font-size:11px;line-height:1;text-shadow:0 1px 2px rgba(255,255,255,.9)">' + o.huy + '</div>' : '') +
+                 'font-size:20px;line-height:1;text-shadow:0 1px 2px rgba(255,255,255,.9)">' + o.huy + '</div>' : '') +
         xe(o.mau) + '</div>' +
     '</div>' +
     '<div style="width:118px;min-width:118px;text-align:right">' +
-      '<div style="font-size:16px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
+      '<div style="font-size:26px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
       '<div style="font-size:11px;font-weight:700;line-height:1.25;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
     '</div>' +
   '</div>';
@@ -263,6 +263,44 @@ function oVinh(ico, nhan, ten, so, phu){
   '</div>';
 }
 /* 2 chỉ số KTV gọn trong phụ đề khối — không chiếm thêm dòng */
+/* dải trên cùng: 🔥 BỨT TỐC (% vượt chuẩn cao nhất) + 🏆 CÚP VÀNG các hạng mục */
+function oTren(ico, nhan, noi, vien, nen){
+  return '<div style="flex:1;min-width:0;background:' + nen + ';border:2px solid ' + vien + ';' +
+         'border-radius:12px;padding:7px 13px;display:flex;align-items:center;gap:11px">' +
+    '<div style="font-size:30px;line-height:1">' + ico + '</div>' +
+    '<div style="min-width:0;flex:1">' +
+      '<div style="font-size:11px;font-weight:800;color:#5F6B7A;letter-spacing:.5px">' + nhan + '</div>' +
+      '<div style="font-size:14px;font-weight:800;color:#17365D;line-height:1.3">' + noi + '</div>' +
+    '</div></div>';
+}
+function daiTren(d){
+  var hang = [
+    { ds:d.kd, f:'lop',  chuan:CHUAN.lop,      ten:'lốp' },
+    { ds:d.kd, f:'bdsc', chuan:CHUAN.bdsc,     ten:'BD + SC' },
+    { ds:d.kt, f:'dvl',  chuan:CHUAN.ktDv / 2, ten:'DVL' },
+    { ds:d.kt, f:'dvnl', chuan:CHUAN.ktDv / 2, ten:'DVNL' }
+  ];
+  var cup = [], nhanh = null, caoNhat = 0;
+  hang.forEach(function (h) {
+    var top = h.ds.filter(function (r) { return (r[f0(h)] || 0) > 0 && !r.chuaTach; })
+                  .sort(function (a, b) { return b[f0(h)] - a[f0(h)]; })[0];
+    if (!top) return;
+    var pct = top[f0(h)] / h.chuan * 100;
+    if (pct >= 100) cup.push('<b style="color:#17365D">' + ngan_(top.ten) + '</b> ' +
+                             '<span style="color:#9AA7B5">(' + h.ten + ')</span>');
+    if (pct > caoNhat) { caoNhat = pct; nhanh = { r:top, h:h, pct:pct }; }
+  });
+  function f0(h){ return h.f; }
+  var butToc = nhanh
+    ? '<b>' + ngan_(nhanh.r.ten) + '</b> · ' + nhanh.h.ten + ' ' + Math.round(nhanh.pct) + '% vạch chuẩn'
+    : 'chưa có ai vượt chuẩn';
+  var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
+  return '<div style="display:flex;gap:9px;align-items:stretch">' +
+    oTren('🔥', 'BỨT TỐC MẠNH NHẤT', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
+    oTren('🏆', 'ĐANG GIỮ CÚP VÀNG', cupTxt, '#F2B705', 'linear-gradient(135deg,#FFF8E1,#FFEFBF)') +
+  '</div>';
+}
+
 function phuKtv(d){
   var kt = d.kt;
   var pkt = dinhNhat(kt, 'pkt'), luot = dinhNhat(kt, 'luot');
@@ -385,15 +423,13 @@ function ve(){
   /* 2 · kinh doanh — 2 hạng mục riêng: LỐP (chuẩn 350tr) và BD+SC (chuẩn 100tr) */
   function topHang(f, chuan, nhanDv){
     var ds = d.kd.filter(function (r) { return !r.chuaTach && (r[f] || 0) > 0; })
-                 .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); }).slice(0, 3);
-    var soCup = 0;
+                                  .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); }).slice(0, 1);
     return ds.map(function (r, i) {
       var dat = r[f] >= chuan;
-      var huy = dat ? HUY[soCup++] : '';
       var nhan = dat ? 'QUA VẠCH CHUẨN · ' + Math.round(r[f] / chuan * 100) + '%'
                      : 'còn ' + tr(chuan - r[f]) + 'tr tới chuẩn';
-      return lan({ huy:huy, ten:r.ten, phu:TEN_CN[r.cn] + ' · ' + nhanDv,
-                   mau:MAU_XE[i], giaTri:r[f], chuan:chuan, dat:dat, nhan:nhan });
+      return lan({ huy:dat ? '🥇' : '', ten:r.ten, phu:TEN_CN[r.cn] + ' · ' + nhanDv,
+                   mau:MAU_XE[0], giaTri:r[f], chuan:chuan, dat:dat, nhan:nhan });
     }).join('') || '<div style="padding:6px 0;font-size:12px;color:#9AA7B5">' +
                    'Chưa chi nhánh nào tách dòng tiền này trong file.</div>';
   }
@@ -404,15 +440,14 @@ function ve(){
   /* 3 · kỹ thuật viên — 2 hạng mục riêng: DVL và DVNL */
   function topKt(f, nhanDv){
     var ds = kt0.filter(function (r) { return (r[f] || 0) > 0; })
-                .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); }).slice(0, 3);
-    var chuan = CHUAN.ktDv / 2, soCup = 0;
+                                .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); }).slice(0, 1);
+    var chuan = CHUAN.ktDv / 2;
     return ds.map(function (r, i) {
       var dat = r[f] >= chuan;
-      var huy = dat ? HUY[soCup++] : '';
       var nhan = dat ? 'QUA VẠCH CHUẨN · ' + Math.round(r[f] / chuan * 100) + '%'
                      : 'còn ' + tr(chuan - r[f]) + 'tr tới chuẩn';
-      return lan({ huy:huy, ten:r.ten, phu:TEN_CN[r.cn] + ' · ' + nhanDv,
-                   mau:MAU_XE[(i + 3) % MAU_XE.length], giaTri:r[f], chuan:chuan, dat:dat, nhan:nhan });
+      return lan({ huy:dat ? '🥇' : '', ten:r.ten, phu:TEN_CN[r.cn] + ' · ' + nhanDv,
+                   mau:MAU_XE[2], giaTri:r[f], chuan:chuan, dat:dat, nhan:nhan });
     }).join('') || '<div style="padding:6px 0;font-size:12px;color:#9AA7B5">Chưa có số.</div>';
   }
   var kt0 = d.kt;
@@ -421,13 +456,11 @@ function ve(){
 
   var themKt = Math.max(0, d.kt.length - 3);
   w.innerHTML =
-    khoi('🏁 ĐƯỜNG ĐUA CHI NHÁNH', 'Vạch đích = 100% KPI doanh thu tháng của chính chi nhánh', h1) +
-    khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 3', 'Vạch chuẩn tháng 350tr' +
-         (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
-    khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 3', 'Vạch chuẩn tháng 100tr', h2b) +
-    khoi('🔧 VINH DANH KTV · DOANH THU DVL · TOP 3', 'Vạch chuẩn tháng 10tr' +
-         (themKt ? ' · còn ' + themKt + ' người đang chạy' : ''), h3a) +
-    khoi('🔧 VINH DANH KTV · DOANH THU DVNL · TOP 3', 'Vạch chuẩn tháng 10tr' + phuKtv(d), h3b);
+    daiTren(d) +
+    khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 1', 'Vạch chuẩn tháng 350tr' + (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
+    khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 1', 'Vạch chuẩn tháng 100tr', h2b) +
+    khoi('🔧 VINH DANH KTV · DOANH THU DVL · TOP 1', 'Vạch chuẩn tháng 10tr', h3a) +
+    khoi('🔧 VINH DANH KTV · DOANH THU DVNL · TOP 1', 'Vạch chuẩn tháng 10tr' + phuKtv(d), h3b);
   veDau();
   ganChucMung();
 }
