@@ -1010,7 +1010,8 @@ function napLive() {
     window.DU_LIEU = j;
     apToanCanh(j);
     apChiTiet(j);
-    apViecTuanTruoc(j);
+    /* bước 2 nay đọc thẳng CSV trong viectuan.js, live hơn và không lọc hẹp theo hạn */
+    if (!window.PLG_B2_CSV) apViecTuanTruoc(j);
     apChotViec(j);
     if (window.PLG_B6) window.PLG_B6(j);      /* Bước 6 · bảng chốt việc số thật */
     apSidebar(j);
@@ -2040,5 +2041,6 @@ function kiemVinhDanh() {
   <script src="tabsolieu.js?v=4"></script>
   <script src="manphone.js?v=2"></script>
   <script src="kqkd.js?v=5"></script>
+  <script src="viectuan.js?v=1"></script>
 </body>
 </html>
