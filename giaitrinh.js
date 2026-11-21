@@ -53,7 +53,32 @@
     });
   }
 
-  function chay() { MAN.forEach(lamMan); }
+  /* nút xoá nội dung gõ tay của màn đang xem — để dọn số/chữ gõ thử */
+  function themNutXoa(manId) {
+    var sec = document.getElementById('sc-' + manId);
+    if (!sec || sec.querySelector('[data-gt-xoa]')) return;
+    var chu = null;
+    Array.prototype.slice.call(sec.querySelectorAll('div')).forEach(function (d) {
+      if (!d.children.length && gon(d.textContent).indexOf('Bấm vào ô gạch chân') === 0) chu = d;
+    });
+    if (!chu) return;
+    var a = document.createElement('a');
+    a.setAttribute('data-gt-xoa', '1');
+    a.href = 'javascript:void 0';
+    a.textContent = ' · Xoá nội dung gõ tay của màn này';
+    a.style.color = '#9B1C1C';
+    a.style.textDecoration = 'none';
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      Array.prototype.slice.call(sec.querySelectorAll('[data-gt]')).forEach(function (el) {
+        el.textContent = '';
+        try { localStorage.removeItem(khoa(manId, el.getAttribute('data-gt'))); } catch (x) { }
+      });
+    });
+    chu.appendChild(a);
+  }
+
+  function chay() { MAN.forEach(function (m) { lamMan(m); themNutXoa(m); }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', chay);
   else chay();
   setInterval(chay, 4000);   /* số live vẽ lại bảng thì gắn lại */
