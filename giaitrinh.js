@@ -200,3 +200,74 @@
   else gan();
   setInterval(gan, 4000);
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   NÚT CHỌN CHI NHÁNH — Bước 5 · Cần hỗ trợ
+   Tracy chốt 21/11/2026: khi họp bấm tên một chi nhánh thì thẻ đó
+   chiếm full màn để cả phòng cùng nhìn và thảo luận; bấm TẤT CẢ thì
+   trở lại 3 thẻ cạnh nhau.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  var CHON = null;   /* null = tất cả */
+
+  function cacThe() {
+    return Array.prototype.slice.call(document.querySelectorAll('[data-b5]'));
+  }
+  function tenThe(i) {
+    var el = document.querySelector('[data-k="ht.c' + i + '.cn"]');
+    var t = el ? (el.textContent || '').trim() : '';
+    return (t && t !== '—') ? t : 'Thẻ ' + (i + 1);
+  }
+
+  function apDung() {
+    cacThe().forEach(function (the) {
+      var i = parseInt(the.getAttribute('data-b5'), 10);
+      var hien = (CHON === null || CHON === i);
+      the.style.display = hien ? 'flex' : 'none';
+      /* một thẻ chiếm full màn thì chữ to lên cho cả phòng đọc */
+      the.style.fontSize = (CHON === i) ? '15px' : '';
+      var ten = the.querySelector('[data-k^="ht.c"][data-k$=".cn"]');
+      if (ten) ten.style.fontSize = (CHON === i) ? '24px' : '17px';
+      var hoi = the.querySelector('[data-gt^="B5 câu hỏi"]');
+      if (hoi) hoi.style.fontSize = (CHON === i) ? '21px' : '15px';
+    });
+    Array.prototype.slice.call(document.querySelectorAll('[data-b5-nut]')).forEach(function (n) {
+      var v = n.getAttribute('data-b5-nut');
+      var la = (v === '' && CHON === null) || (v !== '' && CHON === parseInt(v, 10));
+      n.style.background = la ? '#2F75B5' : '#FFFFFF';
+      n.style.color = la ? '#FFFFFF' : '#5F6B7A';
+      n.style.borderColor = la ? '#2F75B5' : '#D9E2EC';
+    });
+  }
+
+  function dungNut() {
+    var hop = document.getElementById('b5-nut');
+    if (!hop || !cacThe().length) return;
+    var can = [['', 'TẤT CẢ'], ['0', tenThe(0)], ['1', tenThe(1)], ['2', tenThe(2)]];
+    var cu = Array.prototype.slice.call(hop.querySelectorAll('[data-b5-nut]'));
+    if (cu.length === 4) {                       /* chỉ cập nhật nhãn khi tên live đổi */
+      cu.forEach(function (n, k) { if (n.textContent !== can[k][1]) n.textContent = can[k][1]; });
+      return;
+    }
+    cu.forEach(function (n) { n.parentNode.removeChild(n); });
+    can.forEach(function (x) {
+      var b = document.createElement('button');
+      b.setAttribute('data-b5-nut', x[0]);
+      b.type = 'button';
+      b.textContent = x[1];
+      b.style.cssText = 'cursor:pointer;border:1px solid #D9E2EC;background:#FFFFFF;color:#5F6B7A;' +
+        'font-size:11px;font-weight:700;padding:3px 12px;border-radius:999px;font-family:inherit';
+      b.addEventListener('click', function () {
+        CHON = (x[0] === '') ? null : parseInt(x[0], 10);
+        apDung();
+      });
+      hop.appendChild(b);
+    });
+    apDung();
+  }
+
+  function chay() { dungNut(); apDung(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', chay);
+  else chay();
+  setInterval(chay, 3000);
+})();
