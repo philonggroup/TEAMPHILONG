@@ -179,7 +179,8 @@ function dung(ds){
       } else {
         var dv = p.dvl + p.dvnl;
         if (dv <= 0 && p.tong <= 0 && p.ld <= 0) return;
-        kt.push({ ten:p.ten, cn:p.cn, dv:dv, ld:p.ld, tong:Math.max(p.tong, dv), pkt:p.pkt, luot:p.luot });
+        kt.push({ ten:p.ten, cn:p.cn, dv:dv, dvl:p.dvl, dvnl:p.dvnl, ld:p.ld,
+                  tong:Math.max(p.tong, dv), pkt:p.pkt, luot:p.luot });
       }
     });
   });
@@ -420,7 +421,7 @@ function ve(){
 
   var themKt = Math.max(0, d.kt.length - 3);
   w.innerHTML =
-    khoi('🏁 ĐƯỜNG ĐUA CHI NHÁNH', 'Vạch đích = chi nhánh đang dẫn đầu', h1) +
+    khoi('🏁 ĐƯỜNG ĐUA CHI NHÁNH', 'Vạch đích = 100% KPI doanh thu tháng của chính chi nhánh', h1) +
     khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 3', 'Vạch chuẩn tháng 350tr' +
          (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
     khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 3', 'Vạch chuẩn tháng 100tr', h2b) +
