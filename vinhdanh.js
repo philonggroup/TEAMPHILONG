@@ -160,7 +160,7 @@ function dung(ds){
 /* ---------- vẽ ---------- */
 function tr(v){ return Math.round(v || 0).toLocaleString('vi-VN'); }
 function xe(mau){
-  return '<svg viewBox="0 0 64 30" width="58" height="27" aria-hidden="true">' +
+  return '<svg viewBox="0 0 64 30" width="54" height="25" aria-hidden="true">' +
     '<path d="M3 22h58l-3-7-11-2-7-7H24l-5 7-13 2z" fill="' + mau + '"/>' +
     '<path d="M24 8h13l5 5H21z" fill="#FFFFFF" opacity=".75"/>' +
     '<circle cx="17" cy="24" r="5" fill="#1F2933"/><circle cx="17" cy="24" r="2" fill="#E3EBF5"/>' +
@@ -176,18 +176,19 @@ function lan(o){
   '<div class="vd-lan" data-vd-ten="' + (o.ten || '').replace(/"/g, '') + '"' +
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
-       ' style="display:flex;align-items:center;gap:10px;height:44px;cursor:pointer;border-radius:8px"' +
+       ' style="display:flex;align-items:center;gap:10px;height:40px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
     '<div style="width:26px;text-align:center;font-size:22px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
       '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
-    '<div style="flex:1;min-width:0;position:relative;height:36px;background:#E9EFF6;border-radius:18px;overflow:hidden">' +
+    '<div style="flex:1;min-width:0;position:relative;height:33px;background:#E9EFF6;border-radius:17px;overflow:hidden">' +
       '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:18px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
-      '<div style="position:absolute;top:3px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
-        (o.huy ? '<div style="font-size:14px;line-height:1;margin-bottom:-4px">' + o.huy + '</div>' : '') +
+      '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
+        (o.huy ? '<div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);' +
+                 'font-size:13px;line-height:1;text-shadow:0 1px 2px rgba(255,255,255,.9)">' + o.huy + '</div>' : '') +
         xe(o.mau) + '</div>' +
     '</div>' +
     '<div style="width:118px;min-width:118px;text-align:right">' +
@@ -197,7 +198,7 @@ function lan(o){
   '</div>';
 }
 function khoi(tieu, phu, noi){
-  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:6px 12px 5px">' +
+  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:5px 12px 4px">' +
     '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:2px">' +
       '<div style="font-size:12px;font-weight:800;color:#2F75B5;letter-spacing:.6px">' + tieu + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A">' + phu + '</div>' +
