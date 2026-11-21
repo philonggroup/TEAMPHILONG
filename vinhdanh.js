@@ -315,13 +315,18 @@ function daiTren(d){
   var pkt = dinhNhat(d.kt, 'pkt'), luot = dinhNhat(d.kt, 'luot');
   function phu2(f){ return d.kt.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kt.length; }
   var mo = 'color:#FFD9BF;font-weight:400;font-size:13px';
-  var butToc =
-    '🔧 ' + (pkt ? '<b style="font-size:21px">' + ngan_(pkt.ten) + '</b> · <b>' + Math.round(pkt.pkt) +
-            '</b> phiếu kiểm tra an toàn <span style="' + mo + '">(' + phu2('pkt') + ' có nhập)</span>'
-          : 'chưa có số phiếu kiểm tra') +
-    '<br>🚗 ' + (luot ? '<b style="font-size:21px">' + ngan_(luot.ten) + '</b> · <b>' + Math.round(luot.luot) +
-            '</b> lượt xe phục vụ <span style="' + mo + '">(' + phu2('luot') + ' có nhập)</span>'
-          : 'chưa có số lượt xe');
+  function dongLua(ico, r, f, dvi, nhan){
+    if (!r) return ico + ' chưa có số ' + nhan;
+    return '<span class="vd-lua" data-lua-ten="' + (r.ten || '').replace(/"/g, '').trim() +
+           '" data-lua-so="' + Math.round(r[f]) + ' ' + dvi +
+           '" data-lua-phu="' + TEN_CN[r.cn] + ' · ' + nhan + '" style="cursor:pointer">' +
+      ico + ' <b style="font-size:21px;display:inline-block;transform-origin:left center;' +
+             'animation:vdTen .95s cubic-bezier(.22,1.2,.36,1) both">' + ngan_(r.ten) + '</b>' +
+      ' · <b>' + Math.round(r[f]) + '</b> ' + nhan +
+      ' <span style="' + mo + '">(' + phu2(f) + ' có nhập)</span></span>';
+  }
+  var butToc = dongLua('🔧', pkt, 'pkt', 'phiếu', 'phiếu kiểm tra an toàn') +
+               '<br>' + dongLua('🚗', luot, 'luot', 'lượt', 'lượt xe phục vụ');
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
   /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
   var luotKd = dinhNhat(d.kd, 'luot');
@@ -351,8 +356,9 @@ function daiTren(d){
     '<div style="display:flex;align-items:center;gap:16px;padding:11px 20px;border-radius:14px;' +
            'background:linear-gradient(118deg,#FF7A18,#E8431B 55%,#B4210A);' +
            'box-shadow:0 7px 22px rgba(232,67,27,.35)">' +
-      '<div style="font-size:46px;line-height:1;animation:vdNhun 1.3s ease-in-out infinite;' +
-             'filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))">🔥</div>' +
+      '<div style="font-size:46px;line-height:1;transform-origin:center;' +
+             'animation:vdTen .95s cubic-bezier(.22,1.2,.36,1) both, vdNhun 1.3s ease-in-out 1s infinite;' +
+             'filter:drop-shadow(0 3px 7px rgba(0,0,0,.35))">🔥</div>' +
       '<div style="min-width:0;flex:1">' +
         '<div style="font-size:12px;font-weight:900;color:#FFE9D6;letter-spacing:2.5px">' +
           'BỨT TỐC MẠNH NHẤT · KỸ THUẬT VIÊN</div>' +
@@ -404,6 +410,7 @@ function daiVinhDanh(d){
 /* ═══════ 🐉 CHÚC MỪNG — bấm vào người được vinh danh ═══════ */
 /* icon cảm xúc Phi Long theo thành tích — bộ stickers/ trong repo */
 function iconCamXuc(huy, dat){
+  if (huy === '🔥') return { lua:true, loi:'BỨT TỐC MẠNH NHẤT · KỸ THUẬT VIÊN' };
   if (huy === '🥇') return { anh:'PL_33_cup_vang.png',   loi:'CÚP VÀNG — SỐ MỘT HỆ THỐNG' };
   if (huy === '🥈') return { anh:'PL_14_an_mung.png',    loi:'CÚP BẠC — ĂN MỪNG NÀO' };
   if (huy === '🥉') return { anh:'PL_14_an_mung.png',    loi:'CÚP ĐỒNG — ĂN MỪNG NÀO' };
@@ -424,8 +431,11 @@ function moChucMung(ten, huy, so, phu, dat){
     '<div style="position:relative;max-width:620px;padding:24px 34px;border-radius:18px;text-align:center;' +
            'background:linear-gradient(160deg,#FFFFFF,#F2F7FD);border:3px solid #F2B705;' +
            'box-shadow:0 18px 50px rgba(0,0,0,.35);animation:vdZoom .28s ease-out">' +
-      '<img src="stickers/' + ic.anh + '" alt="" style="width:132px;height:132px;object-fit:contain;' +
-             'filter:drop-shadow(0 6px 14px rgba(0,0,0,.25));animation:vdNhun 1.1s ease-in-out infinite">' +
+      (ic.lua
+        ? '<div style="font-size:112px;line-height:1.05;animation:vdTen .95s cubic-bezier(.22,1.2,.36,1) both,' +
+          ' vdNhun 1.1s ease-in-out 1s infinite;filter:drop-shadow(0 6px 14px rgba(232,67,27,.45))">🔥</div>'
+        : '<img src="stickers/' + ic.anh + '" alt="" style="width:132px;height:132px;object-fit:contain;' +
+             'filter:drop-shadow(0 6px 14px rgba(0,0,0,.25));animation:vdNhun 1.1s ease-in-out infinite">') +
       '<div style="margin-top:4px;font-size:13px;font-weight:800;color:#B4600A;letter-spacing:2px">' +
         'CHÚC MỪNG' + (huy ? ' ' + huy : '') + '</div>' +
       '<div style="font-size:12px;font-weight:700;color:#1E6B3A;letter-spacing:1px">' + ic.loi + '</div>' +
@@ -460,6 +470,12 @@ function ganChucMung(){
   document.addEventListener('click', function (e) {
     var n = e.target.closest && e.target.closest('.vd-nut-cn');
     if (n) { CN_LOC = n.getAttribute('data-cn') || ''; ve(); return; }
+    var lu = e.target.closest && e.target.closest('.vd-lua');
+    if (lu) {
+      moChucMung(lu.getAttribute('data-lua-ten'), '🔥', lu.getAttribute('data-lua-so'),
+                 lu.getAttribute('data-lua-phu'), '1');
+      return;
+    }
     var l = e.target.closest && e.target.closest('.vd-lan');
     if (!l) return;
     moChucMung(l.getAttribute('data-vd-ten'), l.getAttribute('data-vd-huy'),
