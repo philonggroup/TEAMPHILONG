@@ -358,10 +358,10 @@ function daiTren(d){
   }
   var chuThich = ' <span style="' + mo + '">· KPI ' + PKT_NGAY + ' phiếu/ngày × ' +
                  NG.lam + ' ngày đi làm = cần ≥ ' + NG.nguong + '</span>';
-  var dongPkt = pkt
-    ? dongLua('🔧', pkt, 'pkt', 'phiếu', 'phiếu kiểm tra an toàn') + chuThich
-    : '🔧 <b style="font-size:17px">Chưa ai đạt KPI phiếu kiểm tra</b>' + chuThich;
-  var butToc = dongPkt + '<br>' + dongLua('🚗', luot, 'luot', 'lượt', 'lượt xe phục vụ');
+  /* chưa ai đạt KPI phiếu thì ẩn hẳn dòng đó, không ghi thông báo */
+  var dongPkt = pkt ? dongLua('🔧', pkt, 'pkt', 'phiếu', 'phiếu kiểm tra an toàn') + chuThich : '';
+  var dongLuot = dongLua('🚗', luot, 'luot', 'lượt', 'lượt xe phục vụ');
+  var butToc = dongPkt ? dongPkt + '<br>' + dongLuot : dongLuot;
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
   /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
   var luotKd = dinhNhat(d.kd, 'luot');
