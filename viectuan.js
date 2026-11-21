@@ -56,10 +56,14 @@
           var tt = gon(v[i][c['trang_thai']]).replace(/^\d+\./, '').trim();
           var d = ngay(v[i][c['deadline']]);
           var m = ten.match(/^(CN[123])\s*·\s*/);
+          var way = gon(v[i][c['loai_cong_viec']]);
+          var mw = way.match(/Way\s*(\d)/i);
           ra.push({
             ai: gon(v[i][c['ho_va_ten']]) || gon(v[i][c['phong_ban']]) || '',
             viec: m ? ten.slice(m[0].length) : ten,
             cn: m ? m[1] : 'KHAC',
+            way: mw ? +mw[1] : null,
+            tenWay: way,
             chiSo: gon(v[i][c['ten_khach_hang']]),
             han: d ? (d.getDate() + '/' + (d.getMonth() + 1)) : '',
             ngayHan: d,
@@ -68,7 +72,11 @@
             tre: !xong(tt) && d && d < homNay
           });
         }
-        DS = ra; loi = null; ve();
+        DS = ra; loi = null;
+        /* chia sẻ cho Bước 5 và Bước 6: ai phụ trách way nào ở chi nhánh nào,
+           lấy đúng từ bảng CONG_VIEC của app chứ không gán tay */
+        window.PLG_CONGVIEC = ra;
+        ve();
       })
       .catch(function (e) { loi = '' + (e.message || e); ve(); });
   }

@@ -87,6 +87,35 @@
     return ra;
   }
 
+  /* tìm người phụ trách và chỉ số của chiến lược, dựa trên bảng CONG_VIEC */
+  function guessWay(chu, cn) {
+    var ds = window.PLG_CONGVIEC || [];
+    if (!ds.length) return { ai: '', han: '', do: '' };
+    var t = chu.toLowerCase();
+    /* 1 · chiến lược ghi rõ "Way n" thì theo way đó */
+    var mw = t.match(/way\s*(\d)/);
+    var ung = ds.filter(function (v) {
+      if (cn !== 'KHAC' && v.cn !== cn) return false;
+      if (mw) return v.way === +mw[1];
+      return true;
+    });
+    /* 2 · không có thì chấm điểm theo từ chung giữa chiến lược và tên việc */
+    if (!mw && ung.length > 1) {
+      var tu = t.split(/[^0-9a-zà-ỹ]+/).filter(function (x) { return x.length > 3; });
+      var tot = null, diem = 0;
+      ung.forEach(function (v) {
+        var n = (v.viec + ' ' + (v.tenWay || '') + ' ' + (v.chiSo || '')).toLowerCase();
+        var d = tu.filter(function (x) { return n.indexOf(x) >= 0; }).length;
+        if (d > diem) { diem = d; tot = v; }
+      });
+      if (tot && diem >= 2) ung = [tot];
+      else ung = [];
+    }
+    var v2 = ung[0];
+    if (!v2) return { ai: '', han: '', do: '' };
+    return { ai: v2.ai || '', han: v2.han || '', do: v2.chiSo || v2.tenWay || '' };
+  }
+
   /* ---------- 2. chiến lược đã tick ở Bước 5 ---------- */
   function docTick() {
     var ra = [], sec = el('sc-GB5HoTro');
@@ -112,7 +141,13 @@
         }
         the = the.parentNode;
       }
-      ra.push({ lam: chu, ai: '', han: '', do: '', tt: 'Chốt tại họp', cn: ma, nguon: 'Bước 5' });
+      /* Tracy chốt 22/11: chiến lược chọn ở Bước 5 phải sang Bước 6 kèm
+         HÀNH ĐỘNG CỤ THỂ và NHÂN SỰ CHÍNH XÁC. Người phụ trách và chỉ số
+         lấy từ bảng CONG_VIEC của app theo đúng Way và đúng chi nhánh,
+         không gán tay. */
+      var g = guessWay(chu, ma);
+      ra.push({ lam: chu, ai: g.ai, han: g.han, do: g.do,
+                tt: 'Chốt tại họp', cn: ma, nguon: 'Bước 5' });
     });
     return ra;
   }
