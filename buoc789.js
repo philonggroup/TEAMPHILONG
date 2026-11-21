@@ -64,10 +64,12 @@
     CN.forEach(function (ma) {
       var th = thang(ma);
       if (!th || !th.chi) return;
-      th.chi.forEach(function (d, k) {
+      /* th.chi là object {0:{kpi,dat}, 1:…} — không phải mảng */
+      Object.keys(th.chi).forEach(function (k) {
+        var d = th.chi[k];
         if (!d || !d.kpi || d.dat === null || d.dat === undefined) return;
         var p = d.dat / d.kpi * 100;
-        if (thap === null || p < thap.p) thap = { p: p, ma: ma, k: k };
+        if (thap === null || p < thap.p) thap = { p: p, ma: ma, k: parseInt(k, 10) };
       });
     });
     if (thap) {
@@ -79,24 +81,22 @@
     }
 
     /* CẢM ƠN — người đang giữ cúp ở Bước 4 */
-    var ten = '', mo = '';
-    var b4 = $1('#sc-GB4VinhDanh');
-    if (b4) {
-      /* tên trên làn xe đầu tiên của hạng mục đầu tiên */
-      var o = b4.querySelector('.vd-ten, [data-vd-ten]');
-      if (o) ten = (o.textContent || '').trim();
-      if (!ten) {
-        var lan = b4.querySelectorAll('[style*="height:60px"]');
-        if (lan.length) {
-          var t = (lan[0].textContent || '').replace(/\s+/g, ' ').trim();
-          var m2 = t.match(/^([^0-9]{3,30})/);
-          if (m2) ten = m2[1].trim();
-        }
+    var ten = '', hang = '';
+    var lan = $$('#sc-GB4VinhDanh .vd-lan');
+    if (lan.length) {
+      var t = (lan[0].textContent || '').replace(/\s+/g, ' ').trim();
+      /* dạng "🥇TÊN NGƯỜI PHI LONG 2 · hạng mục 🥇 563 tr QUA VẠCH" */
+      var m2 = t.replace(/^[^A-ZÀ-Ỹ]+/, '').match(/^([A-ZÀ-Ỹ\u00C0-\u1EF9 ]{3,40}?)\s*(PHI LONG \d.*)$/);
+      if (m2) {
+        ten = m2[1].trim();
+        var m3 = m2[2].match(/PHI LONG \d\s*·\s*([^🥇🏆🔧🛞🛠]+)/);
+        hang = m3 ? m3[1].trim() : '';
       }
     }
-    if (ten && ten !== '—') {
+    if (ten) {
       dat('camon', ten);
-      dat('camon.ten', 'đang giữ cúp ở bước 4 tuần này.');
+      dat('camon.ten', hang ? ('dẫn đầu ' + hang + ' — đang giữ cúp ở bước 4.')
+                            : 'đang giữ cúp ở bước 4 tuần này.');
     } else {
       dat('camon', '—');
       dat('camon.ten', 'chưa có ai đạt chuẩn vinh danh tuần này.');
