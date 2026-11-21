@@ -2303,6 +2303,15 @@ setInterval(function(){ veNguon(); veTinhTrangCN(); if (capNhatNgay()) chay(); }
 <script>
 /* CHỈ SỐ DẪN DẮT CHI NHÁNH — nguồn: tab BÁO CÁO KPI NGÀY T11 của từng chi nhánh */
 (function(){
+  /* 21/11/2026 — Tracy chốt: khối này ĐÃ CHUYỂN sang màn "Giải trình chi nhánh"
+     của giaoban.html (3 nút PHI LONG 1/2/3), nên ẩn ở trang đường đua.
+     Muốn bật lại: đổi HIEN_DD thành true. */
+  var HIEN_DD = false;
+  if (!HIEN_DD) {
+    var cu = document.getElementById('dd-box');
+    if (cu && cu.parentNode) cu.parentNode.removeChild(cu);
+    return;
+  }
   var FILE = {
     CN1:{ id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049'  },
     CN2:{ id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
