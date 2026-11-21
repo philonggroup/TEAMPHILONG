@@ -63,6 +63,24 @@
   /* ---------- 1. đọc việc từ API ---------- */
   function docFile(j) {
     var ra = [];
+    /* Nguồn chính là bảng CONG_VIEC đọc thẳng CSV (viectuan.js) — API
+       lọc hẹp theo hạn nên có lúc trả rỗng, không dùng làm nguồn chính */
+    if ((window.PLG_CONGVIEC || []).length) {
+      window.PLG_CONGVIEC.forEach(function (v) {
+        ra.push({
+          lam: v.viec, ai: v.ai, han: v.han, do: v.chiSo,
+          tt: v.tt, cn: v.cn, nguon: 'CONG_VIEC'
+        });
+      });
+      (j && j.cam_ket || []).forEach(function (v) {
+        ra.push({
+          lam: gon(v.noi_dung), ai: gon(v.ho_va_ten || v.ma_nv),
+          han: gon(v.han), do: gon(v.chi_so), tt: gon(v.trang_thai),
+          cn: gon(v.chi_nhanh) || 'KHAC', nguon: 'HOP_CAM_KET'
+        });
+      });
+      return ra;
+    }
     (j && j.viec_tuan_truoc || []).forEach(function (v) {
       var t = gon(v.viec), ma = 'KHAC', m = t.match(/^(CN\d)\s*·\s*/);
       if (m) { ma = m[1]; t = t.slice(m[0].length); }
@@ -525,8 +543,12 @@
     ve();
   };
 
+  var soCV = 0;
   function thu() {
     veNutCN();
+    /* CSV về muộn hơn API: nạp lại danh sách khi số việc đổi */
+    var n = (window.PLG_CONGVIEC || []).length;
+    if (n !== soCV) { soCV = n; DS = docFile(window.DU_LIEU || {}); if (el('b6-than')) ve(); }
     if (!DS.length && window.DU_LIEU) DS = docFile(window.DU_LIEU);
     if (el('b6-than')) ve();
   }
