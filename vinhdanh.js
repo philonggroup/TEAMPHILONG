@@ -429,7 +429,8 @@ function moChucMung(ten, huy, so, phu, dat){
       '<div style="margin-top:4px;font-size:13px;font-weight:800;color:#B4600A;letter-spacing:2px">' +
         'CHÚC MỪNG' + (huy ? ' ' + huy : '') + '</div>' +
       '<div style="font-size:12px;font-weight:700;color:#1E6B3A;letter-spacing:1px">' + ic.loi + '</div>' +
-      '<div style="margin-top:4px;font-size:40px;font-weight:900;color:#17365D;line-height:1.1">' + ten + '</div>' +
+      '<div style="margin-top:4px;font-size:40px;font-weight:900;color:#17365D;line-height:1.1;' +
+             'transform-origin:center;animation:vdTen 1.05s cubic-bezier(.22,1.2,.36,1) both">' + ten + '</div>' +
       (phu ? '<div style="margin-top:4px;font-size:14px;color:#5F6B7A">' + phu + '</div>' : '') +
       (so  ? '<div style="margin-top:10px;display:inline-block;padding:6px 20px;border-radius:999px;' +
              'background:#F2B705;color:#17365D;font-size:24px;font-weight:900">' + so + '</div>' : '') +
@@ -451,6 +452,9 @@ function ganChucMung(){
   st.id = 'vd-css-zoom';
   st.textContent = '@keyframes vdZoom{from{transform:scale(.72);opacity:0}to{transform:scale(1);opacity:1}}' +
                    '@keyframes vdNhun{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}' +
+                   '@keyframes vdTen{0%{transform:scale(2.6);opacity:0}' +
+                   '45%{transform:scale(1.22);opacity:1}' +
+                   '70%{transform:scale(.94)}100%{transform:scale(1)}}' +
                    '.vd-lan:hover{background:#F4F9FF;box-shadow:inset 0 0 0 1px #C3D3E3}';
   document.head.appendChild(st);
   document.addEventListener('click', function (e) {
