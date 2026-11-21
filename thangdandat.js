@@ -109,7 +109,30 @@
       if (el) { el.textContent = '!'; el.style.color = '#B42318'; el.title = 'Không đọc được số tháng: ' + msg; }
     }
   }
+
+  /* Chặn số minh hoạ: khi Apps Script (số tuần) chưa trả, bảng vẫn còn tên + số demo.
+     Nếu tên dòng chưa khớp MAP_CHI_TIET nghĩa là apChiTiet chưa chạy -> dọn sạch. */
+  function donDemo() {
+    if (typeof MAP_CHI_TIET === 'undefined') return;
+    Object.keys(FILE).forEach(function (manId) {
+      var sec = document.getElementById('sc-' + manId);
+      if (!sec) return;
+      for (var i = 0; i < MAP_CHI_TIET.length; i++) {
+        var t = sec.querySelector('[data-k="ct.r' + i + '.ten"]');
+        if (!t || t.textContent === MAP_CHI_TIET[i].ten) continue;
+        t.textContent = MAP_CHI_TIET[i].ten;
+        var so = sec.querySelector('[data-k="ct.r' + i + '.so"]');
+        var pct = sec.querySelector('[data-k="ct.r' + i + '.pct"]');
+        var bd = sec.querySelector('[data-k="ct.r' + i + '.badge"]');
+        if (so) so.textContent = '\u2026';
+        if (pct) pct.textContent = '\u2026';
+        if (bd) { bd.textContent = '\u0110ANG T\u1ea2I'; bd.style.background = '#EEF2F6'; bd.style.color = '#5F6B7A'; }
+      }
+    });
+  }
+
   function tai() {
+    donDemo();
     Object.keys(FILE).forEach(function (manId) {
       var n = FILE[manId];
       fetch('https://docs.google.com/spreadsheets/d/' + n.id + '/gviz/tq?tqx=out:csv&gid=' + n.gid + '&_=' + Date.now(), { cache: 'no-store' })
