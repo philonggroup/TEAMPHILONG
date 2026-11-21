@@ -307,6 +307,9 @@
   document.addEventListener('blur', function (e) {
     var t = e.target;
     if (!t || !t.getAttribute) return;
+    /* vẽ lại danh sách sẽ gỡ ô đang focus khỏi DOM và trình duyệt bắn blur giả —
+       bỏ qua, nếu không ô rỗng sẽ ghi đè lên tên live chưa kịp về */
+    if (!document.contains(t)) return;
     var iT = t.getAttribute('data-vqten'), iV = t.getAttribute('data-vqvai');
     if (iT !== null && iT !== undefined) { ds[parseInt(iT, 10)].ten = gon(t.textContent); luuDS(); ve(); return; }
     if (iV !== null && iV !== undefined) {
