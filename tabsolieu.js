@@ -57,9 +57,22 @@
 
   /* tìm thẻ theo nhãn chữ, trả về div nhãn */
   function nhanTrong(sec, chu) {
-    return $$('div,span', sec).filter(function (e) {
+    return $$('div,span,b', sec).filter(function (e) {
       return e.children.length === 0 && gon(e.textContent) === chu;
     })[0] || null;
+  }
+
+  /* ô dạng: <span>86% <span badge>ĐẠT</span></span> */
+  function datPct(sp, p) {
+    if (!sp) return;
+    var h = hang(p), b = sp.querySelector('span');
+    sp.textContent = (p === null) ? '— ' : (Math.round(p) + '% ');
+    if (b) {
+      b.textContent = h.chu;
+      b.style.background = h.nen;
+      b.style.color = h.mau;
+      sp.appendChild(b);
+    }
   }
 
   /* đổ một thẻ dạng: nhãn / <số> <"/ kế hoạch"> / <%> <badge> */
@@ -115,11 +128,7 @@
       /* cột 1 doanh thu, cột 2 % + badge, cột 3 chốt báo giá, cột 4 Google */
       if (c[1]) c[1].textContent = dt
         ? (dauCham(trieu(dt.dat)) + '/' + dauCham(trieu(dt.kpi)) + ' tr') : 'chưa có nguồn';
-      if (c[2]) {
-        c[2].textContent = (p === null) ? '—' : (Math.round(p) + '%');
-        c[2].style.color = h.mau;
-        c[2].style.fontWeight = '800';
-      }
+      datPct(c[2], p);
       if (c[3]) {
         var pc = pct(ch);
         c[3].textContent = (pc === null) ? '—' : (Math.round(ch.dat) + '%');
@@ -157,23 +166,29 @@
       var o = nhanTrong(sec, nhan);
       if (!o) return;
       var hs = o.nextElementSibling;
-      if (!hs) return;
+      if (!hs || !hs.children.length) return;
       var v = raw !== undefined ? raw : (d ? (dvi === 'tr' ? trieu(d.dat) : d.dat) : null);
-      var sp = hs.children.length ? hs.children[0] : hs;
-      sp.textContent = (v === null || v === undefined) ? '—'
+      hs.children[0].textContent = (v === null || v === undefined) ? '—'
         : (dauCham(v) + (dvi === 'tr' ? ' tr' : (dvi ? ' ' + dvi : '')));
-      var hp = hs.nextElementSibling;
-      if (hp && hp.children.length >= 2) {
-        var p = pct(d), h = hang(p);
-        hp.children[0].textContent = (p === null) ? '—' : (Math.round(p) + '%');
-        hp.children[1].textContent = h.chu;
-        hp.children[1].style.background = h.nen;
-        hp.children[1].style.color = h.mau;
-      }
+      datPct(hs.children[1], pct(d));
     }
     cay('Doanh thu', dt, 'tr');
     cay('Lượt xe', xong, 'xe');
-    cay('DT TB/xe', tb, 'tr');
+    /* trung bình của cả hệ thống = tổng doanh thu ÷ tổng lượt, KHÔNG cộng
+       trung bình của ba chi nhánh lại với nhau */
+    var tbTT = null;
+    if (dt && xong && dt.dat !== null && xong.dat) {
+      tbTT = { kpi: (xong.kpi ? dt.kpi / xong.kpi : null), dat: dt.dat / xong.dat };
+    }
+    (function () {
+      var o = nhanTrong(sec, 'DT TB/xe');
+      if (!o) return;
+      var hs = o.nextElementSibling;
+      if (!hs || !hs.children.length) return;
+      hs.children[0].textContent = tbTT
+        ? ((Math.round(tbTT.dat / 1e5) / 10).toString().replace('.', ',') + ' tr') : '—';
+      datPct(hs.children[1], tbTT && tbTT.kpi ? (tbTT.dat / tbTT.kpi * 100) : null);
+    })();
     cay('Khách hẹn trước', lich, '');
     /* khách vãng lai = lượt hoàn tất trừ lượt có đặt lịch */
     if (xong && lich && xong.dat !== null && lich.dat !== null) {
@@ -187,17 +202,9 @@
       if (!o) return;
       var hs = o.nextElementSibling;
       var t = tong(x[1]);
-      if (hs && t) {
-        var sp = hs.children.length ? hs.children[0] : hs;
-        sp.textContent = (t.dat === null) ? '—' : (dauCham(trieu(t.dat)) + ' tr');
-        var hp = hs.nextElementSibling;
-        if (hp && hp.children.length >= 2) {
-          var p = pct(t), h = hang(p);
-          hp.children[0].textContent = (p === null) ? '—' : (Math.round(p) + '%');
-          hp.children[1].textContent = h.chu;
-          hp.children[1].style.background = h.nen;
-          hp.children[1].style.color = h.mau;
-        }
+      if (hs && t && hs.children.length) {
+        hs.children[0].textContent = (t.dat === null) ? '—' : (dauCham(trieu(t.dat)) + ' tr');
+        datPct(hs.children[1], pct(t));
       }
     });
   }
