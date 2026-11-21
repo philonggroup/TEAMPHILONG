@@ -29,7 +29,17 @@
 
   /* khoá ổn định cho một việc, để trạng thái cam kết không trôi khi đổi thứ tự */
   function khoaViec(v) {
-    return 'ck.' + gon(v.lam).slice(0, 60).replace(/[^0-9A-Za-zÀ-ỹ]+/g, '_');
+    var g = v.goc || v.lam;
+    return 'ck.' + gon(g).slice(0, 60).replace(/[^0-9A-Za-zÀ-ỹ]+/g, '_');
+  }
+  /* sửa tay tại họp lưu theo khoá gốc, nên sửa xong vẫn giữ đúng dòng */
+  function khoaSua(v, truong) { return 'sua.' + khoaViec(v).slice(3) + '.' + truong; }
+  function apSua(v) {
+    ['lam', 'ai', 'han', 'do'].forEach(function (t) {
+      var x = lay(khoaSua(v, t), null);
+      if (x !== null) v[t] = x;
+    });
+    return v;
   }
 
   function xongRoi(tt) { return /hoàn thành|xong|đã xong/i.test(tt || ''); }
@@ -157,6 +167,11 @@
     docTick().concat(docThem()).forEach(function (v) {
       if (!trungVoi(tat, v)) tat.push(v);
     });
+    /* giữ bản gốc để khoá không đổi, rồi áp các ô đã sửa tay tại họp */
+    tat = tat.map(function (v) {
+      if (!v.goc) v.goc = v.lam;
+      return apSua(v);
+    });
     var ds = tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
 
     than.innerHTML = '';
@@ -181,22 +196,24 @@
 
       var h = document.createElement('div');
       h.setAttribute('style', COT + ';font-size:15px;padding:10px 0;border-bottom:1px solid #F1F5F9;align-items:center');
-      var sua = v.nguon === 'gõ tại họp' ? v.ix : null;
+      /* Tracy chốt: mọi ô sửa được ngay tại họp, nhất là HẠN —
+         thiếu một trong 4 yếu tố thì ô đó tô vàng để thư ký hỏi lại */
+      var kv = khoaViec(v).slice(3);
+      function oSua(truong, giaTri, goi, themStyle) {
+        var thieu = !gon(giaTri);
+        return '<div contenteditable="true" spellcheck="false" data-s="' + truong + '" '
+          + 'data-kv="' + thoat(kv) + '" title="bấm để sửa ngay tại họp" style="cursor:text;outline:none'
+          + (themStyle || '')
+          + (thieu ? ';background:#FFF2CC;border-bottom:1px dashed #D9A200;color:#6B4500;font-style:italic'
+                   : ';color:#1F2933;border-bottom:1px dashed #E3E9EF') + '">'
+          + (thieu ? thoat(goi) : thoat(giaTri)) + '</div>';
+      }
       h.innerHTML =
-        '<div style="font-weight:600' + gach + (gon(v.lam) ? '' : ';background:#FFF2CC;color:#6B4500;font-style:italic') + '"'
-          + (sua !== null ? ' contenteditable="true" spellcheck="false" data-t="lam" data-i="' + sua + '"' : '') + '>'
-          + (gon(v.lam) ? thoat(v.lam) : 'gõ việc cần làm') + '</div>'
-        + (sua !== null
-            ? oThieu(v.ai, 'gõ người nhận', 'x').replace('data-sua="x"', 'data-t="ai" data-i="' + sua + '"')
-            : oThieu(v.ai, 'thiếu AI — thư ký hỏi lại', null))
-        + (sua !== null
-            ? oThieu(v.han, 'hạn', 'x').replace('data-sua="x"', 'data-t="han" data-i="' + sua + '"')
-            : (tre
-                ? '<div style="color:#B42318;font-weight:800" title="đã quá hạn">⚠ ' + thoat(v.han) + '</div>'
-                : oThieu(v.han, 'thiếu HẠN', null)))
-        + (sua !== null
-            ? oThieu(v.do, 'gõ cách đo', 'x').replace('data-sua="x"', 'data-t="do" data-i="' + sua + '"')
-            : oThieu(v.do, 'thiếu CÁCH ĐO', null))
+        oSua('lam', v.lam, 'gõ việc cần làm', ';font-weight:600' + gach)
+        + oSua('ai', v.ai, 'thiếu AI — thư ký hỏi lại')
+        + oSua('han', v.han, 'thiếu HẠN',
+               tre ? ';color:#B42318;font-weight:800' : '')
+        + oSua('do', v.do, 'thiếu CÁCH ĐO')
         + '<div style="display:flex;gap:4px;align-items:center;justify-content:center">'
           + '<button type="button" data-ck="' + thoat(khoaViec(v)) + '" '
           + (xongRoi(v.tt) ? 'disabled ' : '')
@@ -311,6 +328,15 @@
   document.addEventListener('blur', function (e) {
     var t = e.target;
     if (!t || !t.getAttribute) return;
+    if (!document.contains(t)) return;      /* bỏ qua blur giả khi vẽ lại */
+    var s2 = t.getAttribute('data-s'), kv = t.getAttribute('data-kv');
+    if (s2 && kv) {
+      var v2 = gon(t.textContent);
+      if (/^(gõ việc cần làm|thiếu AI — thư ký hỏi lại|thiếu HẠN|thiếu CÁCH ĐO)$/.test(v2)) v2 = '';
+      ghi('sua.' + kv + '.' + s2, v2);
+      ve();
+      return;
+    }
     var truong = t.getAttribute('data-t'), i = t.getAttribute('data-i');
     if (!truong || i === null) return;
     var v = gon(t.textContent);
@@ -318,6 +344,13 @@
     luuThem(parseInt(i, 10), truong, v);
     if (cnDang !== 'TAT') ghi('them.' + i + '.cn', cnDang);
     ve();
+  }, true);
+
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && t.getAttribute && t.getAttribute('data-s') !== null && e.key === 'Enter') {
+      e.preventDefault(); t.blur();
+    }
   }, true);
 
   /* ---------- 7. khởi động ---------- */
