@@ -133,10 +133,19 @@
         var pc = pct(ch);
         c[3].textContent = (pc === null) ? '—' : (Math.round(ch.dat) + '%');
       }
-      /* điểm Google nếu Places API đã đọc được */
-      if (c[4] && window.PL_GG && window.PL_GG[ma] && window.PL_GG[ma].sao) {
-        c[4].textContent = String(window.PL_GG[ma].sao).replace('.', ',') + '★';
+      /* điểm Google: PL_GG.cn là MẢNG [{ma, sao, …}] — chưa nối thì ghi rõ,
+         không để số minh hoạ đứng lại */
+      if (c[4]) {
+        var gg = null;
+        if (window.PL_GG && window.PL_GG.cn) {
+          window.PL_GG.cn.forEach(function (g) { if (g.ma === ma) gg = g; });
+        }
+        c[4].textContent = (gg && gg.sao !== null && gg.sao !== undefined)
+          ? (String(gg.sao).replace('.', ',') + '★') : 'chưa nối';
+        if (!gg) { c[4].style.fontSize = '11px'; c[4].style.color = '#B4600A'; }
       }
+      /* khiếu nại: chi nhánh tự nhập ở bước 3, không có nguồn số */
+      if (c[5]) { c[5].textContent = '—'; c[5].style.color = '#5F6B7A'; }
     });
 
     /* cơ cấu doanh thu theo nhóm dịch vụ — tính trên tổng doanh thu thật */

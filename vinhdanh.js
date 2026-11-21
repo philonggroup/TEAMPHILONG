@@ -636,7 +636,11 @@ function keo(){
       return layLuu(cn);
     });
   })).then(function (kq) {
-    if (kq.some(function (g) { return !!g; })) { DU = dung(kq); LAN_CUOI = Date.now(); }
+    if (kq.some(function (g) { return !!g; })) {
+      DU = dung(kq); LAN_CUOI = Date.now();
+      /* chia sẻ số theo từng người cho 3 màn điện thoại nhân sự dùng chung nguồn */
+      window.PLG_NHANSU = DU;
+    }
     ve();
     /* KPI doanh thu tháng của chi nhánh — tab BÁO CÁO KPI NGÀY T11 */
     return Promise.all(ds.map(function (cn) {
