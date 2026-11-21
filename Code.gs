@@ -330,17 +330,21 @@ function viecTuanTruoc_() {
       iNguoi = h.indexOf('ho_va_ten'), iTT = h.indexOf('trang_thai'),
       iCS = h.indexOf('ten_khach_hang'), iPB = h.indexOf('phong_ban');
   var nay = new Date();
-  var tu = new Date(nay.getTime() - 14 * 864e5), den = new Date(nay.getTime() + 1 * 864e5);
+  /* Khoảng cũ [nay-14, nay+1] loại mất việc của chính tuần này:
+     bảng CONG_VIEC đặt hạn cuối tuần nên hạn luôn nằm sau nay+1.
+     Nay lấy rộng [nay-30, nay+21] và giữ cả việc chưa có hạn,
+     đúng tinh thần view _CV_CHUA_LAM của app. */
+  var tu = new Date(nay.getTime() - 30 * 864e5), den = new Date(nay.getTime() + 21 * 864e5);
   var ra = [];
   for (var i = 1; i < v.length && ra.length < 30; i++) {
     var d = ngay_(v[i][iHan]);
-    if (!d || d < tu || d > den) continue;
+    if (d && (d < tu || d > den)) continue;
     if (!String(v[i][iTen] || '').trim()) continue;
     ra.push({
       ai: String(v[i][iNguoi] || v[i][iPB] || '').trim(),
       viec: String(v[i][iTen] || '').trim(),
       chi_so: String(v[i][iCS] || '').trim(),
-      han: Utilities.formatDate(d, MUI_GIO, 'dd/MM'),
+      han: d ? Utilities.formatDate(d, MUI_GIO, 'dd/MM') : '',
       trang_thai: String(v[i][iTT] || '').replace(/^\d+\./, '').trim()
     });
   }
