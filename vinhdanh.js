@@ -192,7 +192,7 @@ function dung(ds){
 /* ---------- vẽ ---------- */
 function tr(v){ return Math.round(v || 0).toLocaleString('vi-VN'); }
 function xe(mau){
-  return '<svg viewBox="0 0 64 30" width="80" height="37" aria-hidden="true">' +
+  return '<svg viewBox="0 0 64 30" width="98" height="45" aria-hidden="true">' +
     '<path d="M3 22h58l-3-7-11-2-7-7H24l-5 7-13 2z" fill="' + mau + '"/>' +
     '<path d="M24 8h13l5 5H21z" fill="#FFFFFF" opacity=".75"/>' +
     '<circle cx="17" cy="24" r="5" fill="#1F2933"/><circle cx="17" cy="24" r="2" fill="#E3EBF5"/>' +
@@ -209,15 +209,15 @@ function lan(o){
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
        ' data-vd-dat="' + (o.dat ? '1' : '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
-       ' style="display:flex;align-items:center;gap:10px;height:60px;cursor:pointer;border-radius:8px"' +
+       ' style="display:flex;align-items:center;gap:10px;height:74px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
-    '<div style="width:30px;text-align:center;font-size:26px;line-height:1">' + (o.huy || '') + '</div>' +
+    '<div style="width:34px;text-align:center;font-size:30px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
-      '<div style="font-size:17px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
+      '<div style="font-size:19px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
-    '<div style="flex:1;min-width:0;position:relative;height:46px;background:#E9EFF6;border-radius:23px;overflow:hidden">' +
-      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:23px"></div>' +
+    '<div style="flex:1;min-width:0;position:relative;height:56px;background:#E9EFF6;border-radius:28px;overflow:hidden">' +
+      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:28px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
       '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
         (o.huy ? '<div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);' +
@@ -225,7 +225,7 @@ function lan(o){
         xe(o.mau) + '</div>' +
     '</div>' +
     '<div style="width:118px;min-width:118px;text-align:right">' +
-      '<div style="font-size:26px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
+      '<div style="font-size:30px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
       '<div style="font-size:11px;font-weight:700;line-height:1.25;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
     '</div>' +
   '</div>';
