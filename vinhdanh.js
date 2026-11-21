@@ -226,7 +226,7 @@ function lan(o){
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
        ' data-vd-dat="' + (o.dat ? '1' : '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
-       ' style="display:flex;align-items:center;gap:10px;height:74px;cursor:pointer;border-radius:8px"' +
+       ' style="display:flex;align-items:center;gap:10px;height:66px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
     '<div style="width:34px;text-align:center;font-size:30px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:268px;min-width:268px">' +

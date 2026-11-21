@@ -11,7 +11,7 @@
    máy đang họp (localStorage).
    ════════════════════════════════════════════════════════════════════ */
 (function () {
-  var COT = 'display:grid;grid-template-columns:minmax(0,2fr) 170px 64px minmax(0,1.2fr) 124px;gap:10px';
+  var COT = 'display:grid;grid-template-columns:minmax(0,2fr) 160px 72px minmax(0,1.1fr) 178px;gap:10px';
   var CN_TEN = { TAT: 'TẤT CẢ', CN1: 'PHI LONG 1', CN2: 'PHI LONG 2', CN3: 'PHI LONG 3' };
   var cnDang = 'TAT';
   var DS = [];          /* việc đọc từ file */
@@ -33,6 +33,19 @@
   }
 
   function xongRoi(tt) { return /hoàn thành|xong|đã xong/i.test(tt || ''); }
+
+  /* hạn ghi dạng 20/11 hoặc 20/11/2026 — so với hôm nay để biết đã trễ chưa */
+  function quaHan(han) {
+    var m = gon(han).match(/^(\d{1,2})\s*[\/\-\.]\s*(\d{1,2})(?:\s*[\/\-\.]\s*(\d{2,4}))?$/);
+    if (!m) return false;
+    var nay = new Date(), nam = m[3] ? parseInt(m[3], 10) : nay.getFullYear();
+    if (nam < 100) nam += 2000;
+    var h = new Date(nam, parseInt(m[2], 10) - 1, parseInt(m[1], 10));
+    var homNay = new Date(nay.getFullYear(), nay.getMonth(), nay.getDate());
+    return h < homNay;
+  }
+  /* trạng thái người nhận: '' chờ · 1 cam kết · hq huỷ quá hạn · hk huỷ không khả thi */
+  function nhanTT(v) { return lay(khoaViec(v), ''); }
 
   /* ---------- 1. đọc việc từ API ---------- */
   function docFile(j) {
@@ -113,24 +126,30 @@
     var ds = tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
 
     than.innerHTML = '';
-    var sDu = 0, sCk = 0, sCan = 0, sTon = 0;
+    var sDu = 0, sCk = 0, sCan = 0, sTon = 0, sQua = 0, sHuy = 0;
 
     ds.forEach(function (v, i) {
       if (du4(v)) sDu++;
       if (!xongRoi(v.tt)) sTon++;
-      var daCk = lay(khoaViec(v), '') === '1';
-      if (!xongRoi(v.tt)) { sCan++; if (daCk) sCk++; }
+      var tt = nhanTT(v), tre = quaHan(v.han) && !xongRoi(v.tt);
+      var daHuy = (tt === 'hq' || tt === 'hk');
+      if (tre) sQua++;
+      if (daHuy) sHuy++;
+      /* mẫu số cam kết: việc còn sống — bỏ việc đã xong và việc đã huỷ */
+      if (!xongRoi(v.tt) && !daHuy) { sCan++; if (tt === '1') sCk++; }
 
-      var nhan, mauN;
+      var nhan, mauN, gach = '';
       if (xongRoi(v.tt)) { nhan = 'Đã xong'; mauN = 'background:#EEF2F6;color:#5F6B7A'; }
-      else if (daCk) { nhan = 'Cam kết'; mauN = 'background:#E7F5EC;color:#1E6B3A'; }
+      else if (tt === 'hq') { nhan = 'Huỷ · quá hạn'; mauN = 'background:#F1F5F9;color:#5F6B7A'; gach = ';text-decoration:line-through'; }
+      else if (tt === 'hk') { nhan = 'Huỷ · không khả thi'; mauN = 'background:#F1F5F9;color:#5F6B7A'; gach = ';text-decoration:line-through'; }
+      else if (tt === '1') { nhan = 'Cam kết'; mauN = 'background:#E7F5EC;color:#1E6B3A'; }
       else { nhan = 'Chờ xác nhận'; mauN = 'background:#FFF2CC;color:#6B4500'; }
 
       var h = document.createElement('div');
       h.setAttribute('style', COT + ';font-size:15px;padding:10px 0;border-bottom:1px solid #F1F5F9;align-items:center');
       var sua = v.nguon === 'gõ tại họp' ? v.ix : null;
       h.innerHTML =
-        '<div style="font-weight:600' + (gon(v.lam) ? '' : ';background:#FFF2CC;color:#6B4500;font-style:italic') + '"'
+        '<div style="font-weight:600' + gach + (gon(v.lam) ? '' : ';background:#FFF2CC;color:#6B4500;font-style:italic') + '"'
           + (sua !== null ? ' contenteditable="true" spellcheck="false" data-t="lam" data-i="' + sua + '"' : '') + '>'
           + (gon(v.lam) ? thoat(v.lam) : 'gõ việc cần làm') + '</div>'
         + (sua !== null
@@ -138,16 +157,24 @@
             : oThieu(v.ai, 'thiếu AI — thư ký hỏi lại', null))
         + (sua !== null
             ? oThieu(v.han, 'hạn', 'x').replace('data-sua="x"', 'data-t="han" data-i="' + sua + '"')
-            : oThieu(v.han, 'thiếu HẠN', null))
+            : (tre
+                ? '<div style="color:#B42318;font-weight:800" title="đã quá hạn">⚠ ' + thoat(v.han) + '</div>'
+                : oThieu(v.han, 'thiếu HẠN', null)))
         + (sua !== null
             ? oThieu(v.do, 'gõ cách đo', 'x').replace('data-sua="x"', 'data-t="do" data-i="' + sua + '"')
             : oThieu(v.do, 'thiếu CÁCH ĐO', null))
-        + '<div style="text-align:center">'
+        + '<div style="display:flex;gap:4px;align-items:center;justify-content:center">'
           + '<button type="button" data-ck="' + thoat(khoaViec(v)) + '" '
           + (xongRoi(v.tt) ? 'disabled ' : '')
-          + 'style="min-height:34px;padding:0 10px;border-radius:5px;border:0;font-family:\'Be Vietnam Pro\',Arial,sans-serif;'
-          + 'font-size:13px;font-weight:800;white-space:nowrap;' + mauN
-          + (xongRoi(v.tt) ? '' : ';cursor:pointer') + '">' + nhan + '</button></div>';
+          + 'title="' + (daHuy ? 'bấm để bỏ huỷ, quay lại Chờ xác nhận' : 'người nhận nói Cam kết thì bấm') + '" '
+          + 'style="min-height:34px;padding:0 8px;border-radius:5px;border:0;font-family:\'Be Vietnam Pro\',Arial,sans-serif;'
+          + 'font-size:12.5px;font-weight:800;white-space:nowrap;' + mauN
+          + (xongRoi(v.tt) ? '' : ';cursor:pointer') + '">' + nhan + '</button>'
+          + (xongRoi(v.tt) || daHuy ? ''
+             : '<button type="button" data-huy="' + thoat(khoaViec(v)) + '" title="Huỷ việc: quá hạn hoặc không khả thi" '
+               + 'style="min-height:34px;width:26px;padding:0;border-radius:5px;border:1px solid #E5C7C3;'
+               + 'background:#FFF;color:#B42318;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0">✕</button>')
+          + '</div>';
       than.appendChild(h);
     });
 
@@ -167,10 +194,10 @@
     if (trong) trong.style.display = ds.length ? 'none' : 'block';
     if (trong && !ds.length) trong.textContent = 'Chi nhánh này chưa có việc nào trong bảng CONG_VIEC — gõ thêm ở dòng dưới.';
 
-    datDem(sDu, ds.length, sCk, sCan, sTon);
+    datDem(sDu, ds.length, sCk, sCan, sTon, sQua, sHuy);
   }
 
-  function datDem(du, tong, ck, can, ton) {
+  function datDem(du, tong, ck, can, ton, qua, huy) {
     function d(k, chu, mau) {
       var e = document.querySelector('[data-k6="' + k + '"]');
       if (!e) return;
@@ -180,6 +207,12 @@
     d('du4', du + '/' + tong, du === tong && tong ? '#1E6B3A' : '#B42318');
     d('ck', ck + '/' + can, (can && ck === can) ? '#1E6B3A' : '#B4600A');
     d('ton', String(ton), ton ? '#B42318' : '#1E6B3A');
+    d('qua', qua ? String(qua) + ' việc' : 'không có', qua ? '#B42318' : '#1E6B3A');
+    var oh = document.querySelector('[data-k6="huy"]');
+    if (oh) {
+      oh.textContent = huy ? String(huy) : '0';
+      oh.style.color = huy ? '#5F6B7A' : '#1E6B3A';
+    }
     var g = lay('dash.' + (new Date()).toDateString(), '');
     d('dash', g || 'chưa ghi', g ? '#1E6B3A' : '#B4600A');
   }
@@ -213,10 +246,22 @@
     var b = e.target.closest ? e.target.closest('[data-b6cn]') : null;
     if (b) { cnDang = b.getAttribute('data-b6cn'); tomauCN(); ve(); return; }
 
+    var h = e.target.closest ? e.target.closest('[data-huy]') : null;
+    if (h) {
+      var kh = h.getAttribute('data-huy');
+      var ly = prompt('Huỷ việc này vì lý do nào?\n  1 = đã quá hạn, trễ deadline\n  2 = không khả thi\n  (để trống = thôi, không huỷ)', '1');
+      if (ly === '1') ghi(kh, 'hq');
+      else if (ly === '2') ghi(kh, 'hk');
+      ve();
+      return;
+    }
+
     var c = e.target.closest ? e.target.closest('[data-ck]') : null;
     if (c && !c.disabled) {
       var k = c.getAttribute('data-ck');
-      ghi(k, lay(k, '') === '1' ? '0' : '1');
+      var cu = lay(k, '');
+      /* đang huỷ thì bấm vào là bỏ huỷ; còn lại bật tắt Cam kết */
+      ghi(k, (cu === 'hq' || cu === 'hk') ? '' : (cu === '1' ? '' : '1'));
       ve();
       return;
     }
