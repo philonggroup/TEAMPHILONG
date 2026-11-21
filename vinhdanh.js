@@ -136,6 +136,7 @@ function docMotCn(cn){
 
 /* ---------- gom 3 chi nhánh ---------- */
 var TT = { CN1:{}, CN2:{}, CN3:{} }, LAN_CUOI = 0, DU = null, KPI_CN = null;
+var CN_LOC = '';   /* '' = cả 3 chi nhánh */
 
 /* đọc dòng DOANH THU MỤC TIÊU của tab KPI ngày: KPI tháng · % đạt · thực đạt
    (dò cột giống trang đường đua để 2 trang không lệch số) */
@@ -273,6 +274,19 @@ function oTren(ico, nhan, noi, vien, nen){
       '<div style="font-size:12.5px;font-weight:800;color:#17365D;line-height:1.35">' + noi + '</div>' +
     '</div></div>';
 }
+function nutCn(){
+  var ds = [['', 'CẢ 3 CN'], ['CN1', 'PHI LONG 1'], ['CN2', 'PHI LONG 2'], ['CN3', 'PHI LONG 3']];
+  return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:1px">' +
+    '<span style="font-size:11px;color:#5F6B7A;font-weight:700">SO SÁNH:</span>' +
+    ds.map(function (x) {
+      var chon = CN_LOC === x[0];
+      return '<button class="vd-nut-cn" data-cn="' + x[0] + '" style="cursor:pointer;border:1px solid ' +
+        (chon ? '#2F75B5' : '#D9E2EC') + ';background:' + (chon ? '#2F75B5' : '#FFFFFF') + ';color:' +
+        (chon ? '#FFFFFF' : '#5F6B7A') + ';font-size:11px;font-weight:700;padding:3px 11px;border-radius:999px;' +
+        'font-family:inherit">' + x[1] + '</button>';
+    }).join('') + '</div>';
+}
+
 function daiTren(d){
   var hang = [
     { ds:d.kd, f:'lop',  chuan:CHUAN.lop,      ten:'lốp' },
@@ -394,6 +408,8 @@ function ganChucMung(){
                    '.vd-lan:hover{background:#F4F9FF;box-shadow:inset 0 0 0 1px #C3D3E3}';
   document.head.appendChild(st);
   document.addEventListener('click', function (e) {
+    var n = e.target.closest && e.target.closest('.vd-nut-cn');
+    if (n) { CN_LOC = n.getAttribute('data-cn') || ''; ve(); return; }
     var l = e.target.closest && e.target.closest('.vd-lan');
     if (!l) return;
     moChucMung(l.getAttribute('data-vd-ten'), l.getAttribute('data-vd-huy'),
@@ -402,9 +418,16 @@ function ganChucMung(){
   });
 }
 
+function locCn(d){
+  if (!CN_LOC || !d) return d;
+  return { kd:d.kd.filter(function (r) { return r.cn === CN_LOC; }),
+           kt:d.kt.filter(function (r) { return r.cn === CN_LOC; }),
+           cn:d.cn, ngayCo:d.ngayCo, canh:d.canh };
+}
+
 function ve(){
   var w = document.getElementById('vd-than'); if (!w) return;
-  var d = DU;
+  var d = locCn(DU);
   if (!d) { w.innerHTML = '<div style="padding:28px;text-align:center;color:#5F6B7A;font-size:14px">Đang đọc file KPI của 3 chi nhánh…</div>'; veDau(); return; }
 
   /* 1 · chi nhánh — vạch đích = 100% KPI doanh thu tháng của chính chi nhánh */
@@ -463,6 +486,7 @@ function ve(){
 
   var themKt = Math.max(0, d.kt.length - 3);
   w.innerHTML =
+    nutCn() +
     daiTren(d) +
     khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 1', 'Vạch chuẩn tháng 350tr' + (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
     khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 1', 'Vạch chuẩn tháng 100tr', h2b) +
