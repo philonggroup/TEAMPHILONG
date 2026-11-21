@@ -57,17 +57,18 @@
     var k = bo(nhan);
     for (var i = 0; i < ds.length; i++) {
       for (var j = 0; j < Math.min(ds[i].length, 4); j++) {
-        if (bo(ds[i][j]).indexOf(k) === 0) return ds[i];
+        if (bo(ds[i][j]).indexOf(k) === 0) return { d: ds[i], cot: j };
       }
     }
     return null;
   }
-  /* giá trị đầu tiên đọc được sau cột nhãn */
+  /* giá trị đầu tiên SAU ô chứa nhãn — nếu bắt đầu từ cột 1 thì
+     "Cùng kỳ 2025 (cả tháng)" sẽ trả về 2025 thay vì số tiền */
   function giaTri(ds, nhan) {
-    var d = dong(ds, nhan);
-    if (!d) return null;
-    for (var j = 1; j < d.length; j++) {
-      var v = num(d[j]);
+    var t = dong(ds, nhan);
+    if (!t) return null;
+    for (var j = t.cot + 1; j < t.d.length; j++) {
+      var v = num(t.d[j]);
       if (v !== null) return v;
     }
     return null;
@@ -101,11 +102,11 @@
   /* ---------- đọc ĐÁNH GIÁ 6 THÁNG ---------- */
   function docDG6(ds) {
     function hang(nhan) {
-      var d = dong(ds, nhan);
-      if (!d) return null;
-      /* cột T1..T12 nằm ngay sau cột nhãn */
+      var t = dong(ds, nhan);
+      if (!t) return null;
+      /* 12 cột T1..T12 nằm ngay sau ô nhãn */
       var ra = [];
-      for (var j = 2; j < 14 && j < d.length; j++) ra.push(num(d[j]));
+      for (var j = t.cot + 1; j < t.cot + 13 && j < t.d.length; j++) ra.push(num(t.d[j]));
       return ra;
     }
     return {
