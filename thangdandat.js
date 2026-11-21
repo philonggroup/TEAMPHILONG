@@ -84,7 +84,14 @@
     }
     return { ngay: ngay, chi: ra };
   }
+  /* chia sẻ số luỹ kế tháng cho màn Bước 5 dùng chung một nguồn */
+  var MA_CN = { GB3BinhDuong: 'CN1', GB3BinhPhuoc: 'CN2', GB3ChiNhanh3: 'CN3' };
+
   function veMan(manId, kq) {
+    try {
+      window.PLG_THANG = window.PLG_THANG || {};
+      if (MA_CN[manId]) window.PLG_THANG[MA_CN[manId]] = kq;
+    } catch (e) { }
     var sec = document.getElementById('sc-' + manId);
     if (!sec) return;
     var nhip = kq.ngay ? (kq.ngay / NGAY_THANG * 100) : 0;

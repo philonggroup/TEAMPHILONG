@@ -1594,18 +1594,31 @@ function htChip(d, co, tienDo) {
 
 /* --- Bước 5: ô Chỉ số dạng CHỌN LỌC theo đúng danh mục chuẩn của
    tab BÁO CÁO KPI NGÀY T11, số đọc riêng cho từng chi nhánh --- */
+/* màu theo % hoàn thành tháng: <70 đỏ · 70-90 vàng · 90-100 xanh · >100 tím */
+function b5Mau(p) {
+  if (p === null || p === undefined || isNaN(p)) return '#5F6B7A';
+  if (p < 70)   return '#B42318';
+  if (p < 90)   return '#B4600A';
+  if (p <= 100) return '#1E6B3A';
+  return '#6D28D9';
+}
 function b5SoChiSo(ma, k) {
   var ct = MAP_CHI_TIET[k]; if (!ct || ct.dong == null) return null;
-  var ds = (DU_LIEU && DU_LIEU.chinhanh) || [];
-  var cn = null;
-  for (var i = 0; i < ds.length; i++) if (ds[i].ma === ma) { cn = ds[i]; break; }
-  if (!cn) return null;
-  var d = layDong(cn, ct.dong) || {};
-  var thuc = d.thuc, kpi = d.kpi;
-  if (ct.dvi === 'tr') { thuc = trieu(thuc); kpi = trieu(kpi); }
+  var th = (window.PLG_THANG && window.PLG_THANG[ma]) || null;
+  var d = th && th.chi ? th.chi[k] : null;
+  if (!d || !d.kpi || d.dat === null || d.dat === undefined) {
+    return { chu: ct.ten + ': chưa đọc được số tháng', mau: '#5F6B7A' };
+  }
+  var kpi = d.kpi, dat = d.dat;
+  if (ct.dvi === 'tr') { kpi = trieu(kpi); dat = trieu(dat); }
   var hau = (ct.dvi === 'pt') ? '%' : '';
-  return ct.ten + ': ' + soVN(thuc, 0) + hau + '/' + soVN(kpi, 0) + hau +
-         ' · tuần ' + pctVN(d.pct);
+  var p = d.dat / d.kpi * 100;
+  return {
+    chu: ct.ten + ': KPI tháng ' + soVN(kpi, 0) + hau +
+         ' · thực đạt ' + soVN(dat, 0) + hau +
+         ' = ' + Math.round(p) + '% hoàn thành',
+    mau: b5Mau(p)
+  };
 }
 function b5VeChiSo(i) {
   var sel = document.querySelector('[data-b5-chiso="' + i + '"]');
@@ -1615,7 +1628,8 @@ function b5VeChiSo(i) {
   var k = sel.value;
   if (k === '' || !ma) return;                    /* chưa chọn thì giữ số mặc định */
   var t = b5SoChiSo(ma, parseInt(k, 10));
-  o.textContent = t || 'chưa đọc được chỉ số này';
+  o.textContent = t ? t.chu : 'chưa đọc được chỉ số này';
+  o.style.color = t ? t.mau : '#5F6B7A';
   o.setAttribute('data-go-tay', '1');             /* giữ lựa chọn, không để live ghi đè */
 }
 function b5NapChiSo() {
@@ -1633,7 +1647,7 @@ function b5NapChiSo() {
       el.addEventListener('change', function () {
         if (el.value === '') {
           var o = document.querySelector('[data-k="ht.c' + idx + '.chiso"]');
-          if (o) o.removeAttribute('data-go-tay');
+          if (o) { o.removeAttribute('data-go-tay'); o.style.color = '#2F75B5'; }
           return;
         }
         b5VeChiSo(idx);
@@ -1947,7 +1961,7 @@ function kiemVinhDanh() {
 })();
 </script>
   <script src="vinhdanh.js?v=30"></script>
-  <script src="thangdandat.js?v=2"></script>
+  <script src="thangdandat.js?v=3"></script>
   <script src="giaitrinh.js?v=13"></script>
 </body>
 </html>
