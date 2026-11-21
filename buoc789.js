@@ -60,7 +60,7 @@
     }
 
     /* TRỌNG TÂM — chỉ số % thấp nhất trong 3 chi nhánh */
-    var thap = null;
+    var thap = null, trong = [];
     CN.forEach(function (ma) {
       var th = thang(ma);
       if (!th || !th.chi) return;
@@ -68,16 +68,23 @@
       Object.keys(th.chi).forEach(function (k) {
         var d = th.chi[k];
         if (!d || !d.kpi || d.dat === null || d.dat === undefined) return;
+        /* dat = 0 nghĩa là CHƯA AI NHẬP SỐ, không phải làm kém —
+           để riêng, không đem ra làm trọng tâm tuần */
+        if (!(d.dat > 0)) { trong.push(tenChiSo(parseInt(k, 10)) + ' ở ' + TEN_CN[ma]); return; }
         var p = d.dat / d.kpi * 100;
         if (thap === null || p < thap.p) thap = { p: p, ma: ma, k: parseInt(k, 10) };
       });
     });
     if (thap) {
       dat('trongtam', Math.round(thap.p) + '%');
-      dat('trongtam.ten', tenChiSo(thap.k) + ' ở ' + TEN_CN[thap.ma] + ' — thấp nhất hệ thống.');
+      var cau = tenChiSo(thap.k) + ' ở ' + TEN_CN[thap.ma] + ' — thấp nhất hệ thống.';
+      if (trong.length) cau += ' Còn ' + trong.length + ' chỉ số chưa ai nhập số.';
+      dat('trongtam.ten', cau);
     } else {
       dat('trongtam', '—');
-      dat('trongtam.ten', 'chưa đọc được chỉ số nào.');
+      dat('trongtam.ten', trong.length
+        ? ('chưa chỉ số nào có số để so — ' + trong.length + ' chỉ số đang trống.')
+        : 'chưa đọc được chỉ số nào.');
     }
 
     /* CẢM ƠN — người đang giữ cúp ở Bước 4 */
