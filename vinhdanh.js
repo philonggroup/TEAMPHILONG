@@ -291,12 +291,19 @@ function daiTren(d){
     if (pct > caoNhat) { caoNhat = pct; nhanh = { r:top, h:h, pct:pct }; }
   });
   function f0(h){ return h.f; }
-  var butToc = nhanh
-    ? '<b>' + ngan_(nhanh.r.ten) + '</b> · ' + nhanh.h.ten + ' ' + Math.round(nhanh.pct) + '% vạch chuẩn'
-    : 'chưa có ai vượt chuẩn';
+  /* 🔥 BỨT TỐC = 2 chỉ số sức làm của KTV */
+  var pkt = dinhNhat(d.kt, 'pkt'), luot = dinhNhat(d.kt, 'luot');
+  function phu2(f){ return d.kt.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kt.length; }
+  var butToc =
+    '🔧 ' + (pkt ? '<b>' + ngan_(pkt.ten) + '</b> · ' + Math.round(pkt.pkt) +
+            ' phiếu kiểm tra an toàn <span style="color:#9AA7B5;font-weight:400">(' + phu2('pkt') + ' có nhập)</span>'
+          : 'chưa có số phiếu kiểm tra') +
+    '<br>🚗 ' + (luot ? '<b>' + ngan_(luot.ten) + '</b> · ' + Math.round(luot.luot) +
+            ' lượt xe phục vụ <span style="color:#9AA7B5;font-weight:400">(' + phu2('luot') + ' có nhập)</span>'
+          : 'chưa có số lượt xe');
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
   return '<div style="display:flex;gap:9px;align-items:stretch">' +
-    oTren('🔥', 'BỨT TỐC MẠNH NHẤT', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
+    oTren('🔥', 'BỨT TỐC MẠNH NHẤT · KỸ THUẬT VIÊN', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
     oTren('🏆', 'ĐANG GIỮ CÚP VÀNG', cupTxt, '#F2B705', 'linear-gradient(135deg,#FFF8E1,#FFEFBF)') +
   '</div>';
 }
@@ -460,7 +467,7 @@ function ve(){
     khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 1', 'Vạch chuẩn tháng 350tr' + (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
     khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 1', 'Vạch chuẩn tháng 100tr', h2b) +
     khoi('🔧 VINH DANH KTV · DOANH THU DVL · TOP 1', 'Vạch chuẩn tháng 10tr', h3a) +
-    khoi('🔧 VINH DANH KTV · DOANH THU DVNL · TOP 1', 'Vạch chuẩn tháng 10tr' + phuKtv(d), h3b);
+    khoi('🔧 VINH DANH KTV · DOANH THU DVNL · TOP 1', 'Vạch chuẩn tháng 10tr', h3b);
   veDau();
   ganChucMung();
 }
