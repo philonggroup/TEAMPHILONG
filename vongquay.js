@@ -76,9 +76,16 @@
     var co = parseInt(k.getAttribute('data-co'), 10) || 170;
     var chuTieu = sang ? '#5F6B7A' : '#B9CCE3';
     var chuChinh = sang ? '#17365D' : '#FFFFFF';
-    k.setAttribute('style', 'display:flex;flex-direction:column;align-items:center;gap:7px');
+    /* màn rộng thì vòng nằm bên trái cho đỡ cao, màn hẹp thì vòng nằm trên */
+    var ngang = k.getAttribute('data-huong') === 'ngang';
+    k.setAttribute('style', ngang
+      ? 'display:flex;flex-direction:row;align-items:flex-start;gap:14px'
+      : 'display:flex;flex-direction:column;align-items:center;gap:7px');
+    var moCot = ngang
+      ? '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">' : '';
+    var dongCot = ngang ? '</div>' : '';
     k.innerHTML =
-      /* 1 · vòng tròn trên cùng */
+      /* 1 · vòng tròn */
       '<div style="position:relative;width:' + co + 'px;height:' + co + 'px;flex-shrink:0">'
       + '<svg data-vq-svg viewBox="0 0 200 200" width="' + co + '" height="' + co + '" '
       + 'style="transition:transform 4s cubic-bezier(.15,.7,.12,1);display:block"></svg>'
@@ -90,6 +97,7 @@
       + 'border-radius:50%;border:3px solid #FFFFFF;background:#F2B705;color:#17365D;'
       + 'font-family:\'Be Vietnam Pro\',Arial,sans-serif;font-size:' + (co > 170 ? 13 : 11) + 'px;'
       + 'font-weight:800;cursor:pointer;z-index:2;box-shadow:0 3px 9px rgba(0,0,0,.3)">QUAY</button></div>'
+      + moCot
       /* 2 · tên vừa trúng */
       + '<div data-vq-trung style="font-size:' + (co > 170 ? 21 : 15) + 'px;font-weight:800;'
       + 'color:' + (sang ? '#17365D' : '#F2B705') + ';line-height:1.2;text-align:center;min-height:22px">'
