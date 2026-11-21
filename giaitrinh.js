@@ -219,17 +219,53 @@
     return (t && t !== '—') ? t : 'Thẻ ' + (i + 1);
   }
 
+  /* cỡ chữ: [thường, khi chiếm full màn] */
+  function co(the, full) {
+    function dat(sel, nho, to, them) {
+      Array.prototype.slice.call(the.querySelectorAll(sel)).forEach(function (e) {
+        e.style.fontSize = full ? to : nho;
+        if (them) them(e, full);
+      });
+    }
+    dat('[data-k^="ht.c"][data-k$=".cn"]',   '17px', '30px');
+    dat('[data-gt^="B5 câu hỏi"]',           '15px', '26px', function (e, f) {
+      e.style.minHeight = f ? '58px' : '42px';
+    });
+    dat('[data-gt^="B5 loại việc"]',         '11px', '16px');
+    dat('[data-k$=".chiso"]',                '13px', '24px');
+    dat('[data-gt^="B5 đã thử"]',            '13px', '20px');
+    dat('[data-k$=".chuaxong"]', '11.5px', '18px', function (e, f) {
+      e.style.maxHeight = f ? '230px' : '132px';
+      e.style.lineHeight = f ? '1.75' : '1.45';
+    });
+    dat('.b5-dong',                          '12px', '20px', function (e, f) {
+      e.style.padding = f ? '5px 0' : '2px 0';
+    });
+    dat('[data-tick]',                       '14px', '24px');
+    dat('[data-gt^="B5 phiếu"]',             '12px', '17px');
+    dat('[data-gt^="B5 kết luận"]',          '12px', '17px', function (e, f) {
+      e.style.padding = f ? '8px 20px' : '5px 13px';
+    });
+    /* nhãn Chỉ số / Đã thử và tiêu đề khối */
+    Array.prototype.slice.call(the.querySelectorAll('span,div')).forEach(function (e) {
+      var t = (e.textContent || '').trim();
+      if (t === 'Chỉ số' || t === 'Đã thử') { e.style.fontSize = full ? '17px' : '12px';
+        e.style.minWidth = full ? '74px' : '52px'; }
+      if (/^(VIỆC TUẦN TRƯỚC CHƯA XONG|CHỌN 1–3 CHIẾN LƯỢC)$/.test(t)) {
+        e.style.fontSize = full ? '15px' : '11px';
+      }
+    });
+  }
+
   function apDung() {
     cacThe().forEach(function (the) {
       var i = parseInt(the.getAttribute('data-b5'), 10);
       var hien = (CHON === null || CHON === i);
       the.style.display = hien ? 'flex' : 'none';
-      /* một thẻ chiếm full màn thì chữ to lên cho cả phòng đọc */
-      the.style.fontSize = (CHON === i) ? '15px' : '';
-      var ten = the.querySelector('[data-k^="ht.c"][data-k$=".cn"]');
-      if (ten) ten.style.fontSize = (CHON === i) ? '24px' : '17px';
-      var hoi = the.querySelector('[data-gt^="B5 câu hỏi"]');
-      if (hoi) hoi.style.fontSize = (CHON === i) ? '21px' : '15px';
+      var full = (CHON === i);
+      the.style.gap = full ? '14px' : '9px';
+      the.style.padding = full ? '20px 28px' : '12px 15px';
+      co(the, full);
     });
     Array.prototype.slice.call(document.querySelectorAll('[data-b5-nut]')).forEach(function (n) {
       var v = n.getAttribute('data-b5-nut');
