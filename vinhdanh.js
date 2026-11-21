@@ -16,6 +16,12 @@ var NGUON = {
   CN2: { id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'90141774'   },
   CN3: { id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'288637199'  }
 };
+/* tab BÁO CÁO KPI NGÀY T11 — nguồn % hoàn thành KPI doanh thu của chi nhánh */
+var NGUON_KPI = {
+  CN1: { id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc', gid:'489409049'  },
+  CN2: { id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid:'1426227108' },
+  CN3: { id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid:'247752852'  }
+};
 var TEN_CN  = { CN1:'PHI LONG 1', CN2:'PHI LONG 2', CN3:'PHI LONG 3' };
 var MAU_CN  = { CN1:'#2F75B5',   CN2:'#E8743B',    CN3:'#1E9E6A'    };
 var CHUAN   = { lop:350, bdsc:100, kd:450, ktDv:20 };
@@ -129,7 +135,32 @@ function docMotCn(cn){
 }
 
 /* ---------- gom 3 chi nhánh ---------- */
-var TT = { CN1:{}, CN2:{}, CN3:{} }, LAN_CUOI = 0, DU = null;
+var TT = { CN1:{}, CN2:{}, CN3:{} }, LAN_CUOI = 0, DU = null, KPI_CN = null;
+
+/* đọc dòng DOANH THU MỤC TIÊU của tab KPI ngày: KPI tháng · % đạt · thực đạt
+   (dò cột giống trang đường đua để 2 trang không lệch số) */
+function docKpiCn(cn){
+  var n = NGUON_KPI[cn], ds = duongCsv(n), i = 0, loi = '';
+  function thu(){
+    if (i >= ds.length) return Promise.resolve(null);
+    return fetch(ds[i++], { cache:'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (t) {
+      var R = tachCsv(t), cot = -1, k;
+      for (var j = 0; j < R.length && cot < 0; j++) {
+        var r = R[j];
+        if (!/DOANH\s*THU\s*M[ỤU]C\s*TIÊU/i.test((r[0] || '') + ' ' + (r[1] || ''))) continue;
+        var last = -1;
+        for (k = 0; k < r.length; k++) { if (/%/.test(r[k] || '')) last = k; }
+        if (last > 0) cot = last - 1;
+        if (cot >= 0) return { cn:cn, kpi:soVN(r[cot]) || 0, dat:soVN(r[cot + 2]) || 0 };
+      }
+      return null;
+    }).catch(function (e) { loi = e.message || String(e); return thu(); });
+  }
+  return thu();
+}
 
 function dung(ds){
   var kd = [], kt = [], cn = { CN1:0, CN2:0, CN3:0 }, ngayCo = {}, canh = [];
@@ -160,7 +191,7 @@ function dung(ds){
 /* ---------- vẽ ---------- */
 function tr(v){ return Math.round(v || 0).toLocaleString('vi-VN'); }
 function xe(mau){
-  return '<svg viewBox="0 0 64 30" width="46" height="21" aria-hidden="true">' +
+  return '<svg viewBox="0 0 64 30" width="40" height="18" aria-hidden="true">' +
     '<path d="M3 22h58l-3-7-11-2-7-7H24l-5 7-13 2z" fill="' + mau + '"/>' +
     '<path d="M24 8h13l5 5H21z" fill="#FFFFFF" opacity=".75"/>' +
     '<circle cx="17" cy="24" r="5" fill="#1F2933"/><circle cx="17" cy="24" r="2" fill="#E3EBF5"/>' +
@@ -177,15 +208,15 @@ function lan(o){
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
        ' data-vd-dat="' + (o.dat ? '1' : '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
-       ' style="display:flex;align-items:center;gap:10px;height:33px;cursor:pointer;border-radius:8px"' +
+       ' style="display:flex;align-items:center;gap:10px;height:28px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
     '<div style="width:26px;text-align:center;font-size:22px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
       '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
-    '<div style="flex:1;min-width:0;position:relative;height:28px;background:#E9EFF6;border-radius:14px;overflow:hidden">' +
-      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:14px"></div>' +
+    '<div style="flex:1;min-width:0;position:relative;height:24px;background:#E9EFF6;border-radius:12px;overflow:hidden">' +
+      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:12px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
       '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
         (o.huy ? '<div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);' +
@@ -193,13 +224,13 @@ function lan(o){
         xe(o.mau) + '</div>' +
     '</div>' +
     '<div style="width:118px;min-width:118px;text-align:right">' +
-      '<div style="font-size:18px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
+      '<div style="font-size:16px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
       '<div style="font-size:11px;font-weight:700;line-height:1.25;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
     '</div>' +
   '</div>';
 }
 function khoi(tieu, phu, noi){
-  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:5px 12px 4px">' +
+  return '<div style="background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;padding:4px 12px 3px">' +
     '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:2px">' +
       '<div style="font-size:12px;font-weight:800;color:#2F75B5;letter-spacing:.6px">' + tieu + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A">' + phu + '</div>' +
@@ -330,14 +361,24 @@ function ve(){
   var d = DU;
   if (!d) { w.innerHTML = '<div style="padding:28px;text-align:center;color:#5F6B7A;font-size:14px">Đang đọc file KPI của 3 chi nhánh…</div>'; veDau(); return; }
 
-  /* 1 · chi nhánh — vạch đích là chi nhánh dẫn đầu */
-  var dsCn = ['CN1','CN2','CN3'].map(function (c) { return { cn:c, v:d.cn[c] || 0 }; })
-                                .sort(function (a,b) { return b.v - a.v; });
-  var dan = dsCn[0].v || 1;
-  var h1 = dsCn.map(function (r, i) {
-    return lan({ huy:i === 0 ? '🏁' : '', ten:TEN_CN[r.cn], phu:'Doanh thu kinh doanh tháng',
-                 mau:MAU_CN[r.cn], giaTri:r.v, chuan:dan, dat:i === 0,
-                 nhan:i === 0 ? 'DẪN ĐẦU' : 'kém ' + tr(dan - r.v) + 'tr' });
+  /* 1 · chi nhánh — vạch đích = 100% KPI doanh thu tháng của chính chi nhánh */
+  var h1 = ['CN1','CN2','CN3'].map(function (c) {
+    var k = (KPI_CN && KPI_CN[c]) || null;
+    return { cn:c, kpi:k ? k.kpi : 0, dat:k ? k.dat : (d.cn[c] || 0) * 1e6 };
+  }).map(function (r) {
+    r.pct = r.kpi > 0 ? r.dat / r.kpi * 100 : 0;
+    return r;
+  }).sort(function (a, b) { return b.pct - a.pct; })
+  .map(function (r, i) {
+    var dat = r.pct >= 100;
+    var nhan = r.kpi > 0
+      ? (dat ? 'ĐẠT KPI · ' + Math.round(r.pct) + '%'
+             : 'còn ' + tr((r.kpi - r.dat) / 1e6) + 'tr tới KPI')
+      : 'chưa có KPI trong file';
+    return lan({ huy:i === 0 && r.kpi > 0 ? '🏁' : '', ten:TEN_CN[r.cn],
+                 phu:'Doanh thu tháng · KPI ' + tr(r.kpi / 1e6) + 'tr',
+                 mau:MAU_CN[r.cn], giaTri:r.dat / 1e6, chuan:r.kpi / 1e6,
+                 pct:r.pct, dat:dat, nhan:nhan });
   }).join('');
 
   /* 2 · kinh doanh — 2 hạng mục riêng: LỐP (chuẩn 350tr) và BD+SC (chuẩn 100tr) */
@@ -359,16 +400,23 @@ function ve(){
   var h2b = topHang('bdsc', CHUAN.bdsc, 'bảo dưỡng + sửa chữa tháng');
   var chuaTach = d.kd.filter(function (r) { return r.chuaTach; }).length;
 
-  /* 3 · kỹ thuật viên — vạch chuẩn công dịch vụ 20tr */
-  var kt3 = d.kt.slice(0, 3), soCupKt = 0;
-  var h3 = kt3.map(function (r, i) {
-    var dat = r.dv >= CHUAN.ktDv;
-    var huy = dat ? HUY[soCupKt++] : '';
-    var nhan = dat ? 'QUA VẠCH CHUẨN · ' + Math.round(r.dv / CHUAN.ktDv * 100) + '%'
-                   : 'còn ' + tr(Math.max(0, CHUAN.ktDv - r.dv)) + 'tr tới chuẩn';
-    return lan({ huy:huy, ten:r.ten, phu:TEN_CN[r.cn] + ' · lưu động ' + tr(r.ld) + 'tr',
-                 mau:MAU_XE[(i + 3) % MAU_XE.length], giaTri:r.dv, chuan:CHUAN.ktDv, dat:dat, nhan:nhan });
-  }).join('');
+  /* 3 · kỹ thuật viên — 2 hạng mục riêng: DVL và DVNL */
+  function topKt(f, nhanDv){
+    var ds = kt0.filter(function (r) { return (r[f] || 0) > 0; })
+                .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); }).slice(0, 3);
+    var chuan = CHUAN.ktDv / 2, soCup = 0;
+    return ds.map(function (r, i) {
+      var dat = r[f] >= chuan;
+      var huy = dat ? HUY[soCup++] : '';
+      var nhan = dat ? 'QUA VẠCH CHUẨN · ' + Math.round(r[f] / chuan * 100) + '%'
+                     : 'còn ' + tr(chuan - r[f]) + 'tr tới chuẩn';
+      return lan({ huy:huy, ten:r.ten, phu:TEN_CN[r.cn] + ' · ' + nhanDv,
+                   mau:MAU_XE[(i + 3) % MAU_XE.length], giaTri:r[f], chuan:chuan, dat:dat, nhan:nhan });
+    }).join('') || '<div style="padding:6px 0;font-size:12px;color:#9AA7B5">Chưa có số.</div>';
+  }
+  var kt0 = d.kt;
+  var h3a = topKt('dvl',  'công dịch vụ lốp tháng');
+  var h3b = topKt('dvnl', 'công dịch vụ ngoài lốp tháng');
 
   var themKt = Math.max(0, d.kt.length - 3);
   w.innerHTML =
@@ -376,8 +424,9 @@ function ve(){
     khoi('🏆 VINH DANH KINH DOANH · 🛞 DOANH THU LỐP · TOP 3', 'Vạch chuẩn tháng 350tr' +
          (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
     khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 3', 'Vạch chuẩn tháng 100tr', h2b) +
-    khoi('🔧 VINH DANH KỸ THUẬT VIÊN · TOP 3', 'Vạch chuẩn tháng: công dịch vụ (DVL + DVNL) 20tr' +
-         (themKt ? ' · còn ' + themKt + ' người đang chạy' : '') + phuKtv(d), h3);
+    khoi('🔧 VINH DANH KTV · DOANH THU DVL · TOP 3', 'Vạch chuẩn tháng 10tr' +
+         (themKt ? ' · còn ' + themKt + ' người đang chạy' : ''), h3a) +
+    khoi('🔧 VINH DANH KTV · DOANH THU DVNL · TOP 3', 'Vạch chuẩn tháng 10tr' + phuKtv(d), h3b);
   veDau();
   ganChucMung();
 }
@@ -423,6 +472,15 @@ function keo(){
   })).then(function (kq) {
     if (kq.some(function (g) { return !!g; })) { DU = dung(kq); LAN_CUOI = Date.now(); }
     ve();
+    /* KPI doanh thu tháng của chi nhánh — tab BÁO CÁO KPI NGÀY T11 */
+    return Promise.all(ds.map(function (cn) {
+      return docKpiCn(cn).catch(function () { return null; });
+    })).then(function (kpis) {
+      var m = {};
+      kpis.forEach(function (x) { if (x && x.kpi > 0) m[x.cn] = x; });
+      if (Object.keys(m).length) { KPI_CN = m; ve(); }
+    });
+  }).then(function () {
     setTimeout(keo, 5 * 60 * 1000);
   });
 }
