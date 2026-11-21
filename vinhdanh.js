@@ -46,7 +46,8 @@ function chuanTen(s){ return (s || '').replace(/_/g,' ').replace(/\s+/g,' ').tri
 /* nhãn dòng trong tab KPI → trường · hệ số (1e6 = quy ra triệu) */
 var NHAN = [
   [/^Lốp Xe/i,'lop',1e6], [/Ngoài Lốp/i,'bdsc',1e6], [/Lưu Động/i,'ld',1e6],
-  [/Tổng Doanh Thu/i,'tong',1e6], [/^DVL$/i,'dvl',1e6], [/^DVNL$/i,'dvnl',1e6]
+  [/Tổng Doanh Thu/i,'tong',1e6], [/^DVL$/i,'dvl',1e6], [/^DVNL$/i,'dvnl',1e6],
+  [/Phiếu\s*Kiểm\s*Tra\s*Xe/i,'pkt',1], [/Tổng Lượt xe/i,'luot',1]
 ];
 var BO_QUA = /Tổng Lượt|Kiểm\s*Tra Xe|cuộc gọi|Tra HD|Chấm\s*KPI|Mã nhân viên|Tổng cộng|^TUẦN|^Ghi/i;
 
@@ -82,7 +83,7 @@ function gomTab(csv, cn){
     });
     if (li < 0 || !ten || !vai || !cot.length) return;
     var k = ten + '|' + vai;
-    var p = ra[k] = ra[k] || { ten:ten, cn:cn, vai:vai, lop:0, bdsc:0, ld:0, tong:0, dvl:0, dvnl:0 };
+    var p = ra[k] = ra[k] || { ten:ten, cn:cn, vai:vai, lop:0, bdsc:0, ld:0, tong:0, dvl:0, dvnl:0, pkt:0, luot:0 };
     cot.forEach(function (i, k2) {
       if (i <= li) return;
       var v = soVN(r[i]);
@@ -142,12 +143,12 @@ function dung(ds){
         if (tong <= 0) return;
         var chuaTach = cong < 1 && p.tong > 0;
         if (chuaTach && canh.indexOf(p.cn) < 0) canh.push(p.cn);
-        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tong:tong, chuaTach:chuaTach });
+        kd.push({ ten:p.ten, cn:p.cn, lop:p.lop, bdsc:p.bdsc, tong:tong, chuaTach:chuaTach, pkt:p.pkt, luot:p.luot });
         cn[p.cn] = (cn[p.cn] || 0) + tong;
       } else {
         var dv = p.dvl + p.dvnl;
         if (dv <= 0 && p.tong <= 0 && p.ld <= 0) return;
-        kt.push({ ten:p.ten, cn:p.cn, dv:dv, ld:p.ld, tong:Math.max(p.tong, dv) });
+        kt.push({ ten:p.ten, cn:p.cn, dv:dv, ld:p.ld, tong:Math.max(p.tong, dv), pkt:p.pkt, luot:p.luot });
       }
     });
   });
@@ -198,6 +199,50 @@ function khoi(tieu, phu, noi){
 function chip(t, mau, nen){
   return '<span style="padding:2px 8px;border-radius:4px;background:' + nen + ';color:' + mau +
          ';font-size:11px;font-weight:700">' + t + '</span>';
+}
+
+
+/* ═══════ ⚡ BỨT TỐC & VINH DANH — 5 chỉ số, cùng nguồn đường đua ═══════
+   Tracy chốt 21/11/2026: đưa mẫu này lên màn Bước 4. */
+function dinhNhat(ds, f){
+  var x = ds.filter(function (r) { return (r[f] || 0) > 0; })
+            .sort(function (a, b) { return (b[f] || 0) - (a[f] || 0); })[0];
+  return x || null;
+}
+function ngan_(t){ return (t || '').trim().split(' ').slice(-2).join(' '); }
+function oVinh(ico, nhan, ten, so, phu){
+  return '' +
+  '<div style="flex:1;min-width:0;background:#FFFFFF;border:1px solid #D9E2EC;border-radius:10px;' +
+         'padding:8px 10px;display:flex;flex-direction:column;gap:2px">' +
+    '<div style="font-size:11px;font-weight:700;color:#5F6B7A;letter-spacing:.3px">' + ico + ' ' + nhan + '</div>' +
+    '<div style="font-size:15px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;' +
+           'text-overflow:ellipsis">' + (ten || '—') + '</div>' +
+    '<div style="font-size:13px;font-weight:800;color:#2F75B5">' + (so || '—') + '</div>' +
+    (phu ? '<div style="font-size:10px;color:#9AA7B5">' + phu + '</div>' : '') +
+  '</div>';
+}
+function daiVinhDanh(d){
+  var kd = d.kd, kt = d.kt;
+  var lop  = dinhNhat(kd, 'lop'),  bdsc = dinhNhat(kd, 'bdsc');
+  var pkt  = dinhNhat(kt, 'pkt'),  luot = dinhNhat(kt, 'luot');
+  var dau  = kd[0] || null;                       /* kinh doanh tổng doanh thu cao nhất */
+  function phu_(ds, f){
+    var co = ds.filter(function (r) { return (r[f] || 0) > 0; }).length;
+    return co + '/' + ds.length + ' người có nhập';
+  }
+  return '' +
+  '<div style="display:flex;gap:8px;align-items:stretch">' +
+    oVinh('🏆', 'Doanh thu kinh doanh cao nhất', dau ? ngan_(dau.ten) : null,
+          dau ? tr(dau.tong) + ' tr' : null, dau ? TEN_CN[dau.cn] : '') +
+    oVinh('🛞', 'Doanh thu lốp cao nhất', lop ? ngan_(lop.ten) : null,
+          lop ? tr(lop.lop) + ' tr' : null, phu_(kd, 'lop')) +
+    oVinh('🛠', 'Doanh thu BD + SC cao nhất', bdsc ? ngan_(bdsc.ten) : null,
+          bdsc ? tr(bdsc.bdsc) + ' tr' : null, phu_(kd, 'bdsc')) +
+    oVinh('🔧', 'KTV nhiều phiếu kiểm tra xe nhất', pkt ? ngan_(pkt.ten) : null,
+          pkt ? Math.round(pkt.pkt) + ' phiếu' : null, phu_(kt, 'pkt')) +
+    oVinh('🚗', 'KTV tiếp nhận nhiều lượt xe nhất', luot ? ngan_(luot.ten) : null,
+          luot ? Math.round(luot.luot) + ' lượt' : null, phu_(kt, 'luot')) +
+  '</div>';
 }
 
 function ve(){
@@ -253,7 +298,9 @@ function ve(){
     khoi('🏆 VINH DANH KINH DOANH · TOP 3', 'Vạch chuẩn tháng: lốp 350tr + ngoài lốp 100tr = 450tr' +
          (themKd ? ' · còn ' + themKd + ' người đang chạy' : ''), h2) +
     khoi('🔧 VINH DANH KỸ THUẬT VIÊN · TOP 3', 'Vạch chuẩn tháng: công dịch vụ (DVL + DVNL) 20tr' +
-         (themKt ? ' · còn ' + themKt + ' người đang chạy' : ''), h3);
+         (themKt ? ' · còn ' + themKt + ' người đang chạy' : ''), h3) +
+    khoi('⚡ BỨT TỐC & VINH DANH', 'Số thật từ đường đua · ai không nhập dòng đó thì bằng 0',
+         daiVinhDanh(d));
   veDau();
 }
 
