@@ -117,8 +117,15 @@
     if (DS === null) { dong('—', 'đang đọc bảng CONG_VIEC của app…', '', '…', '#EEF2F6', '#5F6B7A'); return; }
 
     var cn = (window.PLG_LOC && window.PLG_LOC.cn) || 'TAT';
-    var ds = DS.filter(function (v) { return cn === 'TAT' || v.cn === cn; });
-    if (!ds.length) {
+    var tatCa = DS.filter(function (v) { return cn === 'TAT' || v.cn === cn; });
+    /* Bảng hiện đúng view _CV_CHUA_LAM của app: chỉ việc CHƯA LÀM.
+       Ba thẻ số vẫn tính trên toàn bộ việc của kỳ, vì câu hỏi của bước 2
+       là "hứa gì, làm được gì" — bỏ việc đã xong thì không trả lời được. */
+    var ds = tatCa.filter(function (v) { return !v.xong; });
+    if (!ds.length && tatCa.length) {
+      dong('—', 'Cả ' + tatCa.length + ' việc đều đã xong — không còn việc tồn',
+           '', 'Xong hết', '#E7F5EC', '#1E6B3A');
+    } else if (!ds.length) {
       dong('—', 'Bảng CONG_VIEC chưa có việc nào cho chi nhánh đang chọn', '', '—', '#EEF2F6', '#5F6B7A');
     } else {
       /* việc chưa xong lên trước, trễ lên đầu — đúng tinh thần _CV_CHUA_LAM */
@@ -127,7 +134,11 @@
         if (a.tre !== b.tre) return a.tre ? -1 : 1;
         return 0;
       });
-      ds.slice(0, 12).forEach(function (v) {
+      if (ds.length > 11) {
+        dong('', '… và ' + (ds.length - 11) + ' việc chưa làm nữa trong bảng CONG_VIEC',
+             '', '+' + (ds.length - 11), '#EEF2F6', '#5F6B7A');
+      }
+      ds.slice(0, 11).forEach(function (v) {
         var nhan = v.xong ? 'Xong' : (v.tre ? '🔥 Trễ · ' + v.tt : (v.tt || 'Chờ thực hiện'));
         var nen = v.xong ? '#E7F5EC' : (v.tre ? '#FBE4E2' : '#FFF2CC');
         var chu = v.xong ? '#1E6B3A' : (v.tre ? '#B42318' : '#6B4500');
@@ -142,10 +153,11 @@
       });
     }
 
-    /* 3 thẻ số — tính thật, kể cả khi danh sách rỗng */
-    var soXong = ds.filter(function (v) { return v.xong; }).length;
-    var soTre = ds.filter(function (v) { return v.tre; }).length;
-    var soLam = ds.length - soXong - soTre;
+    /* 3 thẻ số — tính trên TOÀN BỘ việc của kỳ, không chỉ việc đang hiện */
+    var soXong = tatCa.filter(function (v) { return v.xong; }).length;
+    var soTre = tatCa.filter(function (v) { return v.tre; }).length;
+    var soLam = tatCa.length - soXong - soTre;
+    var ds = tatCa;
     var the = $$('div[style*="font-size: 30px"]', sec);
     function nhan(e, chu) { if (e && e.previousElementSibling) e.previousElementSibling.textContent = chu; }
     if (the[0]) {
@@ -159,6 +171,13 @@
       the[2].style.color = soTre ? '#B42318' : '#1E6B3A';
       nhan(the[2], '🔥 Trễ hạn');
     }
+
+    /* nói rõ bảng đang hiện gì, để không ai tưởng đây là toàn bộ việc */
+    var tieu = $$('div,span', sec).filter(function (e) {
+      return e.children.length === 0 && /^Việc đã hứa$/.test(gon(e.textContent));
+    })[0];
+    if (tieu) tieu.textContent = 'Việc đã hứa · đang hiện ' + ds.filter(function (v) { return !v.xong; }).length
+      + ' việc chưa làm';
 
     var b = sec.querySelector('.pl-badge-nguon');
     if (b && /MINH HỌA|ĐANG TẢI/.test(b.textContent || '')) {
