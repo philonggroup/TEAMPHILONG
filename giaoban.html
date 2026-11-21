@@ -1687,7 +1687,7 @@ function apHoTro(j) {
   });
 
   /* 4. Nhãn đầu màn */
-  dat('ht.tieude', 'Cần hỗ trợ · chốt từ kết quả KH 90 ngày' + (k.tuan ? ' (W' + k.tuan + ')' : ''));
+  dat('ht.tieude', 'Ba việc đã gửi trước 17:00 hôm qua' + (k.tuan ? ' · W' + k.tuan : ''));
   dat('ht.ghichu',
     thoat_('Quý 4 đã đi ' + k.ngay_da_qua + '/' + k.tong_ngay + ' ngày = ' + pctVN(tienDo) + ' — chuẩn so sánh')
     + '<br/>' + thoat_('Nguồn: tab Kế hoạch 90 ngày quý 4 · 3 workbook chi nhánh'), 'html');
