@@ -76,7 +76,9 @@
 
   function nut(loai, ma, chu, bat, mo) {
     return '<button type="button" data-tc="' + loai + '" data-ma="' + ma + '" '
-      + 'style="cursor:' + (mo ? 'pointer' : 'default') + ';border:1px solid '
+      + 'title="' + (mo ? 'Áp cho cả trang — màn này đổi số theo lựa chọn'
+                        : 'Áp cho cả trang — màn đang xem không có số đổi theo lựa chọn này')
+      + '" style="cursor:pointer;border:1px solid '
       + (bat ? '#2F75B5' : '#D9E2EC') + ';background:' + (bat ? '#2F75B5' : '#FFFFFF')
       + ';color:' + (bat ? '#FFFFFF' : (mo ? '#5F6B7A' : '#AEBACA'))
       + ';font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;font-family:inherit;white-space:nowrap">'
@@ -143,12 +145,10 @@
             ? b.closest('[data-tc-thanh]').getAttribute('data-tc-thanh') : '';
 
     if (loai === 'ky') {
-      if (!CO_KY[man]) return;                  /* màn không theo kỳ: nút không ăn */
       PLG_LOC.ky = ma; luu(); apKy(ma); veTatCa();
       return;
     }
     if (loai === 'cn') {
-      if (!CO_CN[man]) return;
       PLG_LOC.cn = ma; luu(); apCN(ma); veTatCa();
       /* đứng ở màn toàn cảnh mà chọn 1 chi nhánh thì mở luôn màn giải trình */
       if (man === 'Main' && MAN_CN[ma]) location.hash = '#' + MAN_CN[ma];
