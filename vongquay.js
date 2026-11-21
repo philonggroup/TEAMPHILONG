@@ -256,6 +256,9 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', chay);
   else chay();
-  setTimeout(function () { if (!lay('ds', '')) { ds = napDS(); ve(); } }, 6000);
+  /* tên live của Bước 1 về muộn: nạp lại khi người dùng chưa tự sửa danh sách */
+  [4000, 8000, 14000].forEach(function (ms) {
+    setTimeout(function () { if (!lay('ds', '')) { ds = napDS(); ve(); } }, ms);
+  });
   setInterval(chay, 2500);
 })();
