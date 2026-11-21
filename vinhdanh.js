@@ -160,7 +160,7 @@ function dung(ds){
 /* ---------- vẽ ---------- */
 function tr(v){ return Math.round(v || 0).toLocaleString('vi-VN'); }
 function xe(mau){
-  return '<svg viewBox="0 0 64 30" width="42" height="20" aria-hidden="true">' +
+  return '<svg viewBox="0 0 64 30" width="58" height="27" aria-hidden="true">' +
     '<path d="M3 22h58l-3-7-11-2-7-7H24l-5 7-13 2z" fill="' + mau + '"/>' +
     '<path d="M24 8h13l5 5H21z" fill="#FFFFFF" opacity=".75"/>' +
     '<circle cx="17" cy="24" r="5" fill="#1F2933"/><circle cx="17" cy="24" r="2" fill="#E3EBF5"/>' +
@@ -171,20 +171,27 @@ function lan(o){
   var pctThat = o.pct != null ? Math.round(o.pct)
               : (o.chuan > 0 ? Math.round(o.giaTri / o.chuan * 100) : 0);
   var pct = Math.max(0, Math.min(pctThat, 100));
+  o.so = tr(o.giaTri) + ' ' + (o.dvi || 'tr');
   return '' +
-  '<div style="display:flex;align-items:center;gap:10px;height:36px">' +
-    '<div style="width:26px;text-align:center;font-size:20px;line-height:1">' + (o.huy || '') + '</div>' +
+  '<div class="vd-lan" data-vd-ten="' + (o.ten || '').replace(/"/g, '') + '"' +
+       ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
+       ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
+       ' style="display:flex;align-items:center;gap:10px;height:44px;cursor:pointer;border-radius:8px"' +
+       ' title="Bấm để chúc mừng">' +
+    '<div style="width:26px;text-align:center;font-size:22px;line-height:1">' + (o.huy || '') + '</div>' +
     '<div style="width:214px;min-width:214px">' +
       '<div style="font-size:14px;font-weight:800;color:#17365D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.ten + '</div>' +
       '<div style="font-size:11px;color:#5F6B7A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + o.phu + '</div>' +
     '</div>' +
-    '<div style="flex:1;min-width:0;position:relative;height:30px;background:#E9EFF6;border-radius:15px;overflow:hidden">' +
-      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:15px"></div>' +
+    '<div style="flex:1;min-width:0;position:relative;height:36px;background:#E9EFF6;border-radius:18px;overflow:hidden">' +
+      '<div style="position:absolute;inset:0 0 0 0;width:' + pct + '%;background:linear-gradient(90deg,' + o.mau + '33,' + o.mau + 'cc);border-radius:18px"></div>' +
       '<div style="position:absolute;top:0;bottom:0;right:0;width:7px;background:repeating-linear-gradient(45deg,#17365D 0 4px,#FFFFFF 4px 8px)"></div>' +
-      '<div style="position:absolute;top:4px;left:' + pct + '%;transform:translateX(-100%)">' + xe(o.mau) + '</div>' +
+      '<div style="position:absolute;top:3px;left:' + pct + '%;transform:translateX(-100%);text-align:center">' +
+        (o.huy ? '<div style="font-size:14px;line-height:1;margin-bottom:-4px">' + o.huy + '</div>' : '') +
+        xe(o.mau) + '</div>' +
     '</div>' +
     '<div style="width:118px;min-width:118px;text-align:right">' +
-      '<div style="font-size:18px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> tr</span></div>' +
+      '<div style="font-size:21px;font-weight:800;color:#17365D;line-height:1.1">' + tr(o.giaTri) + '<span style="font-size:12px"> ' + (o.dvi || 'tr') + '</span></div>' +
       '<div style="font-size:11px;font-weight:700;line-height:1.25;color:' + (o.dat ? '#1E6B3A' : '#B4600A') + '">' + (o.nhan || (pctThat + '% chuẩn')) + '</div>' +
     '</div>' +
   '</div>';
@@ -223,7 +230,7 @@ function oVinh(ico, nhan, ten, so, phu){
 }
 function daiVinhDanh(d){
   var kd = d.kd, kt = d.kt;
-  var lop  = dinhNhat(kd, 'lop'),  bdsc = dinhNhat(kd, 'bdsc');
+  var bdsc = dinhNhat(kd, 'bdsc');
   var pkt  = dinhNhat(kt, 'pkt'),  luot = dinhNhat(kt, 'luot');
   var dau  = kd[0] || null;                       /* kinh doanh tổng doanh thu cao nhất */
   function phu_(ds, f){
@@ -234,8 +241,6 @@ function daiVinhDanh(d){
   '<div style="display:flex;gap:8px;align-items:stretch">' +
     oVinh('🏆', 'Doanh thu kinh doanh cao nhất', dau ? ngan_(dau.ten) : null,
           dau ? tr(dau.tong) + ' tr' : null, dau ? TEN_CN[dau.cn] : '') +
-    oVinh('🛞', 'Doanh thu lốp cao nhất', lop ? ngan_(lop.ten) : null,
-          lop ? tr(lop.lop) + ' tr' : null, phu_(kd, 'lop')) +
     oVinh('🛠', 'Doanh thu BD + SC cao nhất', bdsc ? ngan_(bdsc.ten) : null,
           bdsc ? tr(bdsc.bdsc) + ' tr' : null, phu_(kd, 'bdsc')) +
     oVinh('🔧', 'KTV nhiều phiếu kiểm tra xe nhất', pkt ? ngan_(pkt.ten) : null,
@@ -243,6 +248,55 @@ function daiVinhDanh(d){
     oVinh('🚗', 'KTV tiếp nhận nhiều lượt xe nhất', luot ? ngan_(luot.ten) : null,
           luot ? Math.round(luot.luot) + ' lượt' : null, phu_(kt, 'luot')) +
   '</div>';
+}
+
+
+/* ═══════ 🐉 CHÚC MỪNG — bấm vào người được vinh danh ═══════ */
+function moChucMung(ten, huy, so, phu){
+  var cu = document.getElementById('vd-chucmung');
+  if (cu) cu.parentNode.removeChild(cu);
+  var ov = document.createElement('div');
+  ov.id = 'vd-chucmung';
+  ov.setAttribute('style',
+    'position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(10,24,45,.82);backdrop-filter:blur(2px);cursor:pointer');
+  ov.innerHTML =
+    '<div style="position:relative;max-width:620px;padding:26px 34px;border-radius:18px;text-align:center;' +
+           'background:linear-gradient(160deg,#FFFFFF,#F2F7FD);border:3px solid #F2B705;' +
+           'box-shadow:0 18px 50px rgba(0,0,0,.35);animation:vdZoom .28s ease-out">' +
+      '<img src="troly-philong.png" alt="" style="width:118px;height:118px;object-fit:contain;' +
+             'filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))">' +
+      '<div style="margin-top:6px;font-size:14px;font-weight:800;color:#B4600A;letter-spacing:2px">' +
+        'CHÚC MỪNG' + (huy ? ' ' + huy : '') + '</div>' +
+      '<div style="margin-top:4px;font-size:40px;font-weight:900;color:#17365D;line-height:1.1">' + ten + '</div>' +
+      (phu ? '<div style="margin-top:4px;font-size:14px;color:#5F6B7A">' + phu + '</div>' : '') +
+      (so  ? '<div style="margin-top:10px;display:inline-block;padding:6px 20px;border-radius:999px;' +
+             'background:#F2B705;color:#17365D;font-size:24px;font-weight:900">' + so + '</div>' : '') +
+      '<div style="margin-top:14px;font-size:12px;color:#9AA7B5">Bấm bất kỳ đâu để đóng · ' +
+        'mời nói 30 giây: tôi đã làm khác gì</div>' +
+    '</div>';
+  ov.addEventListener('click', function () {
+    if (ov.parentNode) ov.parentNode.removeChild(ov);
+  });
+  var sec = document.getElementById('sc-GB4VinhDanh');
+  var khung = (sec && sec.querySelector('.pl-frame')) || sec || document.body;
+  khung.style.position = khung.style.position || 'relative';
+  khung.appendChild(ov);
+}
+
+function ganChucMung(){
+  if (document.getElementById('vd-css-zoom')) return;
+  var st = document.createElement('style');
+  st.id = 'vd-css-zoom';
+  st.textContent = '@keyframes vdZoom{from{transform:scale(.72);opacity:0}to{transform:scale(1);opacity:1}}' +
+                   '.vd-lan:hover{background:#F4F9FF;box-shadow:inset 0 0 0 1px #C3D3E3}';
+  document.head.appendChild(st);
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest && e.target.closest('.vd-lan');
+    if (!l) return;
+    moChucMung(l.getAttribute('data-vd-ten'), l.getAttribute('data-vd-huy'),
+               l.getAttribute('data-vd-so'), l.getAttribute('data-vd-phu'));
+  });
 }
 
 function ve(){
@@ -302,6 +356,7 @@ function ve(){
     khoi('⚡ BỨT TỐC & VINH DANH', 'Số thật từ đường đua · ai không nhập dòng đó thì bằng 0',
          daiVinhDanh(d));
   veDau();
+  ganChucMung();
 }
 
 function veDau(){
