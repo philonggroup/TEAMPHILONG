@@ -94,18 +94,26 @@
     }
     var moKy = !!CO_KY[manId], moCN = !!CO_CN[manId];
     var khoang = '';
-    try { if (window.b5KhoangNgay) khoang = b5KhoangNgay().ten; } catch (e) { }
+    try {
+      if (window.b5KhoangNgay) {
+        khoang = b5KhoangNgay().ten
+          .replace(/^cả tháng\s*/i, 'T').replace(/\s*·\s*/g, ': ').replace(/\s*→\s*/, '→');
+      }
+    } catch (e) { }
 
     t.setAttribute('style', 'flex-shrink:0;display:flex;align-items:center;gap:5px;flex-wrap:nowrap;'
       + 'overflow-x:auto;background:#FFFFFF;border:1px solid #D9E2EC;border-radius:8px;padding:3px 9px');
     t.innerHTML =
-      '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.3px;white-space:nowrap">KỲ SỐ LIỆU</span>'
+      '<span title="' + (moKy ? 'Chọn kỳ — số của màn này tính lại theo kỳ'
+                                  : 'Màn này không có số đổi theo kỳ, các nút kỳ để mờ')
+        + '" style="font-size:10px;font-weight:800;letter-spacing:.3px;white-space:nowrap;color:'
+        + (moKy ? '#5F6B7A' : '#AEBACA') + '">KỲ SỐ LIỆU' + (moKy ? '' : ' ·') + '</span>'
       + KY.map(function (x) { return nut('ky', x[0], x[1], PLG_LOC.ky === x[0], moKy); }).join('')
       + (khoang ? '<span style="font-size:10.5px;color:#2F75B5;font-weight:700;white-space:nowrap">· ' + khoang + '</span>' : '')
       + '<span style="width:1px;height:18px;background:#D9E2EC;margin:0 3px"></span>'
       + '<span style="font-size:10px;color:#5F6B7A;font-weight:800;letter-spacing:.3px;white-space:nowrap">BÀN CHI NHÁNH</span>'
       + CN.map(function (x) { return nut('cn', x[0], x[1], PLG_LOC.cn === x[0], moCN); }).join('')
-      + (moKy ? '' : '<span style="font-size:10px;color:#B4600A;font-weight:700;white-space:nowrap">· màn này không đổi theo kỳ</span>');
+      + '';
   }
 
   function veTatCa() { MAN.forEach(veMot); }
