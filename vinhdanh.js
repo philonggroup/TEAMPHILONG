@@ -325,11 +325,13 @@ function daiTren(d){
   /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
   var luotKd = dinhNhat(d.kd, 'luot');
   function phuKd(f){ return d.kd.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kd.length; }
-  var bgTop = null;
+  var bgTop = null, coNguonBg = false;
   if (KPI_CN) Object.keys(KPI_CN).forEach(function (c) {
     if (CN_LOC && c !== CN_LOC) return;
     var x = KPI_CN[c];
-    if (x && x.baogia > 0 && (!bgTop || x.baogia > bgTop.baogia)) bgTop = x;
+    if (!x) return;
+    coNguonBg = true;
+    if (x.baogia > 0 && (!bgTop || x.baogia > bgTop.baogia)) bgTop = x;
   });
   var butTocKd =
     '🚗 ' + (luotKd ? '<b>' + ngan_(luotKd.ten) + '</b> · ' + Math.round(luotKd.luot) +
@@ -337,7 +339,9 @@ function daiTren(d){
           : 'chưa có số lượt xe') +
     '<br>📄 ' + (bgTop ? '<b>' + TEN_CN[bgTop.cn] + '</b> · ' + Math.round(bgTop.baogia) +
             ' báo giá <span style="color:#9AA7B5;font-weight:400">(theo chi nhánh)</span>'
-          : '<span style="color:#B4600A">báo giá: file KPI chưa có dòng theo từng người</span>');
+          : (coNguonBg
+              ? '<b>0</b> báo giá trong tháng <span style="color:#9AA7B5;font-weight:400">(theo chi nhánh)</span>'
+              : '<span style="color:#B4600A">chưa đọc được số báo giá</span>'));
 
   return '<div style="display:flex;gap:8px;align-items:stretch">' +
     oTren('🔥', 'BỨT TỐC · KỸ THUẬT VIÊN', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
