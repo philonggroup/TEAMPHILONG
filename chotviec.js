@@ -35,9 +35,12 @@
   /* sửa tay tại họp lưu theo khoá gốc, nên sửa xong vẫn giữ đúng dòng */
   function khoaSua(v, truong) { return 'sua.' + khoaViec(v).slice(3) + '.' + truong; }
   function apSua(v) {
+    /* giữ nguyên bản đọc từ file, sửa tay chỉ phủ lên bản sao —
+       xoá sửa tay thì giá trị file quay lại ngay */
+    if (!v.g) v.g = { lam: v.lam, ai: v.ai, han: v.han, do: v.do };
     ['lam', 'ai', 'han', 'do'].forEach(function (t) {
       var x = lay(khoaSua(v, t), null);
-      if (x !== null) v[t] = x;
+      v[t] = (x === null) ? v.g[t] : x;
     });
     return v;
   }
@@ -169,7 +172,7 @@
     });
     /* giữ bản gốc để khoá không đổi, rồi áp các ô đã sửa tay tại họp */
     tat = tat.map(function (v) {
-      if (!v.goc) v.goc = v.lam;
+      if (!v.goc) v.goc = v.lam;      /* khoá dòng, không đổi khi sửa tay */
       return apSua(v);
     });
     var ds = tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
