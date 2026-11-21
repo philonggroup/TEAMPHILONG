@@ -235,7 +235,7 @@
     dat('[data-k$=".chiso"]',                '13px', '24px');
     dat('[data-gt^="B5 đã thử"]',            '13px', '20px');
     dat('[data-k$=".chuaxong"]', '11.5px', '18px', function (e, f) {
-      e.style.maxHeight = f ? '230px' : '132px';
+      e.style.maxHeight = f ? '186px' : '132px';
       e.style.lineHeight = f ? '1.75' : '1.45';
     });
     dat('.b5-dong',                          '12px', '20px', function (e, f) {
@@ -266,6 +266,13 @@
       the.style.gap = full ? '14px' : '9px';
       the.style.padding = full ? '20px 28px' : '12px 15px';
       co(the, full);
+    });
+    /* đang bàn 1 chi nhánh thì giấu khối NHỊP 7 PHÚT để lấy chỗ cho nội dung */
+    var man = document.getElementById('sc-GB5HoTro');
+    if (man) Array.prototype.slice.call(man.querySelectorAll('div')).forEach(function (e) {
+      var d = e.firstElementChild;
+      if (!d || (d.textContent || '').trim() !== 'NHỊP 7 PHÚT CHO MỖI VIỆC') return;
+      e.style.display = (CHON === null) ? '' : 'none';
     });
     Array.prototype.slice.call(document.querySelectorAll('[data-b5-nut]')).forEach(function (n) {
       var v = n.getAttribute('data-b5-nut');
