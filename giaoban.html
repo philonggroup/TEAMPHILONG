@@ -1621,7 +1621,10 @@ function htChip(d, co, tienDo) {
 
 function apHoTro(j) {
   var k = j && j.kh90;
-  var dsCN = (k && k.chinhanh) || [];
+  /* API trả chinhanh dạng object {CN1:…, CN2:…, CN3:…} — đổi sang mảng */
+  var cnRaw = (k && k.chinhanh) || null;
+  var dsCN = Array.isArray(cnRaw) ? cnRaw
+           : (cnRaw ? Object.keys(cnRaw).map(function (x) { return cnRaw[x]; }) : []);
   if (!k || k.ok !== true || !dsCN.length) {
     dat('ht.ghichu', 'Chưa đọc được tab Kế hoạch 90 ngày quý 4' + (k && k.loi ? ' · ' + k.loi : ''));
     return false;
