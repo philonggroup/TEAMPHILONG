@@ -7,7 +7,7 @@
    file PHI LONG_GROUP. Không đụng tới ô số live của Apps Script.
    ════════════════════════════════════════════════════════════════════ */
 (function () {
-  var MAN = ['GB3BinhDuong', 'GB3BinhPhuoc', 'GB3ChiNhanh3'];
+  var MAN = ['GB3BinhDuong', 'GB3BinhPhuoc', 'GB3ChiNhanh3', 'GB5HoTro'];
   var VIEN = '1px dashed #C3D3E3';
 
   /* chữ gợi ý cho ô trống */
