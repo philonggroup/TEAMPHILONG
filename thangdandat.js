@@ -73,16 +73,30 @@
       if (last > 0) cot = last - 1;
     }
     if (cot < 0) cot = 20;
-    var ra = {};
+    /* cột của từng ngày trong tháng — để lọc theo kỳ ở màn Bước 5 */
+    var cotNgay = {};
+    for (i = 0; i < R.length && !Object.keys(cotNgay).length; i++) {
+      r = R[i]; var tam = {};
+      for (j = 0; j < r.length; j++) {
+        var mn = ((r[j] || '') + '').trim().match(/^(\d{1,2})\/(\d{1,2})$/);
+        if (mn) tam[parseInt(mn[1], 10)] = j;
+      }
+      if (Object.keys(tam).length > 10) cotNgay = tam;
+    }
+
+    var ra = {}, theo = {};
     for (i = 0; i < R.length; i++) { r = R[i];
       key = (r[0] || '') + ' ' + (r[1] || '');
       for (j = 0; j < DO.length; j++) {
         if (!DO[j] || ra[j] !== undefined) continue;
         if (!DO[j].test(key)) continue;
         ra[j] = { kpi: so(r[cot]), dat: so(r[cot + 2]) };
+        var m2 = {};
+        Object.keys(cotNgay).forEach(function (d) { m2[d] = so(r[cotNgay[d]]); });
+        theo[j] = m2;
       }
     }
-    return { ngay: ngay, chi: ra };
+    return { ngay: ngay, chi: ra, theo: theo, soNgayCo: Object.keys(cotNgay).length };
   }
   /* chia sẻ số luỹ kế tháng cho màn Bước 5 dùng chung một nguồn */
   var MA_CN = { GB3BinhDuong: 'CN1', GB3BinhPhuoc: 'CN2', GB3ChiNhanh3: 'CN3' };
