@@ -2634,3 +2634,33 @@ html.khoa #troly{display:none}
   tiep(); setInterval(tiep,3800);
 })();
 </script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   CHE DO GON KHI HOP — duaxe.html?gon=1
+   Tracy chot 21/11/2026: trong man Buoc 3 · Toan canh cua giaoban.html
+   chi de phan duong dua truc quan. An: Tra soat truoc khi cong bo ·
+   bang Tay dua · Tram kinh doanh · Tram ky thuat vien.
+   Mo duaxe.html truc tiep (khong co ?gon=1) thi van hien du.
+   ════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!/[?&]gon=1/.test(location.search)) return;
+  var TIEU_DE = ['tra soát trước khi công bố', 'trạm kinh doanh', 'trạm kỹ thuật viên'];
+  function gon(t) { return (t || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+  function an(el) { if (el) el.style.display = 'none'; }
+  function chay() {
+    Array.prototype.slice.call(document.querySelectorAll('h2, h3')).forEach(function (h) {
+      if (TIEU_DE.indexOf(gon(h.textContent)) < 0) return;
+      an(h.closest('section') || h.parentElement);
+    });
+    Array.prototype.slice.call(document.querySelectorAll('table')).forEach(function (t) {
+      var co = Array.prototype.slice.call(t.querySelectorAll('th'))
+        .some(function (th) { return gon(th.textContent) === 'tay đua'; });
+      if (co) an(t.parentElement);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', chay);
+  else chay();
+  setInterval(chay, 3000);
+})();
+</script>
