@@ -314,12 +314,13 @@ function daiTren(d){
   /* 🔥 BỨT TỐC = 2 chỉ số sức làm của KTV */
   var pkt = dinhNhat(d.kt, 'pkt'), luot = dinhNhat(d.kt, 'luot');
   function phu2(f){ return d.kt.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + d.kt.length; }
+  var mo = 'color:#FFD9BF;font-weight:400;font-size:13px';
   var butToc =
-    '🔧 ' + (pkt ? '<b>' + ngan_(pkt.ten) + '</b> · ' + Math.round(pkt.pkt) +
-            ' phiếu kiểm tra an toàn <span style="color:#9AA7B5;font-weight:400">(' + phu2('pkt') + ' có nhập)</span>'
+    '🔧 ' + (pkt ? '<b style="font-size:21px">' + ngan_(pkt.ten) + '</b> · <b>' + Math.round(pkt.pkt) +
+            '</b> phiếu kiểm tra an toàn <span style="' + mo + '">(' + phu2('pkt') + ' có nhập)</span>'
           : 'chưa có số phiếu kiểm tra') +
-    '<br>🚗 ' + (luot ? '<b>' + ngan_(luot.ten) + '</b> · ' + Math.round(luot.luot) +
-            ' lượt xe phục vụ <span style="color:#9AA7B5;font-weight:400">(' + phu2('luot') + ' có nhập)</span>'
+    '<br>🚗 ' + (luot ? '<b style="font-size:21px">' + ngan_(luot.ten) + '</b> · <b>' + Math.round(luot.luot) +
+            '</b> lượt xe phục vụ <span style="' + mo + '">(' + phu2('luot') + ' có nhập)</span>'
           : 'chưa có số lượt xe');
   var cupTxt = cup.length ? cup.join(' · ') : 'chưa có ai qua vạch chuẩn';
   /* 🔥 BỨT TỐC KINH DOANH: lượt xe phục vụ (theo người) + báo giá (file chỉ có theo chi nhánh) */
@@ -343,11 +344,28 @@ function daiTren(d){
               ? '<b>0</b> báo giá trong tháng <span style="color:#9AA7B5;font-weight:400">(theo chi nhánh)</span>'
               : '<span style="color:#B4600A">chưa đọc được số báo giá</span>'));
 
-  return '<div style="display:flex;gap:8px;align-items:stretch">' +
-    oTren('🔥', 'BỨT TỐC · KỸ THUẬT VIÊN', butToc, '#E8743B', 'linear-gradient(135deg,#FFF1E8,#FFE3D1)') +
-    oTren('🔥', 'BỨT TỐC · KINH DOANH', butTocKd, '#2F75B5', 'linear-gradient(135deg,#EAF2FB,#D7E6F7)') +
-    oTren('🏆', 'ĐANG GIỮ CÚP VÀNG', cupTxt, '#F2B705', 'linear-gradient(135deg,#FFF8E1,#FFEFBF)') +
-  '</div>';
+  /* 21/11/2026 Tracy chốt: chỉ hiện ô BỨT TỐC · KỸ THUẬT VIÊN, làm thật nổi.
+     Hai ô kia (kinh doanh, cúp vàng) tạm ẩn — đổi HIEN_THEM thành true để bật lại. */
+  var HIEN_THEM = false;
+  var oChinh =
+    '<div style="display:flex;align-items:center;gap:16px;padding:11px 20px;border-radius:14px;' +
+           'background:linear-gradient(118deg,#FF7A18,#E8431B 55%,#B4210A);' +
+           'box-shadow:0 7px 22px rgba(232,67,27,.35)">' +
+      '<div style="font-size:46px;line-height:1;animation:vdNhun 1.3s ease-in-out infinite;' +
+             'filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))">🔥</div>' +
+      '<div style="min-width:0;flex:1">' +
+        '<div style="font-size:12px;font-weight:900;color:#FFE9D6;letter-spacing:2.5px">' +
+          'BỨT TỐC MẠNH NHẤT · KỸ THUẬT VIÊN</div>' +
+        '<div style="font-size:17px;font-weight:800;color:#FFFFFF;line-height:1.45;margin-top:2px">' +
+          butToc + '</div>' +
+      '</div>' +
+    '</div>';
+  if (!HIEN_THEM) return oChinh;
+  return oChinh +
+    '<div style="display:flex;gap:8px;align-items:stretch;margin-top:8px">' +
+      oTren('🔥', 'BỨT TỐC · KINH DOANH', butTocKd, '#2F75B5', 'linear-gradient(135deg,#EAF2FB,#D7E6F7)') +
+      oTren('🏆', 'ĐANG GIỮ CÚP VÀNG', cupTxt, '#F2B705', 'linear-gradient(135deg,#FFF8E1,#FFEFBF)') +
+    '</div>';
 }
 
 function phuKtv(d){
