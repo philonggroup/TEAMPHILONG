@@ -360,9 +360,17 @@
     return tat.filter(function (v) { return cnDang === 'TAT' || v.cn === cnDang; });
   }
   function tuanQuy() {
-    var e = document.querySelector('[data-k="nhan.sidebar"]');
+    /* ưu tiên số tuần đang hiện ở Bước 7, nếu chưa có thì tính tuần ISO
+       từ ngày hệ thống để không bao giờ ghi biên bản thiếu số tuần */
+    var e = document.querySelector('[data-k7="tuan"]')
+         || document.querySelector('[data-k="nhan.sidebar"]');
     var m = e ? (e.textContent || '').match(/tuần\s*(\d+)/i) : null;
-    return m ? ('W' + m[1]) : '';
+    if (m) return 'W' + m[1];
+    var n = new Date();
+    var d = new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var dau = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return 'W' + Math.ceil(((d - dau) / 86400000 + 1) / 7);
   }
 
   /* ---------- 6c. ghi biên bản về file PHI LONG_GROUP ---------- */
