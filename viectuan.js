@@ -134,10 +134,6 @@
         if (a.tre !== b.tre) return a.tre ? -1 : 1;
         return 0;
       });
-      if (ds.length > 11) {
-        dong('', '… và ' + (ds.length - 11) + ' việc chưa làm nữa trong bảng CONG_VIEC',
-             '', '+' + (ds.length - 11), '#EEF2F6', '#5F6B7A');
-      }
       ds.slice(0, 11).forEach(function (v) {
         var nhan = v.xong ? 'Xong' : (v.tre ? '🔥 Trễ · ' + v.tt : (v.tt || 'Chờ thực hiện'));
         var nen = v.xong ? '#E7F5EC' : (v.tre ? '#FBE4E2' : '#FFF2CC');
@@ -151,6 +147,10 @@
           sp[1].appendChild(p);
         }
       });
+      if (ds.length > 11) {
+        dong('', '… và ' + (ds.length - 11) + ' việc chưa làm nữa trong bảng CONG_VIEC',
+             '', '+' + (ds.length - 11), '#EEF2F6', '#5F6B7A');
+      }
     }
 
     /* 3 thẻ số — tính trên TOÀN BỘ việc của kỳ, không chỉ việc đang hiện */
