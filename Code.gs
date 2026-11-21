@@ -34,7 +34,8 @@ var MAU_TEN_TAB = [
 ];
 
 /* Các dòng cần lấy trong tab KPI ngày (dòng 1 = tiêu đề file) */
-var DONG_CAN = [4, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+var DONG_CAN = [4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+/* dòng 14 = Tỷ lệ chuyển đổi (hoàn tất ÷ vào xưởng) — nhóm II · DẪN DẮT */
 
 /* Cột: F=6 KPI tuần 1, G=7 thực đạt T1, H=8 %T1 … mỗi tuần 3 cột */
 function cotTuan_(n) { return { kpi: 6 + (n - 1) * 3, thuc: 7 + (n - 1) * 3 }; }

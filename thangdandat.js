@@ -11,16 +11,21 @@
     GB3BinhPhuoc: { id: '1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k', gid: '1426227108' },
     GB3ChiNhanh3: { id: '1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc', gid: '247752852'  }
   };
-  /* 13 dòng của bảng chi tiết -> regex dò đúng dòng trong tab. null = tab không có chỉ số này */
+  /* 14 dòng của bảng chi tiết — ĐÚNG THỨ TỰ MAP_CHI_TIET trong giaoban.html.
+     Chuẩn tab: I · DOANH THU (5 dòng) + II · DẪN DẮT (9 dòng).
+     null = tab không có chỉ số này. */
   var DO = [
+    /* I · DOANH THU */
     /DOANH\s*THU\s*M[ỤU]C\s*TIÊU/i,
-    null,
-    /Lượt xe hoàn tất/i,
-    /DT trung b[ìi]nh/i,
     /DT l[ốo]p/i,
-    /BD\s*-\s*SC\s*-\s*PK|NTP/i,
     /DT d[ịi]ch v[ụu]/i,
-    /L[ỐO]P B[ÁA]N RA/i,
+    /BD\s*-\s*SC\s*-\s*PK|NTP/i,
+    null,                               /* Lãi gộp — tab chưa có */
+    /* II · DẪN DẮT */
+    /DT trung b[ìi]nh/i,
+    /Lượt xe vào xưởng/i,
+    /Lượt xe hoàn tất/i,
+    /Tỷ lệ chuyển đổi/i,
     /kiểm tra ATX/i,
     /Báo\s*Gi[áa]/i,
     /Cuộc gọi/i,
