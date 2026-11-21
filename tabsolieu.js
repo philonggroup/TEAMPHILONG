@@ -192,7 +192,13 @@
     cay('Khách hẹn trước', lich, '');
     /* khách vãng lai = lượt hoàn tất trừ lượt có đặt lịch */
     if (xong && lich && xong.dat !== null && lich.dat !== null) {
-      cay('Khách vãng lai', null, '', Math.max(0, xong.dat - lich.dat));
+      var o = nhanTrong(sec, 'Khách vãng lai');
+      var hs = o ? o.nextElementSibling : null;
+      if (hs && hs.children.length) {
+        hs.children[0].textContent = dauCham(Math.max(0, xong.dat - lich.dat));
+        /* không có KPI riêng cho khách vãng lai nên bỏ ô phần trăm */
+        if (hs.children[1]) hs.children[1].style.display = 'none';
+      }
     }
 
     /* doanh thu theo nhóm dịch vụ */
