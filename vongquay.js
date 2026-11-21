@@ -118,7 +118,8 @@
       + 'border-radius:6px;border:1px dashed ' + (sang ? '#B9CCE3' : 'rgba(255,255,255,.45)') + ';'
       + 'background:transparent;color:' + (sang ? '#2F75B5' : '#F2B705') + ';'
       + 'font-family:\'Be Vietnam Pro\',Arial,sans-serif;font-size:11px;font-weight:800;cursor:pointer">'
-      + '+ THÊM THÀNH VIÊN</button>';
+      + '+ THÊM THÀNH VIÊN</button>'
+      + dongCot;
   }
 
   /* ---------- vẽ vòng quay ---------- */
