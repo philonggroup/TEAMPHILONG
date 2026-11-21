@@ -230,6 +230,19 @@ function oVinh(ico, nhan, ten, so, phu){
     (phu ? '<div style="font-size:10px;color:#9AA7B5">' + phu + '</div>' : '') +
   '</div>';
 }
+/* 2 chỉ số KTV gọn trong phụ đề khối — không chiếm thêm dòng */
+function phuKtv(d){
+  var kt = d.kt;
+  var pkt = dinhNhat(kt, 'pkt'), luot = dinhNhat(kt, 'luot');
+  function co(f){ return kt.filter(function (r) { return (r[f] || 0) > 0; }).length + '/' + kt.length; }
+  var p = [];
+  if (pkt)  p.push('🔧 nhiều phiếu kiểm tra xe nhất: <b style="color:#17365D">' + ngan_(pkt.ten) +
+                   ' ' + Math.round(pkt.pkt) + '</b> <span style="color:#9AA7B5">(' + co('pkt') + ' có nhập)</span>');
+  if (luot) p.push('🚗 tiếp nhận nhiều lượt xe nhất: <b style="color:#17365D">' + ngan_(luot.ten) +
+                   ' ' + Math.round(luot.luot) + '</b> <span style="color:#9AA7B5">(' + co('luot') + ' có nhập)</span>');
+  return p.length ? '<br>' + p.join(' · ') : '';
+}
+
 function daiVinhDanh(d){
   var kd = d.kd, kt = d.kt;
   /* bdsc nay co khoi vinh danh rieng, khong lap lai o dai duoi */
@@ -364,9 +377,7 @@ function ve(){
          (chuaTach ? ' · ' + chuaTach + ' người chưa tách dòng tiền trong file' : ''), h2a) +
     khoi('🏆 VINH DANH KINH DOANH · 🛠 BẢO DƯỠNG + SỬA CHỮA · TOP 3', 'Vạch chuẩn tháng 100tr', h2b) +
     khoi('🔧 VINH DANH KỸ THUẬT VIÊN · TOP 3', 'Vạch chuẩn tháng: công dịch vụ (DVL + DVNL) 20tr' +
-         (themKt ? ' · còn ' + themKt + ' người đang chạy' : ''), h3) +
-    khoi('⚡ BỨT TỐC & VINH DANH', 'Số thật từ đường đua · ai không nhập dòng đó thì bằng 0',
-         daiVinhDanh(d));
+         (themKt ? ' · còn ' + themKt + ' người đang chạy' : '') + phuKtv(d), h3);
   veDau();
   ganChucMung();
 }
