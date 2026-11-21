@@ -57,10 +57,19 @@ var KHOA = 'PHILONG2026';   // phải khớp CAU_HINH.KHOA trong giaoban.html
      tim     : "tên + địa chỉ" để script tự dò ra placeId rồi nhớ luôn
    link      : link hồ sơ Google để bấm "Mở Google" tại họp (để trống thì
                script tự lấy googleMapsUri của Google).                     */
+/* Chuỗi "tim" dưới đây điền theo 3 địa chỉ chi nhánh trên philongauto.com.
+   TRACY XÁC NHẬN THỨ TỰ trước khi tin số: chi nhánh 01 / 02 / 03 trên web có
+   đúng là PHI LONG 1 / 2 / 3 trong hệ thống báo cáo không. Chạy xemCauHinh()
+   rồi đọc log tên - địa chỉ - số sao để đối chiếu, sai thì chạy
+   ganLink('CN?', 'link Google đúng') là ghi đè lại.                        */
 var DS_CN = [
-  { ma: 'CN1', ten: 'PHI LONG 1', placeId: '', tim: '', link: '' },
-  { ma: 'CN2', ten: 'PHI LONG 2', placeId: '', tim: '', link: '' },
-  { ma: 'CN3', ten: 'PHI LONG 3', placeId: '', tim: '', link: '' }
+  { ma: 'CN1', ten: 'PHI LONG 1', placeId: '',
+    tim: 'Lốp xe Phi Long 561 Phú Riềng Đỏ, Phường Tân Bình, TP Đồng Xoài, Bình Phước', link: '' },
+  { ma: 'CN2', ten: 'PHI LONG 2', placeId: '',
+    tim: 'Lốp xe Phi Long 310 Quốc lộ 14, Phường Tân Đồng, TP Đồng Xoài, Bình Phước', link: '' },
+  { ma: 'CN3', ten: 'PHI LONG 3', placeId: '',
+    tim: 'Michelin Car Service Phi Long 1692 Mỹ Phước Tân Vạn, Phường Hiệp Thành, TP Thủ Dầu Một',
+    link: 'https://maps.app.goo.gl/gsfkMsZrszv9CRdx5' }
 ];
 
 var CACHE_PHUT = 360;   // gọi Places API nhiều nhất 1 lần / 6 giờ (giữ trong hạn miễn phí)
