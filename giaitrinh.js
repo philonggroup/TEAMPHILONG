@@ -229,13 +229,13 @@
     }
     dat('[data-k^="ht.c"][data-k$=".cn"]',   '17px', '30px');
     dat('[data-gt^="B5 câu hỏi"]',           '15px', '26px', function (e, f) {
-      e.style.minHeight = f ? '58px' : '42px';
+      e.style.minHeight = f ? '42px' : '42px';
     });
     dat('[data-gt^="B5 loại việc"]',         '11px', '16px');
     dat('[data-k$=".chiso"]',                '13px', '24px');
     dat('[data-gt^="B5 đã thử"]',            '13px', '20px');
     dat('[data-k$=".chuaxong"]', '11.5px', '18px', function (e, f) {
-      e.style.maxHeight = f ? '186px' : '132px';
+      e.style.maxHeight = f ? '118px' : '132px';
       e.style.lineHeight = f ? '1.75' : '1.45';
     });
     dat('.b5-dong',                          '12px', '20px', function (e, f) {
@@ -263,8 +263,9 @@
       var hien = (CHON === null || CHON === i);
       the.style.display = hien ? 'flex' : 'none';
       var full = (CHON === i);
-      the.style.gap = full ? '14px' : '9px';
-      the.style.padding = full ? '20px 28px' : '12px 15px';
+      the.style.gap = full ? '9px' : '9px';
+      the.style.padding = full ? '14px 26px' : '12px 15px';
+      the.style.overflow = full ? 'auto' : '';   /* không bao giờ cắt mất nội dung */
       co(the, full);
     });
     /* đang bàn 1 chi nhánh thì giấu khối NHỊP 7 PHÚT để lấy chỗ cho nội dung */
