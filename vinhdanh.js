@@ -266,11 +266,11 @@ function oVinh(ico, nhan, ten, so, phu){
 /* dải trên cùng: 🔥 BỨT TỐC (% vượt chuẩn cao nhất) + 🏆 CÚP VÀNG các hạng mục */
 function oTren(ico, nhan, noi, vien, nen){
   return '<div style="flex:1;min-width:0;background:' + nen + ';border:2px solid ' + vien + ';' +
-         'border-radius:12px;padding:7px 13px;display:flex;align-items:center;gap:11px">' +
-    '<div style="font-size:30px;line-height:1">' + ico + '</div>' +
+         'border-radius:12px;padding:6px 10px;display:flex;align-items:center;gap:8px">' +
+    '<div style="font-size:24px;line-height:1">' + ico + '</div>' +
     '<div style="min-width:0;flex:1">' +
       '<div style="font-size:11px;font-weight:800;color:#5F6B7A;letter-spacing:.5px">' + nhan + '</div>' +
-      '<div style="font-size:14px;font-weight:800;color:#17365D;line-height:1.3">' + noi + '</div>' +
+      '<div style="font-size:12.5px;font-weight:800;color:#17365D;line-height:1.35">' + noi + '</div>' +
     '</div></div>';
 }
 function daiTren(d){
