@@ -79,11 +79,27 @@
     var ra = [], sec = el('sc-GB5HoTro');
     if (!sec) return ra;
     Array.prototype.slice.call(sec.querySelectorAll('[data-tick]')).forEach(function (t) {
-      if (t.getAttribute('data-chon') !== '1') return;
+      /* bước 5 đánh dấu chọn bằng ký tự ☑ ngay trong ô tick */
+      if ((t.textContent || '').indexOf('\u2611') < 0) return;
       var d = t.parentNode, chu = gon(d ? d.textContent : '');
-      chu = chu.replace(/^[☑☐]\s*/, '').replace(/→\s*bước\s*6\s*$/i, '');
+      chu = chu.replace(/[\u2611\u2610]/g, '').replace(/→\s*bước\s*6\s*$/i, '');
+      chu = gon(chu);
       if (!chu) return;
-      ra.push({ lam: chu, ai: '', han: '', do: '', tt: 'Chốt tại họp', cn: cnDang === 'TAT' ? 'KHAC' : cnDang, nguon: 'Bước 5' });
+      /* chiến lược nằm trong thẻ chi nhánh nào thì thuộc chi nhánh đó */
+      var ma = 'KHAC', the = d;
+      while (the && the !== sec) {
+        if (the.getAttribute && the.getAttribute('data-b5') !== null) {
+          var i = parseInt(the.getAttribute('data-b5'), 10);
+          var ocn = document.querySelector('[data-k="ht.c' + i + '.cn"]');
+          var tcn = ocn ? gon(ocn.textContent) : '';
+          if (/1/.test(tcn)) ma = 'CN1';
+          else if (/2/.test(tcn)) ma = 'CN2';
+          else if (/3/.test(tcn)) ma = 'CN3';
+          break;
+        }
+        the = the.parentNode;
+      }
+      ra.push({ lam: chu, ai: '', han: '', do: '', tt: 'Chốt tại họp', cn: ma, nguon: 'Bước 5' });
     });
     return ra;
   }
