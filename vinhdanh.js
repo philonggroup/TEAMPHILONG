@@ -175,6 +175,7 @@ function lan(o){
   return '' +
   '<div class="vd-lan" data-vd-ten="' + (o.ten || '').replace(/"/g, '') + '"' +
        ' data-vd-huy="' + (o.huy || '') + '" data-vd-so="' + (o.so || '') + '"' +
+       ' data-vd-dat="' + (o.dat ? '1' : '') + '"' +
        ' data-vd-phu="' + (o.phu || '').replace(/"/g, '') + '"' +
        ' style="display:flex;align-items:center;gap:10px;height:40px;cursor:pointer;border-radius:8px"' +
        ' title="Bấm để chúc mừng">' +
@@ -253,7 +254,16 @@ function daiVinhDanh(d){
 
 
 /* ═══════ 🐉 CHÚC MỪNG — bấm vào người được vinh danh ═══════ */
-function moChucMung(ten, huy, so, phu){
+/* icon cảm xúc Phi Long theo thành tích — bộ stickers/ trong repo */
+function iconCamXuc(huy, dat){
+  if (huy === '🥇') return { anh:'PL_33_cup_vang.png',   loi:'CÚP VÀNG — SỐ MỘT HỆ THỐNG' };
+  if (huy === '🥈') return { anh:'PL_14_an_mung.png',    loi:'CÚP BẠC — ĂN MỪNG NÀO' };
+  if (huy === '🥉') return { anh:'PL_14_an_mung.png',    loi:'CÚP ĐỒNG — ĂN MỪNG NÀO' };
+  if (huy === '🏁') return { anh:'PL_30_quyet_thang.png',loi:'ĐANG DẪN ĐẦU ĐƯỜNG ĐUA' };
+  if (dat)          return { anh:'PL_23_dat_chuan.png',  loi:'ĐÃ QUA VẠCH CHUẨN' };
+  return { anh:'PL_30_quyet_thang.png', loi:'CÒN CHẠY — TUẦN SAU VỀ ĐÍCH' };
+}
+function moChucMung(ten, huy, so, phu, dat){
   var cu = document.getElementById('vd-chucmung');
   if (cu) cu.parentNode.removeChild(cu);
   var ov = document.createElement('div');
@@ -261,14 +271,16 @@ function moChucMung(ten, huy, so, phu){
   ov.setAttribute('style',
     'position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;' +
     'background:rgba(10,24,45,.82);backdrop-filter:blur(2px);cursor:pointer');
+  var ic = iconCamXuc(huy, dat === '1' || dat === true);
   ov.innerHTML =
-    '<div style="position:relative;max-width:620px;padding:26px 34px;border-radius:18px;text-align:center;' +
+    '<div style="position:relative;max-width:620px;padding:24px 34px;border-radius:18px;text-align:center;' +
            'background:linear-gradient(160deg,#FFFFFF,#F2F7FD);border:3px solid #F2B705;' +
            'box-shadow:0 18px 50px rgba(0,0,0,.35);animation:vdZoom .28s ease-out">' +
-      '<img src="troly-philong.png" alt="" style="width:118px;height:118px;object-fit:contain;' +
-             'filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))">' +
-      '<div style="margin-top:6px;font-size:14px;font-weight:800;color:#B4600A;letter-spacing:2px">' +
+      '<img src="stickers/' + ic.anh + '" alt="" style="width:132px;height:132px;object-fit:contain;' +
+             'filter:drop-shadow(0 6px 14px rgba(0,0,0,.25));animation:vdNhun 1.1s ease-in-out infinite">' +
+      '<div style="margin-top:4px;font-size:13px;font-weight:800;color:#B4600A;letter-spacing:2px">' +
         'CHÚC MỪNG' + (huy ? ' ' + huy : '') + '</div>' +
+      '<div style="font-size:12px;font-weight:700;color:#1E6B3A;letter-spacing:1px">' + ic.loi + '</div>' +
       '<div style="margin-top:4px;font-size:40px;font-weight:900;color:#17365D;line-height:1.1">' + ten + '</div>' +
       (phu ? '<div style="margin-top:4px;font-size:14px;color:#5F6B7A">' + phu + '</div>' : '') +
       (so  ? '<div style="margin-top:10px;display:inline-block;padding:6px 20px;border-radius:999px;' +
@@ -290,13 +302,15 @@ function ganChucMung(){
   var st = document.createElement('style');
   st.id = 'vd-css-zoom';
   st.textContent = '@keyframes vdZoom{from{transform:scale(.72);opacity:0}to{transform:scale(1);opacity:1}}' +
+                   '@keyframes vdNhun{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}' +
                    '.vd-lan:hover{background:#F4F9FF;box-shadow:inset 0 0 0 1px #C3D3E3}';
   document.head.appendChild(st);
   document.addEventListener('click', function (e) {
     var l = e.target.closest && e.target.closest('.vd-lan');
     if (!l) return;
     moChucMung(l.getAttribute('data-vd-ten'), l.getAttribute('data-vd-huy'),
-               l.getAttribute('data-vd-so'), l.getAttribute('data-vd-phu'));
+               l.getAttribute('data-vd-so'), l.getAttribute('data-vd-phu'),
+               l.getAttribute('data-vd-dat'));
   });
 }
 
