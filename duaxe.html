@@ -1521,24 +1521,30 @@ function veVinhDanh(){
   });
 
   var pkt  = dinh(kt, 'pkt');                    /* KTV có phiếu kiểm tra xe cao nhất */
-  var luot = dinh(tat, 'luot');                  /* nhân sự tiếp nhận nhiều lượt xe nhất */
+  var luot = dinh(kt, 'luot');                   /* KTV tiếp nhận nhiều lượt xe nhất */
+  var lop  = dinh(kd, 'lop');                    /* kinh doanh: doanh thu lốp cao nhất */
+  var bdsc = dinh(kd, 'bdsc');                   /* kinh doanh: doanh thu BD + SC cao nhất */
 
   /* độ phủ dữ liệu: bao nhiêu người thực sự có nhập dòng đó */
   function phu(ds, f) {
     var co = ds.filter(function (r) { return (r[f] || 0) > 0; }).length;
     return co + '/' + ds.length;
   }
-  var pPkt = phu(kt, 'pkt'), pLuot = phu(tat, 'luot');
+  var pPkt = phu(kt, 'pkt'), pLuot = phu(kt, 'luot'), pLop = phu(kd, 'lop');
 
   el.innerHTML =
     dong_('⚡ Bứt tốc ngày ' + (d ? d + '/11' : '—'),
           bt ? bt.ngan + ' · ' + tr(cao) + 'tr' : '—') +
+    dong_('🛞 Doanh thu lốp cao nhất',
+          lop ? lop.ngan + ' · ' + tr(lop.lop) + 'tr' : '—') +
+    dong_('🛠 Doanh thu BD + SC cao nhất',
+          bdsc ? bdsc.ngan + ' · ' + tr(bdsc.bdsc) + 'tr' : '—') +
     dong_('🔧 KTV nhiều phiếu kiểm tra xe nhất',
           pkt ? pkt.ngan + ' · ' + Math.round(pkt.pkt) + ' phiếu' : '—') +
-    dong_('🚗 Tiếp nhận nhiều lượt xe nhất',
+    dong_('🚗 KTV tiếp nhận nhiều lượt xe nhất',
           luot ? luot.ngan + ' · ' + Math.round(luot.luot) + ' lượt' : '—') +
     '<div class="tram-row" style="opacity:.85"><span>Có nhập số</span><b>' +
-      'phiếu kiểm tra ' + pPkt + ' KTV · lượt xe ' + pLuot + ' người</b></div>';
+      'lốp ' + pLop + ' KD · phiếu kiểm tra ' + pPkt + ' KTV · lượt xe ' + pLuot + ' KTV</b></div>';
 }
 
 /* ═══════ THANH LỌC NGÀY ═══════ */
