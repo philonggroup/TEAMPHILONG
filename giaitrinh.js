@@ -83,3 +83,69 @@
   else chay();
   setInterval(chay, 4000);   /* số live vẽ lại bảng thì gắn lại */
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   SỬA TEXT LINH HOẠT TRÊN Ô SỐ LIVE (data-sua)
+   Tracy chốt 21/11/2026: màn Bước 5 Cần hỗ trợ lấy số thật từ KH 90
+   ngày, nhưng câu hỏi cần hỗ trợ phải sửa được ngay tại họp.
+   Ô nào đã gõ tay thì dat() trong giaoban.html không ghi đè nữa
+   (cờ data-go-tay="1"). Bấm nút ↺ để trả về số live.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  function gon(t) { return (t || '').replace(/\s+/g, ' ').trim(); }
+  function khoa(el) { return 'plg.sua.' + (el.getAttribute('data-k') || el.getAttribute('data-sua')); }
+
+  function gan() {
+    Array.prototype.slice.call(document.querySelectorAll('[data-sua]')).forEach(function (el) {
+      if (el.getAttribute('data-san-sua') === '1') return;
+      el.setAttribute('data-san-sua', '1');
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'false');
+      el.setAttribute('title', el.getAttribute('data-sua') + ' — bấm để sửa khi họp');
+      el.style.outline = 'none';
+      el.style.cursor = 'text';
+      el.style.borderBottom = '1px dashed #C3D3E3';
+
+      var cu = null;
+      try { cu = localStorage.getItem(khoa(el)); } catch (e) { }
+      if (cu) { el.textContent = cu; el.setAttribute('data-go-tay', '1'); }
+
+      el.addEventListener('focus', function () { el.style.background = '#FFF9DB'; });
+      el.addEventListener('blur', function () {
+        el.style.background = 'transparent';
+        var v = gon(el.textContent);
+        el.textContent = v;
+        try {
+          if (v) { localStorage.setItem(khoa(el), v); el.setAttribute('data-go-tay', '1'); }
+          else { localStorage.removeItem(khoa(el)); el.removeAttribute('data-go-tay'); }
+        } catch (e) { }
+      });
+      el.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var t = (e.clipboardData || window.clipboardData).getData('text');
+        document.execCommand('insertText', false, gon(t));
+      });
+
+      /* nút trả về số live */
+      if (el.parentNode && !el.parentNode.querySelector('[data-sua-reset]')) {
+        var a = document.createElement('a');
+        a.setAttribute('data-sua-reset', '1');
+        a.href = 'javascript:void 0';
+        a.textContent = ' ↺';
+        a.title = 'Trả về số live';
+        a.style.cssText = 'color:#9AA7B5;text-decoration:none;font-size:12px;font-weight:400';
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          try { localStorage.removeItem(khoa(el)); } catch (x) { }
+          el.removeAttribute('data-go-tay');
+          el.textContent = 'đang đọc lại số live…';
+        });
+        el.parentNode.appendChild(a);
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', gan);
+  else gan();
+  setInterval(gan, 4000);
+})();
