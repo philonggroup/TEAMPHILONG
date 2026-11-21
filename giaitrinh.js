@@ -149,3 +149,54 @@
   else gan();
   setInterval(gan, 4000);
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   Ô TICK CHỌN CHIẾN LƯỢC — Bước 5
+   Tracy chốt 21/11/2026: mỗi dòng chiến lược có ô tick. Tick rồi thì
+   dòng đó sáng xanh và gắn nhãn "→ bước 6" — việc tự làm được thì đưa
+   thẳng vào bước 6, không cần cả phòng bàn. Trạng thái lưu trên máy.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  function khoa(el) { return 'plg.tick.' + el.getAttribute('data-tick'); }
+
+  function ve(el, chon) {
+    var dong = el.parentNode;
+    el.textContent = chon ? '☑' : '☐';
+    el.style.color = chon ? '#1E6B3A' : '#9AA7B5';
+    if (dong) {
+      dong.style.background = chon ? '#E7F5EC' : 'transparent';
+      dong.style.paddingLeft = chon ? '5px' : '0';
+      var nhan = dong.querySelector('[data-tick-nhan]');
+      if (chon && !nhan) {
+        var s = document.createElement('span');
+        s.setAttribute('data-tick-nhan', '1');
+        s.textContent = '→ bước 6';
+        s.style.cssText = 'color:#1E6B3A;font-weight:700;font-size:10px;white-space:nowrap;' +
+                          'align-self:center;padding-right:4px';
+        dong.appendChild(s);
+      } else if (!chon && nhan) { nhan.parentNode.removeChild(nhan); }
+    }
+  }
+
+  function gan() {
+    Array.prototype.slice.call(document.querySelectorAll('[data-tick]')).forEach(function (el) {
+      if (el.getAttribute('data-san-tick') === '1') return;
+      el.setAttribute('data-san-tick', '1');
+      var chon = false;
+      try { chon = localStorage.getItem(khoa(el)) === '1'; } catch (e) { }
+      ve(el, chon);
+      el.addEventListener('click', function () {
+        var moi = el.textContent.trim() !== '☑';
+        ve(el, moi);
+        try {
+          if (moi) localStorage.setItem(khoa(el), '1');
+          else localStorage.removeItem(khoa(el));
+        } catch (e) { }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', gan);
+  else gan();
+  setInterval(gan, 4000);
+})();
