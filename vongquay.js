@@ -49,15 +49,18 @@
     var luu = lay('ds', '');
     if (luu) { try { var j = JSON.parse(luu); if (j && j.length) return j; } catch (e) { } }
     var ra = MAC_DINH.map(function (x) { return { vai: x.vai, ten: x.ten }; });
+    /* ô live ghi "Phạm Thành Luận · PHI LONG 1" — vai trò đã nêu chi nhánh
+       nên chỉ lấy phần tên cho vừa múi vòng quay */
+    function chiTen(t) { return gon(String(t || '').split('·')[0]); }
     var b1 = document.getElementById('sc-GB1CheckIn');
     if (b1) {
       for (var i = 0; i < 3; i++) {
         var o = b1.querySelector('[data-k="gb1.ql.' + i + '"]');
-        var t = o ? gon(o.textContent) : '';
+        var t = o ? chiTen(o.textContent) : '';
         if (t && t !== '—') ra[i + 1].ten = t;
       }
       var c = b1.querySelector('[data-k="gb1.cskh.ten"]');
-      var tc = c ? gon(c.textContent) : '';
+      var tc = c ? chiTen(c.textContent) : '';
       if (tc && tc !== '—') ra[4].ten = tc;
     }
     return ra;
