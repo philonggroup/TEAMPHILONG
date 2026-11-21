@@ -187,8 +187,11 @@
     var o = nhanTrong(sec, 'Doanh thu theo nhóm dịch vụ');
     if (o && o.parentNode) {
       var cha = o.parentNode;
-      if (cha.getAttribute('data-kq') !== '1') {
-        cha.setAttribute('data-kq', '1');
+      /* vẽ lại khi số chi nhánh đọc được thay đổi — vẽ một lần duy nhất
+         sẽ chốt tỉ lệ theo số của chi nhánh về trước, sai hoàn toàn */
+      var dau = 'cn' + t.soCN;
+      if (cha.getAttribute('data-kq') !== dau) {
+        cha.setAttribute('data-kq', dau);
         while (o.nextElementSibling) cha.removeChild(o.nextElementSibling);
         Object.keys(t.loai).forEach(function (ma) {
           var l = t.loai[ma];
