@@ -265,10 +265,18 @@
         }
       }
       if (e) {
+        /* nói rõ số này gồm mấy chi nhánh — file nào thiếu khối
+           "B. 6 THÁNG CUỐI NĂM" thì không được cộng vào */
+        var thieu = ['CN1', 'CN2', 'CN3'].filter(function (ma) {
+          var d = DU.dg6[ma];
+          return !d || d.loi || d.conPhaiDat === null;
+        });
         e.textContent = 'Q4 còn phải đạt ' + cham(trieu(con)) + ' tr'
           + (ngay ? (' trong ' + Math.round(ngay) + ' ngày còn lại') : '')
           + (canNgay ? (' · cần ' + cham(trieu(canNgay)) + ' tr/ngày') : '')
-          + ' · nguồn ĐÁNH GIÁ 6 THÁNG';
+          + ' · gồm ' + coQ4 + '/3 chi nhánh'
+          + (thieu.length ? (' — ' + thieu.map(function (m) { return TEN_CN[m]; }).join(', ')
+                             + ' chưa có khối "B. 6 THÁNG CUỐI NĂM" trong file') : '');
       }
     }
   }
