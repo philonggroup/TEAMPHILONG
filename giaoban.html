@@ -1021,6 +1021,9 @@ function napLive() {
       var ix = MAN_LIVE.indexOf('GB5HoTro');
       if (ix >= 0) MAN_LIVE.splice(ix, 1);
     }
+    /* Bước 5 · việc cần hỗ trợ gửi từ app (bảng HOP_HO_TRO) — vẽ sau apHoTro
+       để nhãn và 2 ô câu hỏi / đã thử lấy đúng việc thật đã gửi */
+    if (window.PLG_B5_HT) window.PLG_B5_HT();
     datBadge('live', j.capnhat);
   }).catch(function (e) {
     datBadge('loi', String(e.message || e));
@@ -2042,5 +2045,6 @@ function kiemVinhDanh() {
   <script src="manphone.js?v=2"></script>
   <script src="kqkd.js?v=5"></script>
   <script src="viectuan.js?v=3"></script>
+  <script src="hotro.js?v=1"></script>
 </body>
 </html>
