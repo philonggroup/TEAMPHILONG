@@ -48,8 +48,8 @@ Sheet **CARDIY Họp nhanh — Nguồn dữ liệu chuẩn**
 |---|---|
 | `CARDIY_DATA` | Trạng thái máy (JSON), để app tải lại đúng phiên. Ghi thêm dòng mỗi lần lưu → giữ lịch sử |
 | `HOP_BIEN_BAN` | Biên bản: tin tốt, phản hồi, nội dung truyền đạt, điểm họp |
-| `HOP_CAM_KET` | Việc chốt tại họp: ai · làm gì · hạn · trạng thái |
-| `HOP_VAN_DE` | Vấn đề IDS: nguyên nhân · thảo luận · hành động đã chốt |
+| `HANH_DONG` | Việc chốt tại họp: ai · làm gì · hạn · trạng thái |
+| `VAN_DE_IDS` | Vấn đề IDS: nguyên nhân · thảo luận · hành động đã chốt |
 | `HOP_CHAM_DIEM` | Điểm họp từng kỳ, từng chi nhánh |
 
 Sửa chỉ tiêu hoặc số thực đạt thì **sửa ở workbook chi nhánh**, không sửa trong app —

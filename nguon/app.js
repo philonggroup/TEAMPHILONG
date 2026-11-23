@@ -2,7 +2,7 @@
    PHI LONG AUTO — Trang giao ban tuần (9 bước / 60 phút)
    Chuẩn 100% theo canvas demo "Phi Long – Dashboard giao ban (demo)".
    Nguồn VÀO  : 3 workbook hệ thống chuẩn CN1/CN2/CN3 (tab " BÁO CÁO KPI NGÀY T<thang>")
-   Nguồn RA   : file PHI LONG_GROUP (tab HOP_PHIEN / HOP_CAM_KET / HOP_CHUAN_BI / HOP_CO_HOI)
+   Nguồn RA   : file PHI LONG_GROUP (tab HOP_PHIEN / HANH_DONG / HOP_CHUAN_BI / HOP_CO_HOI)
    Cầu nối    : 1 Apps Script Web App (Code.gs đi kèm) — dán URL vào CAU_HINH.API bên dưới.
    =================================================================== */
 'use strict';
@@ -401,7 +401,7 @@ function apViecTuanTruoc(j) {
   if (the[2]) the[2].textContent = 'theo CONG_VIEC';
 }
 
-/* --- 6d. Bước 6 · chốt việc tuần (HOP_CAM_KET) --- */
+/* --- 6d. Bước 6 · chốt việc tuần (HANH_DONG) --- */
 function apChotViec(j) {
   var sec = document.getElementById('sc-GB6ChotViec');
   if (!sec) return;

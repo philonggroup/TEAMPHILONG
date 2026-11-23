@@ -15,8 +15,8 @@
  *   - Sheet "CARDIY Họp nhanh — Nguồn dữ liệu chuẩn"
  *       · CARDIY_DATA   — trạng thái máy (JSON), để app tải lại đúng phiên
  *       · HOP_BIEN_BAN  — biên bản đọc được bằng mắt
- *       · HOP_CAM_KET   — việc chốt tại họp
- *       · HOP_VAN_DE    — vấn đề IDS
+ *       · HANH_DONG   — việc chốt tại họp
+ *       · VAN_DE_IDS    — vấn đề IDS
  *       · HOP_CHAM_DIEM — điểm họp
  *
  * CÀI 1 LẦN:
@@ -45,8 +45,8 @@ var FILE_APP = '1zYikNTqsKFnqOBPxarg2RJk4yaTEZjp3mez74pfRJsI';   // PHI LONG_GRO
 var FILE_RA        = '1Y5G05cBs7kWehsLzqJf5xttSv3hw3kICDoaLc4kFxcU';
 var TAB_TRANG_THAI = 'CARDIY_DATA';
 var TAB_BIEN_BAN   = 'HOP_BIEN_BAN';
-var TAB_CAM_KET    = 'HOP_CAM_KET';
-var TAB_VAN_DE     = 'HOP_VAN_DE';
+var TAB_CAM_KET    = 'HANH_DONG';
+var TAB_VAN_DE     = 'VAN_DE_IDS';
 var TAB_CHAM_DIEM  = 'HOP_CHAM_DIEM';
 
 /* Tên tab lệch khoảng trắng giữa 3 file nên dò theo tên đã chuẩn hoá.

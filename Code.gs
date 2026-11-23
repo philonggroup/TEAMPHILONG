@@ -1,7 +1,7 @@
 /*******************************************************************
  * PHI LONG AUTO — API giao ban tuần (Google Apps Script Web App)
  * Nguồn VÀO : 3 workbook hệ thống chuẩn CN1 / CN2 / CN3
- * Nguồn RA  : file PHI LONG_GROUP (HOP_PHIEN, HOP_CAM_KET, HOP_CHUAN_BI)
+ * Nguồn RA  : file PHI LONG_GROUP (HOP_PHIEN, HANH_DONG, HOP_CHUAN_BI)
  * Dùng cho  : giaoban.html trên philonggroup.github.io/TEAMPHILONG
  *
  * CÀI 1 LẦN:
@@ -361,7 +361,7 @@ function ngay_(v) {
 
 /* ---------- Bước 6 · cam kết tuần ---------- */
 function camKet_(maTuan) {
-  var sh = SpreadsheetApp.openById(FILE_RA).getSheetByName('HOP_CAM_KET');
+  var sh = SpreadsheetApp.openById(FILE_RA).getSheetByName('HANH_DONG');
   if (!sh || sh.getLastRow() < 2) return [];
   var v = sh.getDataRange().getValues(), h = v[0];
   var c = {}; h.forEach(function (x, i) { c[String(x).trim()] = i; });
@@ -448,7 +448,7 @@ function luuThongDiep_(p) {
 }
 
 function themCamKet_(p) {
-  var sh = SpreadsheetApp.openById(FILE_RA).getSheetByName('HOP_CAM_KET');
+  var sh = SpreadsheetApp.openById(FILE_RA).getSheetByName('HANH_DONG');
   var h = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
   var c = {}; h.forEach(function (x, i) { c[String(x).trim()] = i; });
   var hang = new Array(h.length).fill('');
@@ -471,7 +471,7 @@ function themCamKet_(p) {
    việc trên app cho tuần mới; sau một tuần kết quả trả về mục
    "Việc tuần trước".
 
-     1. HOP_CAM_KET — biên bản cam kết của phiên họp
+     1. HANH_DONG — biên bản cam kết của phiên họp
      2. CONG_VIEC   — danh sách việc tuần mới cho app PHI LONG GROUP
      3. HOP_PHIEN   — đóng phiên: trạng thái, số cam kết, điểm họp
 
@@ -489,8 +489,8 @@ function luuBienBan_(p) {
   var tuan = p.tuan || '';
   var dem = { cam_ket: 0, cong_viec: 0, bo_qua: 0 };
 
-  /* ---- 1. HOP_CAM_KET ---- */
-  var shCK = ss.getSheetByName('HOP_CAM_KET');
+  /* ---- 1. HANH_DONG ---- */
+  var shCK = ss.getSheetByName('HANH_DONG');
   var hCK = shCK.getRange(1, 1, 1, shCK.getLastColumn()).getValues()[0];
   var cCK = {}; hCK.forEach(function (x, i) { cCK[String(x).trim()] = i; });
   /* đọc id đã có để không ghi trùng khi bấm hai lần */
@@ -591,7 +591,7 @@ function kiemTra_() {
     } catch (e) { o.loi = String(e.message || e); }
     ra.chi_nhanh.push(o);
   });
-  ['HOP_PHIEN', 'HOP_CAM_KET', 'HOP_CHUAN_BI', 'CONG_VIEC'].forEach(function (t) {
+  ['HOP_PHIEN', 'HANH_DONG', 'HOP_CHUAN_BI', 'CONG_VIEC'].forEach(function (t) {
     var sh = SpreadsheetApp.openById(FILE_RA).getSheetByName(t);
     ra[t] = sh ? ('OK · ' + sh.getLastRow() + ' dòng') : 'KHÔNG THẤY TAB';
   });
