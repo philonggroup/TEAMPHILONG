@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Điều hành họp nhanh theo tuần, tháng, quý và năm của CARDIY.">
+<title>CARDIY | Họp nhanh</title>
+<meta name="theme-color" content="#0c203f">
+<meta name="apple-mobile-web-app-title" content="CARDIY">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="app-192.png" type="image/png">
+<link rel="apple-touch-icon" href="app-180.png">
+<link rel="stylesheet" href="style.css">
+<script src="vendor/jszip.min.js" defer></script>
+<script src="excel.js" defer></script>
+<script src="icons.js" defer></script>
+<script src="awards.js" defer></script>
+<script src="vision-form.js" defer></script>
+<script src="annual-plan.js" defer></script>
+<script src="strategy-excel.js" defer></script>
+<script src="swot.js" defer></script>
+<script src="app.js" defer></script>
+<script src="excel-ui.js" defer></script>
+<script src="assistant.js" defer></script>
+<script src="install.js" defer></script>
+<script src="sheet-sync.js" defer></script>
+<script src="task-preview.js" defer></script>
+<script src="cn1-meeting.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="#" data-view="overview" aria-label="Phi Long Group, tổng quan">
+      <img class="brand-logo" src="plg-plan-love-grow.png" width="1254" height="1254" alt="PLG — PLAN • LOVE • GROW">
+    </a>
+    <div class="side-body"><p class="nav-label">ĐIỀU HÀNH CUỘC HỌP</p><nav id="nav" aria-label="Điều hướng chính"></nav></div>
+    <div class="sidebar-foot"><span class="avatar">PL</span><div><strong>Đội vận hành</strong><small>Phi Long Auto</small></div></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div class="breadcrumbs"><span>Điều hành</span><span aria-hidden="true">/</span><strong id="crumb">Tổng quan</strong></div>
+      <div class="top-controls">
+        <label class="select-label"><span class="sr">Chi nhánh</span><select id="branch"><option>CN3 · Bình Dương</option><option>CN2 · Đồng Xoài</option><option>CN1 · Bình Phước</option><option>Họp chung 3 chi nhánh</option></select></label>
+        <button class="button assistant-trigger" id="open-assistant" data-cardiy-icon="assistant" type="button" aria-haspopup="dialog">Trợ lý ô tô</button>
+        <button class="button secondary" id="install-app" data-cardiy-icon="install" type="button" aria-haspopup="dialog" hidden>Cài app</button>
+        <button class="button secondary" id="open-sheet" data-cardiy-icon="cloud" type="button" aria-haspopup="dialog"><span id="sheet-button-label">Google Sheets</span></button>
+        <span class="avatar top-avatar" title="Đội vận hành">PL</span>
+      </div>
+    </header>
+    <main id="workspace">
+      <div id="content"></div>
+      <p class="storage" id="storage">Dữ liệu mẫu · Tự lưu trên trình duyệt này</p>
+    </main>
+  </div>
+</div>
+<dialog id="editor">
+  <form id="edit-form">
+    <div class="panel-head"><h2 id="edit-title"></h2><button class="icon-button" id="close-editor" type="button" aria-label="Đóng">×</button></div>
+    <div class="fields" id="fields"></div>
+    <div class="form-actions"><button type="button" id="cancel" class="button secondary">Hủy</button><button class="button primary" type="submit">Lưu</button></div>
+  </form>
+</dialog>
+<dialog id="auto-assistant" aria-labelledby="auto-assistant-title">
+  <div class="panel-head">
+    <div><h2 id="auto-assistant-title">Trợ lý ô tô</h2><p>Soạn câu hỏi để hỏi trên ChatGPT.</p></div>
+    <button class="icon-button" id="close-assistant" type="button" aria-label="Đóng trợ lý">×</button>
+  </div>
+  <div class="assistant-body">
+    <div class="assistant-topics" role="group" aria-label="Câu hỏi gợi ý">
+      <button class="button secondary" type="button" data-question="reception" data-cardiy-icon="car">Tiếp nhận xe</button>
+      <button class="button secondary" type="button" data-question="service" data-cardiy-icon="tire">Lốp &amp; bảo dưỡng</button>
+      <button class="button secondary" type="button" data-question="handover" data-cardiy-icon="tasks">Bàn giao ca</button>
+      <button class="button secondary" type="button" data-question="customer" data-cardiy-icon="news">Chăm sóc khách hàng</button>
+    </div>
+    <label for="assistant-question">Câu hỏi của bạn</label>
+    <textarea id="assistant-question" rows="4" maxlength="1600" placeholder="Ví dụ: Khi khách báo xe bị rung, cố vấn cần hỏi thêm những thông tin gì?"></textarea>
+    <p class="assistant-hint">Chỉ mô tả tình huống. Bỏ tên, số điện thoại và biển số của khách.</p>
+    <p id="assistant-status" role="status"></p>
+    <div class="assistant-actions">
+      <button class="button primary" id="copy-assistant" type="button" disabled>Sao chép câu hỏi</button>
+      <a class="button secondary" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Mở ChatGPT</a>
+    </div>
+  </div>
+</dialog>
+<dialog id="install-help" aria-labelledby="install-title">
+  <div class="panel-head">
+    <h2 id="install-title">Cài CARDIY Họp nhanh</h2>
+    <form method="dialog"><button class="icon-button" aria-label="Đóng hướng dẫn cài đặt">×</button></form>
+  </div>
+  <div class="install-instructions">
+    <p><strong>iPhone</strong> · Mở trong Safari, chọn <strong>Chia sẻ → Thêm vào Màn hình chính</strong>. Bật <strong>Mở dưới dạng ứng dụng web</strong> nếu có, rồi chọn <strong>Thêm</strong>.</p>
+    <p><strong>Android</strong> · Mở trong Chrome, bấm <strong>⋮</strong> rồi chọn <strong>Cài đặt ứng dụng</strong> hoặc <strong>Thêm vào màn hình chính</strong>.</p>
+    <p><strong>Máy tính</strong> · Trong Chrome hoặc Edge, tìm biểu tượng cài ứng dụng trên thanh địa chỉ hoặc trong menu.</p>
+  </div>
+</dialog>
+<dialog id="sheet-dialog" aria-labelledby="sheet-title">
+  <div class="panel-head">
+    <div><h2 id="sheet-title">Nguồn dữ liệu Google Sheets</h2><p>PHI LONG_GROUP · Tab CARDIY_DATA</p></div>
+    <button class="icon-button" id="close-sheet" type="button" aria-label="Đóng nguồn dữ liệu">×</button>
+  </div>
+  <div class="sheet-dialog-body">
+    <p>Dùng tài khoản có quyền trên Google Sheet. Sau khi chỉnh KPI, giao việc hoặc chốt biên bản, bấm <strong>Lưu lên Google Sheets</strong> để các thiết bị khác đọc được. Sheet lưu lịch sử phiên bản theo thứ tự ghi; chỉnh nội dung trong CARDIY.</p>
+    <p id="sheet-status" role="status"></p>
+    <div class="sheet-actions">
+      <button class="button secondary" id="load-sheet" type="button">Mở dữ liệu Google Sheets</button>
+      <button class="button primary" id="save-sheet" type="button" hidden>Lưu lên Google Sheets</button>
+      <a class="button secondary" id="sheet-sign-in" target="_top" href="/signin-with-chatgpt?return_to=%2F%3Fsheet%3D1" hidden>Đăng nhập ChatGPT</a>
+      <button class="button secondary" id="leave-sheet" type="button" hidden>Về dữ liệu trên máy</button>
+    </div>
+  </div>
+</dialog>
+<dialog id="cn1-meeting" aria-labelledby="cn1-title">
+  <div class="panel-head">
+    <div><h2 id="cn1-title">Họp CN1 Bình Phước</h2><p>Tháng 11/2026 · Dữ liệu Google Sheets</p></div>
+    <form method="dialog"><button class="icon-button" aria-label="Đóng bảng họp CN1">×</button></form>
+  </div>
+  <div class="cn1-body">
+    <div class="cn1-controls">
+      <label id="cn1-period-control" hidden>Kỳ xem <select id="cn1-period"></select></label>
+      <button class="button secondary" id="cn1-refresh" type="button">Tải lại số liệu</button>
+      <button class="button secondary" id="cn1-sheet" type="button" hidden>Mở dữ liệu để lưu biên bản</button>
+      <button class="button primary" id="cn1-start" type="button" hidden>Vào họp CN1</button>
+    </div>
+    <p id="cn1-status" role="status"></p>
+    <a class="button primary" id="cn1-signin" href="/signin-with-chatgpt?return_to=%2F%3Fcn1%3D1" target="_top" hidden>Đăng nhập ChatGPT</a>
+    <div id="cn1-content"></div>
+  </div>
+</dialog>
+<dialog id="task-preview" aria-labelledby="task-preview-title">
+  <div class="panel-head">
+    <div><h2 id="task-preview-title">Đồng bộ công việc</h2><p>PHI LONG_GROUP · Tab CONG_VIEC</p></div>
+    <form method="dialog"><button class="icon-button" aria-label="Đóng kiểm tra công việc">×</button></form>
+  </div>
+  <div class="sheet-dialog-body">
+    <label class="task-link-label" for="task-preview-link">Link Google Sheets</label>
+    <input type="url" id="task-preview-link" inputmode="url" placeholder="https://docs.google.com/spreadsheets/…">
+    <div class="sheet-actions">
+      <button class="button secondary" id="task-preview-load" type="button">Đọc từ Google Sheets</button>
+      <button class="button primary" id="task-sync-new" type="button" hidden>Thêm công việc vào Sheet</button>
+      <a class="button secondary" id="task-preview-sign-in" target="_top" href="/signin-with-chatgpt?return_to=%2F%3FtaskPreview%3D1" hidden>Đăng nhập ChatGPT</a>
+    </div>
+    <p id="task-preview-status" role="status"></p>
+    <label id="task-preview-filter" hidden>Chi nhánh
+      <select id="task-preview-branch"><option value="">Cả 3 chi nhánh</option><option>CN1</option><option>CN2</option><option>CN3</option></select>
+    </label>
+    <form id="task-sync-editor" hidden>
+      <h3 id="task-sync-title"></h3>
+      <label id="task-sync-owner" hidden>Người phụ trách<select name="ownerKey"></select></label>
+      <label>Tên công việc<input name="title" required maxlength="300"></label>
+      <label>Hạn hoàn thành<input name="deadline" type="datetime-local" step="1" required></label>
+      <label id="task-sync-state">Trạng thái<select name="status" required><option>Chờ thực hiện</option><option>Đang làm</option><option>Hoàn thành</option></select></label>
+      <label id="task-sync-completion">Ngày hoàn thành<input name="completedAt" type="datetime-local" step="1"></label>
+      <div class="sheet-actions">
+        <button class="button primary" type="submit">Cập nhật vào Sheet</button>
+        <button class="button secondary" id="task-sync-cancel" type="button">Hủy sửa</button>
+      </div>
+      <p id="task-sync-status" role="status"></p>
+    </form>
+    <div id="task-preview-items"></div>
+  </div>
+</dialog>
+<dialog id="award-celebration" aria-labelledby="award-heading">
+  <div class="award-celebration">
+    <div id="award-portrait"></div>
+    <p id="award-criterion"></p>
+    <h2 id="award-heading"></h2>
+    <p class="award-result" id="award-result"></p>
+    <form method="dialog"><button class="button primary">Đóng</button></form>
+  </div>
+</dialog>
+<div id="toast" role="status"></div>
+</body>
+</html>
