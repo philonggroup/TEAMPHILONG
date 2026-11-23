@@ -83,6 +83,7 @@
     document.querySelector('#cn1-period-control').hidden=true;
     status.textContent='Đang đọc các tab CN1…';
     try {
+      if (!window.CARDIY_LEGACY_API) throw new Error("Bảng này chạy trên worker cũ, GitHub Pages không chạy worker. Số liệu đã chuyển sang nguồn chuẩn live: bấm nút \"Nguồn chuẩn\" trên thanh trên, rồi chọn \"Đọc số liệu live từ nguồn\".");
       const response=await fetch('/api/cardiy-cn1-meeting',{cache:'no-store',credentials:'same-origin'});
       const result=await response.json();
       if(!response.ok) {
@@ -106,7 +107,7 @@
   }
   function goToMeeting(view) {
     state.period=periodSelect.selectedIndex===0?'month':'week';
-    switchBranch(branchNames.findIndex(name=>name.startsWith('CN1')),view);
+    switchBranch(branchNames.findIndex(name=>name.indexOf('CN1')>-1),view);
   }
   function open() {
     if (!dialog.open) dialog.showModal();

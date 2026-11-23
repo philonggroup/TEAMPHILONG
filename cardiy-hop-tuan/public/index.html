@@ -23,6 +23,7 @@
 <script src="excel-ui.js" defer></script>
 <script src="assistant.js" defer></script>
 <script src="install.js" defer></script>
+<script src="nguon.js" defer></script>
 <script src="sheet-sync.js" defer></script>
 <script src="task-preview.js" defer></script>
 <script src="cn1-meeting.js" defer></script>
@@ -41,10 +42,10 @@
     <header class="top">
       <div class="breadcrumbs"><span>Điều hành</span><span aria-hidden="true">/</span><strong id="crumb">Tổng quan</strong></div>
       <div class="top-controls">
-        <label class="select-label"><span class="sr">Chi nhánh</span><select id="branch"><option>CN3 · Bình Dương</option><option>CN2 · Đồng Xoài</option><option>CN1 · Bình Phước</option><option>Họp chung 3 chi nhánh</option></select></label>
+        <label class="select-label"><span class="sr">Chi nhánh</span><select id="branch"><option>PHI LONG 1 · CN1</option><option>PHI LONG 2 · CN2</option><option>PHI LONG 3 · CN3</option><option>Họp chung 3 chi nhánh</option></select></label>
         <button class="button assistant-trigger" id="open-assistant" data-cardiy-icon="assistant" type="button" aria-haspopup="dialog">Trợ lý ô tô</button>
         <button class="button secondary" id="install-app" data-cardiy-icon="install" type="button" aria-haspopup="dialog" hidden>Cài app</button>
-        <button class="button secondary" id="open-sheet" data-cardiy-icon="cloud" type="button" aria-haspopup="dialog"><span id="sheet-button-label">Google Sheets</span></button>
+        <button class="button secondary" id="open-sheet" data-cardiy-icon="cloud" type="button" aria-haspopup="dialog"><span id="sheet-button-label">Nguồn chuẩn</span></button>
         <span class="avatar top-avatar" title="Đội vận hành">PL</span>
       </div>
     </header>
@@ -97,14 +98,14 @@
 </dialog>
 <dialog id="sheet-dialog" aria-labelledby="sheet-title">
   <div class="panel-head">
-    <div><h2 id="sheet-title">Nguồn dữ liệu Google Sheets</h2><p>PHI LONG_GROUP · Tab CARDIY_DATA</p></div>
+    <div><h2 id="sheet-title">Nguồn dữ liệu chuẩn</h2><p>Vào: 3 workbook chuẩn CN1 · CN2 · CN3 (live) — Ra: Sheet CARDIY Họp nhanh</p></div>
     <button class="icon-button" id="close-sheet" type="button" aria-label="Đóng nguồn dữ liệu">×</button>
   </div>
   <div class="sheet-dialog-body">
-    <p>Dùng tài khoản có quyền trên Google Sheet. Sau khi chỉnh KPI, giao việc hoặc chốt biên bản, bấm <strong>Lưu lên Google Sheets</strong> để các thiết bị khác đọc được. Sheet lưu lịch sử phiên bản theo thứ tự ghi; chỉnh nội dung trong CARDIY.</p>
+    <p><strong>Chỉ số đọc live, không gõ tay.</strong> Bấm <strong>Đọc số liệu live từ nguồn</strong> để lấy chỉ số tuần · tháng · quý · 6 tháng và mục tiêu 90 ngày thẳng từ 3 workbook hệ thống chuẩn của chi nhánh. Sau khi họp xong, bấm <strong>Lưu lên Google Sheets</strong> để ghi biên bản, việc chốt, vấn đề IDS và điểm họp xuống Sheet nguồn chuẩn. Muốn sửa chỉ tiêu hay số thực đạt thì sửa ở workbook chi nhánh, không sửa trong app.</p>
     <p id="sheet-status" role="status"></p>
     <div class="sheet-actions">
-      <button class="button secondary" id="load-sheet" type="button">Mở dữ liệu Google Sheets</button>
+      <button class="button secondary" id="load-sheet" type="button">Đọc số liệu live từ nguồn</button>
       <button class="button primary" id="save-sheet" type="button" hidden>Lưu lên Google Sheets</button>
       <a class="button secondary" id="sheet-sign-in" target="_top" href="/signin-with-chatgpt?return_to=%2F%3Fsheet%3D1" hidden>Đăng nhập ChatGPT</a>
       <button class="button secondary" id="leave-sheet" type="button" hidden>Về dữ liệu trên máy</button>
@@ -113,7 +114,7 @@
 </dialog>
 <dialog id="cn1-meeting" aria-labelledby="cn1-title">
   <div class="panel-head">
-    <div><h2 id="cn1-title">Họp CN1 Bình Phước</h2><p>Tháng 11/2026 · Dữ liệu Google Sheets</p></div>
+    <div><h2 id="cn1-title">Họp PHI LONG 1 (CN1)</h2><p>Số liệu live từ workbook hệ thống chuẩn CN1</p></div>
     <form method="dialog"><button class="icon-button" aria-label="Đóng bảng họp CN1">×</button></form>
   </div>
   <div class="cn1-body">

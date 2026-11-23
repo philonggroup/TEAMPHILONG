@@ -376,7 +376,7 @@ function jointStats() {
   const kpis = periodData().branches.flatMap(branch=>branch.kpis);
   const hits = kpis.filter(kpi=>kpi.actual>=kpi.target).length;
   const tasks = data().tasks;
-  return stat('team','Chi nhánh',branchNames.length,'Bình Dương · Đồng Xoài · Bình Phước')
+  return stat('team','Chi nhánh',branchNames.length,'PHI LONG 1 · PHI LONG 2 · PHI LONG 3')
     +stat('chart','KPI đạt',hits+' / '+kpis.length,'Theo chỉ tiêu từng chi nhánh')
     +stat('check','Việc chung đã xong',tasks.filter(task=>task.done).length+' / '+tasks.length,'Cam kết của cuộc họp chung');
 }
