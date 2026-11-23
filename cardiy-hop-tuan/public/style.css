@@ -170,3 +170,23 @@ main{max-width:1520px;margin:0 auto;padding:28px 31px 21px}.hero{position:relati
 .strategy-excel label{cursor:pointer}
 .strategy-excel label:focus-within{outline:3px solid #4e98ff;outline-offset:2px}
 @media(max-width:760px){.swot-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- Cầu nối giao ban 9 bước (mục Họp chung 3 chi nhánh) ---- */
+.gb-group{display:grid;gap:5px;margin-top:18px;padding-top:14px;border-top:1px solid #2b4261}
+.gb-nav-label{margin:10px 10px 6px;font-size:.7rem;font-weight:800;letter-spacing:.1em;color:#7f97bb}
+.gb-group .gb-nav-label:first-child{margin-top:0}
+.gb-card{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:14px 0 0;padding:18px 20px;border:1px solid #d7e3f3;border-radius:14px;background:linear-gradient(135deg,#f2f7ff,#e8f0fc)}
+.gb-card h2{margin:4px 0 6px;font-size:1.12rem}
+.gb-card p:last-of-type{margin:0;max-width:62ch;font-size:.875rem;color:#425468}
+.gb-dialog{width:min(1320px,96vw);max-width:96vw;height:min(880px,94vh);padding:0;border:none;border-radius:14px;overflow:hidden}
+.gb-dialog::backdrop{background:rgba(9,22,44,.62)}
+.gb-dialog .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gb-head-actions{display:flex;align-items:center;gap:8px}
+#gb-frame{display:block;width:100%;height:calc(100% - 72px);border:0;background:#f4f7fa}
+@media(max-width:650px){
+  .gb-group{display:flex;overflow:auto;margin-top:8px;padding-top:8px;gap:5px}
+  .gb-nav-label{display:none}
+  .gb-card{padding:14px;gap:12px}
+  .gb-dialog{width:100vw;max-width:100vw;height:100vh;border-radius:0}
+  #gb-frame{height:calc(100% - 64px)}
+}
