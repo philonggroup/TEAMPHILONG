@@ -6,7 +6,9 @@
    API   : URL .../exec của Web App (file CARDIY_HOP_NHANH.gs)
    KHOA  : phải khớp biến KHOA trong CARDIY_HOP_NHANH.gs
 
-   Nguồn VÀO  : 3 workbook hệ thống chuẩn CN1 / CN2 / CN3 (đọc live)
+   Nguồn VÀO  : chỉ số tuần / tháng đọc từ 3 tab "CHỈ SỐ DẪN DẮT CNx -THÁNG {T}"
+                trong chính Sheet nguồn CARDIY; hụt thì lùi về 3 workbook
+                hệ thống chuẩn CN1 / CN2 / CN3 (đọc live)
    Nguồn RA   : Sheet "CARDIY Họp nhanh — Nguồn dữ liệu chuẩn"
    =================================================================== */
 window.CARDIY_NGUON = {

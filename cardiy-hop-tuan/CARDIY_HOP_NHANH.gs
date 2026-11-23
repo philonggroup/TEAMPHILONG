@@ -3,6 +3,11 @@
  * Google Apps Script Web App cho app tĩnh trên GitHub Pages.
  *
  * NHẬP VÀO (live, chỉ đọc):
+ *   - CHỈ SỐ TUẦN / THÁNG — NGUỒN ƯU TIÊN: 3 tab trong chính file nguồn CARDIY
+ *       "CHỈ SỐ DẪN DẮT CN1 / CN2 / CN3 -THÁNG {tháng}"
+ *       (3 tab này đã kéo live từ workbook chi nhánh và cộng sẵn
+ *        KPI TUẦN n / THỰC ĐẠT Tn / KPI THÁNG / THỰC ĐẠT THÁNG)
+ *       Đọc hụt tab này mới lùi về tab KPI ngày của workbook chi nhánh.
  *   - 3 workbook hệ thống chuẩn CN1 / CN2 / CN3
  *     (thư mục Drive 19CRAx_HjWjlqr7espXFZT1-_VbwJIf2E)
  *       · tab " BÁO CÁO KPI NGÀY T{tháng}"  → chỉ số tuần + tháng
@@ -57,6 +62,11 @@ var MAU_TONG_HOP = ['TỔNG HỢP 6T'];
 var MAU_CHI_TIEU = ['CHỈ TIÊU 6T'];
 var MAU_KH90     = ['Kế hoạch 90 ngày quý 4', 'KH 90 NGÀY Q4'];
 var MAU_6WAYS    = ['Kế hoạch 6 Ways'];
+/* Tab chỉ số dẫn dắt nằm NGAY TRONG file nguồn CARDIY (FILE_RA), mỗi chi nhánh 1 tab.
+   Đây là NGUỒN ƯU TIÊN của chỉ số tuần / tháng: 3 tab này đã tự kéo live từ workbook
+   chi nhánh và đã cộng sẵn KPI TUẦN n / THỰC ĐẠT Tn. Đọc hụt mới lùi về MAU_KPI. */
+var MAU_DAN_DAT  = ['CHỈ SỐ DẪN DẮT {CN} -THÁNG {T}', 'CHỈ SỐ DẪN DẮT {CN} - THÁNG {T}',
+                    'CHỈ SỐ DẪN DẮT {CN} THÁNG {T}',  'CHỈ SỐ DẪN DẮT {CN} T{T}'];
 
 var KY = ['week', 'month', 'quarter', 'year'];
 
@@ -115,10 +125,11 @@ function ra_(o) {
 function chuan_(s) {
   return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().toUpperCase();
 }
-function moTab_(ss, mau, thang) {
+function moTab_(ss, mau, thang, maCN) {
+  if (!ss) return null;
   var ds = ss.getSheets(), i, j, ten;
   for (j = 0; j < mau.length; j++) {
-    ten = chuan_(String(mau[j]).replace('{T}', String(thang)));
+    ten = chuan_(String(mau[j]).replace('{T}', String(thang)).replace('{CN}', String(maCN == null ? '' : maCN)));
     for (i = 0; i < ds.length; i++) if (chuan_(ds[i].getName()) === ten) return ds[i];
   }
   return null;
@@ -185,7 +196,19 @@ function donVi_(ten) {
 function docChiSo_(ss, thang, kieu, tuan) {
   var sh = moTab_(ss, MAU_KPI, thang);
   if (!sh) return { loi: 'Không thấy tab KPI ngày tháng ' + thang, ds: [] };
+  return docChiSoBang_(sh, kieu, tuan);
+}
 
+/* Chỉ số tuần / tháng đọc từ tab "CHỈ SỐ DẪN DẮT {CN} -THÁNG {T}" trong chính
+   file nguồn CARDIY. Cùng khuôn với tab KPI ngày của workbook chi nhánh:
+   dòng 3 là tiêu đề, cột dò theo tên nên CN3 dùng "ĐÈN NGÀY" vẫn chạy. */
+function docChiSoDanDat_(ssRa, maCN, thang, kieu, tuan) {
+  var sh = moTab_(ssRa, MAU_DAN_DAT, thang, maCN);
+  if (!sh) return { loi: 'Không thấy tab CHỈ SỐ DẪN DẮT ' + maCN + ' tháng ' + thang, ds: [] };
+  return docChiSoBang_(sh, kieu, tuan);
+}
+
+function docChiSoBang_(sh, kieu, tuan) {
   var bang = sh.getDataRange().getValues();
   if (bang.length < 4) return { loi: 'Tab KPI ngày rỗng', ds: [] };
 
@@ -467,6 +490,11 @@ function docNguon_(p) {
     catch (e) { moFile[CHI_NHANH[i].ma] = null; canhBao.push(CHI_NHANH[i].ten + ': không mở được workbook'); }
   }
 
+  /* File nguồn CARDIY — chứa 3 tab CHỈ SỐ DẪN DẮT, nguồn ưu tiên của chỉ số tuần / tháng */
+  var ssRa = null;
+  try { ssRa = SpreadsheetApp.openById(FILE_RA); }
+  catch (e) { canhBao.push('Không mở được file nguồn CARDIY (CHỈ SỐ DẪN DẮT)'); }
+
   for (k = 0; k < KY.length; k++) {
     var kieu = KY[k];
     var nhom = { branches: [], joint: null };
@@ -486,14 +514,30 @@ function docNguon_(p) {
       khung.session = goc.session || null;
       khung.history = goc.history || [];
 
-      if (!ss) { nhom.branches.push(khung); continue; }
+      /* --- Chỉ số ---
+         Tuần / tháng: đọc tab CHỈ SỐ DẪN DẮT trong file nguồn CARDIY trước.
+         Tab đó hụt (chưa có tháng mới, đổi tên, rỗng) mới lùi về workbook chi nhánh. */
+      var chiSoDD = (ssRa && (kieu === 'week' || kieu === 'month'))
+        ? docChiSoDanDat_(ssRa, cn.ma, thang, kieu, tuan)
+        : null;
+      var dungDanDat = !!(chiSoDD && chiSoDD.ds.length);
 
-      /* --- Chỉ số --- */
-      chiSo = (kieu === 'quarter' || kieu === 'year')
-        ? docChiSoDai_(ss, kieu)
-        : docChiSo_(ss, thang, kieu, tuan);
+      if (!ss && !dungDanDat) { nhom.branches.push(khung); continue; }
+
+      if (dungDanDat) {
+        chiSo = chiSoDD;
+      } else {
+        if (chiSoDD && chiSoDD.loi) {
+          canhBao.push(cn.ten + ' · ' + kieu + ': ' + chiSoDD.loi + ' → lùi về workbook chi nhánh');
+        }
+        chiSo = (kieu === 'quarter' || kieu === 'year')
+          ? docChiSoDai_(ss, kieu)
+          : docChiSo_(ss, thang, kieu, tuan);
+      }
       if (chiSo.loi) canhBao.push(cn.ten + ' · ' + kieu + ': ' + chiSo.loi);
       khung.kpis = tronChiSo_(chiSo.ds, goc.kpis);
+
+      if (!ss) { nhom.branches.push(khung); continue; }
 
       /* --- Mục tiêu --- */
       mucTieu = (kieu === 'quarter' || kieu === 'year') ? doc6Ways_(ss) : docKH90_(ss);
