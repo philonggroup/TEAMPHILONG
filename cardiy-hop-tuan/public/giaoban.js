@@ -89,6 +89,7 @@
         '</div>' +
         '<div class="gb-bar-actions">' +
           '<span class="gb-live">● Số liệu live</span>' +
+          '<button class="button secondary" type="button" data-gb-full>⛶ Toàn màn hình</button>' +
           '<button class="button secondary" type="button" data-gb-back>Về app</button>' +
         '</div>' +
       '</div>' +
@@ -115,6 +116,44 @@
     } catch (e) { /* khac origin thi bo qua */ }
   }
 
+  /* ---------- Toàn màn hình ----------
+     Safari trên iPhone KHÔNG hỗ trợ requestFullscreen cho thẻ thường, nên
+     phải có đường lui: lớp .gb-rong ẩn thanh bên + 2 thanh menu và cho khung
+     phủ kín màn. giaoban.html tự tính lại tỉ lệ theo sự kiện resize. */
+  function dangFull() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement) ||
+      document.body.classList.contains('gb-rong');
+  }
+  function capNhatNutFull() {
+    var nut = khungXem && khungXem.querySelector('[data-gb-full]');
+    if (nut) nut.textContent = dangFull() ? '⤡ Thu nhỏ' : '⛶ Toàn màn hình';
+  }
+  function duPhongRong() {
+    document.body.classList.add('gb-rong');
+    capNhatNutFull();
+    /* Báo cho trang nhúng tính lại tỉ lệ ngay, không đợi người dùng xoay máy */
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 60);
+  }
+  function batFull() {
+    if (!khungXem) return;
+    var xin = khungXem.requestFullscreen || khungXem.webkitRequestFullscreen;
+    if (!xin) { duPhongRong(); return; }
+    try {
+      var kq = xin.call(khungXem);
+      if (kq && kq.then) kq.then(capNhatNutFull, duPhongRong);
+      else capNhatNutFull();
+    } catch (e) { duPhongRong(); }
+  }
+  function tatFull() {
+    var thoat = document.exitFullscreen || document.webkitExitFullscreen;
+    if ((document.fullscreenElement || document.webkitFullscreenElement) && thoat) {
+      try { thoat.call(document); } catch (e) { /* bỏ qua */ }
+    }
+    document.body.classList.remove('gb-rong');
+    capNhatNutFull();
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 60);
+  }
+
   function moMan(ma) {
     if (!TEN[ma] || !dungKhungXem()) return;
     var dia = TRANG + '#' + ma;
@@ -128,6 +167,7 @@
   }
 
   function veApp() {
+    tatFull();
     maDangMo = '';
     if (khungXem) { khungXem.hidden = true; if (khung) khung.removeAttribute('src'); }
     if (noiDung()) noiDung().hidden = false;
@@ -223,8 +263,20 @@
         moMan((chon && chon.value) || maDangMo || MAN_DAU);
         return;
       }
+      if (e.target.closest('[data-gb-full]')) {
+        e.preventDefault();
+        if (dangFull()) tatFull(); else batFull();
+        return;
+      }
       if (e.target.closest('[data-gb-back]')) { e.preventDefault(); veApp(); return; }
       if (e.target.closest('[data-view],[data-action]')) veApp();
+    });
+
+    document.addEventListener('fullscreenchange', capNhatNutFull);
+    document.addEventListener('webkitfullscreenchange', capNhatNutFull);
+    /* Esc thoát chế độ phủ kín của đường lui (chế độ thật thì trình duyệt lo) */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && document.body.classList.contains('gb-rong')) tatFull();
     });
 
     dongBo();
