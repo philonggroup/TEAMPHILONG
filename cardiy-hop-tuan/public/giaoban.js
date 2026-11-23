@@ -71,7 +71,7 @@
   }
 
   /* ---------- Màn giao ban mở NGAY TRONG vùng làm việc ---------- */
-  var khungXem, khung, moTabMoi, maDangMo = '';
+  var khungXem, khung, maDangMo = '';
 
   function dungKhungXem() {
     if (khungXem) return khungXem;
@@ -90,7 +90,6 @@
         '<div class="gb-bar-actions">' +
           '<span class="gb-live">● Số liệu live</span>' +
           '<button class="button secondary" type="button" data-gb-back>Về app</button>' +
-          '<a class="button secondary" id="gb-open" target="_blank" rel="noopener">Mở tab mới</a>' +
         '</div>' +
       '</div>' +
       '<iframe id="gb-frame" title="Màn giao ban"></iframe>';
@@ -98,15 +97,28 @@
     if (sau) sau.insertAdjacentElement('afterend', khungXem);
     else cho.appendChild(khungXem);
     khung = khungXem.querySelector('#gb-frame');
-    moTabMoi = khungXem.querySelector('#gb-open');
+    /* Giu app trong MOT link duy nhat: moi link trong man nhung deu mo tai cho */
+    khung.addEventListener('load', giuMotTab);
     return khungXem;
+  }
+
+  /* Man nhung cung origin -> go target="_blank" / "_top" de khong bat tab moi
+     va khong pha khung. Boc try/catch phong truong hop trinh duyet chan. */
+  function giuMotTab() {
+    try {
+      var tl = khung.contentDocument;
+      if (!tl) return;
+      tl.querySelectorAll('a[target]').forEach(function (a) {
+        var t = a.getAttribute('target');
+        if (t === '_blank' || t === '_top' || t === '_parent') a.removeAttribute('target');
+      });
+    } catch (e) { /* khac origin thi bo qua */ }
   }
 
   function moMan(ma) {
     if (!TEN[ma] || !dungKhungXem()) return;
     var dia = TRANG + '#' + ma;
     maDangMo = ma;
-    moTabMoi.href = dia;
     khung.src = dia;
     khungXem.hidden = false;
     if (noiDung()) noiDung().hidden = true;
