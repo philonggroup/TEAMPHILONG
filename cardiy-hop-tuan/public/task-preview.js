@@ -205,6 +205,8 @@
   document.addEventListener('click',event=>{
     const entry=event.target.closest('[data-task-preview]');
     if (!entry) return;
+    const cn1=document.querySelector('#cn1-meeting');
+    if (cn1?.open) cn1.close();
     branch.value=entry.dataset.taskPreview||'';
     openWithRefresh();
   });

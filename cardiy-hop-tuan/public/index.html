@@ -25,6 +25,7 @@
 <script src="install.js" defer></script>
 <script src="sheet-sync.js" defer></script>
 <script src="task-preview.js" defer></script>
+<script src="cn1-meeting.js" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -106,6 +107,23 @@
       <a class="button secondary" id="sheet-sign-in" target="_top" href="/signin-with-chatgpt?return_to=%2F%3Fsheet%3D1" hidden>Đăng nhập ChatGPT</a>
       <button class="button secondary" id="leave-sheet" type="button" hidden>Về dữ liệu trên máy</button>
     </div>
+  </div>
+</dialog>
+<dialog id="cn1-meeting" aria-labelledby="cn1-title">
+  <div class="panel-head">
+    <div><h2 id="cn1-title">Họp CN1 Bình Phước</h2><p>Tháng 11/2026 · Dữ liệu Google Sheets</p></div>
+    <form method="dialog"><button class="icon-button" aria-label="Đóng bảng họp CN1">×</button></form>
+  </div>
+  <div class="cn1-body">
+    <div class="cn1-controls">
+      <label id="cn1-period-control" hidden>Kỳ xem <select id="cn1-period"></select></label>
+      <button class="button secondary" id="cn1-refresh" type="button">Tải lại số liệu</button>
+      <button class="button secondary" id="cn1-sheet" type="button" hidden>Mở dữ liệu để lưu biên bản</button>
+      <button class="button primary" id="cn1-start" type="button" hidden>Vào họp CN1</button>
+    </div>
+    <p id="cn1-status" role="status"></p>
+    <a class="button primary" id="cn1-signin" href="/signin-with-chatgpt?return_to=%2F%3Fcn1%3D1" target="_top" hidden>Đăng nhập ChatGPT</a>
+    <div id="cn1-content"></div>
   </div>
 </dialog>
 <dialog id="task-preview" aria-labelledby="task-preview-title">

@@ -422,6 +422,7 @@ async function taskPreview(request,ctx) {
 export default {
   fetch(request,env,ctx) {
     const url=new URL(request.url);
+    if (url.pathname==='/api/cardiy-cn1-meeting') return cn1Meeting(request,ctx);
     if (url.pathname==='/api/cardiy-task-preview') return taskPreview(request,ctx);
     if (url.pathname==='/api/cardiy-sheet') return storage(request,ctx);
     const asset=assets[url.pathname==='/'?'/index.html':url.pathname];

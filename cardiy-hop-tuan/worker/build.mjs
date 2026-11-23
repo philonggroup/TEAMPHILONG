@@ -20,5 +20,5 @@ await collect('public');
 await mkdir('dist/server',{recursive:true});
 await mkdir('dist/.openai',{recursive:true});
 const config=JSON.parse(await readFile('worker/sheet.json','utf8'));
-await writeFile('dist/server/index.js','const assets='+JSON.stringify(assets)+';\nconst sheetConfig='+JSON.stringify(config)+';\n'+await readFile('worker/index.mjs','utf8'));
+await writeFile('dist/server/index.js','const assets='+JSON.stringify(assets)+';\nconst sheetConfig='+JSON.stringify(config)+';\n'+await readFile('worker/index.mjs','utf8')+'\n'+await readFile('worker/cn1-meeting.mjs','utf8'));
 await copyFile('.openai/hosting.json','dist/.openai/hosting.json');

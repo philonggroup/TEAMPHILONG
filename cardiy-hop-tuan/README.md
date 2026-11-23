@@ -7,14 +7,15 @@ Mã nguồn app điều hành họp tuần / tháng / quý / năm. Đưa về đ
 
 | Thư mục | Nội dung |
 |---|---|
-| `public/` | Toàn bộ phần chạy trên máy khách: `index.html`, `style.css`, 14 file JS, PWA (`manifest.webmanifest`, `sw.js`), 4 ảnh, `vendor/jszip.min.js` (JSZip 3.10.1) |
-| `worker/` | Phần chạy trên máy chủ: `index.mjs` (lưu / đọc biên bản họp), `build.mjs` |
+| `public/` | Toàn bộ phần chạy trên máy khách: `index.html`, `style.css`, 15 file JS, PWA (`manifest.webmanifest`, `sw.js`), 4 ảnh, `vendor/jszip.min.js` (JSZip 3.10.1) |
+| `worker/` | Phần chạy trên máy chủ: `index.mjs` (lưu / đọc biên bản họp), `cn1-meeting.mjs`, `build.mjs` |
 
 ## Lưu ý quan trọng: app CẦN máy chủ, không chỉ là trang tĩnh
 
-Phần `public/` gọi 2 đầu mối API do `worker/index.mjs` phục vụ:
+Phần `public/` gọi 3 đầu mối API do `worker/index.mjs` phục vụ:
 
 - `/api/cardiy-sheet` — đọc / ghi dữ liệu họp (`public/sheet-sync.js`)
+- `/api/cardiy-cn1-meeting` — dữ liệu họp chi nhánh (`public/cn1-meeting.js`)
 - `/api/cardiy-task-preview` — xem trước danh sách việc (`public/task-preview.js`)
 
 GitHub Pages chỉ phục vụ file tĩnh, **không chạy `worker/`**. Nên khi mở qua GitHub Pages,
