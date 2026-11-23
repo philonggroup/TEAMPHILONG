@@ -76,7 +76,7 @@
         ra.push({
           lam: gon(v.noi_dung), ai: gon(v.ho_va_ten || v.ma_nv),
           han: gon(v.han), do: gon(v.chi_so), tt: gon(v.trang_thai),
-          cn: gon(v.chi_nhanh) || 'KHAC', nguon: 'HOP_CAM_KET'
+          cn: gon(v.chi_nhanh) || 'KHAC', nguon: 'HANH_DONG'
         });
       });
       return ra;
@@ -94,12 +94,12 @@
         nguon: 'CONG_VIEC'
       });
     });
-    /* HOP_CAM_KET — việc đã chốt ở các tuần trước, nếu bảng có dòng */
+    /* HANH_DONG — việc đã chốt ở các tuần trước, nếu bảng có dòng */
     (j && j.cam_ket || []).forEach(function (v) {
       ra.push({
         lam: gon(v.noi_dung), ai: gon(v.ho_va_ten || v.ma_nv),
         han: gon(v.han), do: gon(v.chi_so), tt: gon(v.trang_thai),
-        cn: gon(v.chi_nhanh) || 'KHAC', nguon: 'HOP_CAM_KET'
+        cn: gon(v.chi_nhanh) || 'KHAC', nguon: 'HANH_DONG'
       });
     });
     return ra;

@@ -7,7 +7,7 @@
                mục tiêu 6 Ways) + bảng CONG_VIEC của PHI LONG_GROUP.
    XUẤT RA  : ghi kết quả họp xuống Sheet "CARDIY Họp nhanh —
               Nguồn dữ liệu chuẩn" (CARDIY_DATA, HOP_BIEN_BAN,
-              HOP_CAM_KET, HOP_VAN_DE, HOP_CHAM_DIEM).
+              HANH_DONG, VAN_DE_IDS, HOP_CHAM_DIEM).
 
    Cầu nối là Apps Script Web App — xem CARDIY_HOP_NHANH.gs.
    Bản cũ gọi /api/cardiy-sheet do worker/ phục vụ; GitHub Pages không

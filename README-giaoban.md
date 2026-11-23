@@ -34,7 +34,7 @@ Phím tắt khi họp: `←` `→` đổi bước · `Space` tạm dừng / ch�
 | CN2 | PHILONG_CN2_HE_THONG_CHUAN_6_THANG_CUOI_NAM_2026 | ` BÁO CÁO KPI NGÀY T11` |
 | CN3 | PHILONG_CN3_HE_THONG_CHUAN_6_THANG_CUOI_NAM_2026 | ` BÁO CÁO KPI NGÀY T11` |
 
-**Nguồn ra** — file `PHI LONG_GROUP` (`1zYikNTqsKFnqOBPxarg2RJk4yaTEZjp3mez74pfRJsI`), các tab `HOP_PHIEN`, `HOP_CAM_KET`, `HOP_CHUAN_BI`, `CONG_VIEC`.
+**Nguồn ra** — file `PHI LONG_GROUP` (`1zYikNTqsKFnqOBPxarg2RJk4yaTEZjp3mez74pfRJsI`), các tab `HOP_PHIEN`, `HANH_DONG`, `HOP_CHUAN_BI`, `CONG_VIEC`.
 
 ### Các bước
 
@@ -70,7 +70,7 @@ var CAU_HINH = {
 | Bước 3 · Toàn cảnh (`#Main`) | **Live** | Dòng 4, 6, 15, 16, 17, 18 của tab KPI ngày, 3 chi nhánh |
 | Bước 3 · 3 màn chi tiết | **Live** | 13 chỉ số, dòng 4–23 của tab KPI ngày chi nhánh đó |
 | Bước 2 · Việc tuần trước | **Live** | Bảng `CONG_VIEC`, lọc deadline trong 14 ngày gần nhất |
-| Bước 6 · Chốt việc tuần | **Live** | Bảng `HOP_CAM_KET` |
+| Bước 6 · Chốt việc tuần | **Live** | Bảng `HANH_DONG` |
 | Khối "Việc xử lý sau họp" (sidebar mọi màn) | **Live** | Bảng `HOP_CHUAN_BI`, bỏ việc đã xong |
 | Bước 5 · Cần hỗ trợ (`#GB5HoTro`) | **Live** | Tab `Kế hoạch 90 ngày quý 4` của 3 chi nhánh — dòng 5–13, cột E mục tiêu · H P-I-C · I:U việc theo tuần · V chỉ số dẫn dắt · W KẾT QUẢ Q4 |
 | Bước 1, 4, 7, 9 · 3 tab · 3 màn điện thoại | Số mẫu | nội dung điều phối, nhập tay tại chỗ |
