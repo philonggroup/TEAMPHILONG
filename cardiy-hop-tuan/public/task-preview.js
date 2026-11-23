@@ -63,6 +63,7 @@
         ?'<button class="button secondary" type="button" data-task-row="'+task.row+'">Sửa trên Sheet</button>':'')+'</article>').join('');
   }
   async function remote(options) {
+    if (!window.CARDIY_LEGACY_API) throw new Error("Bảng này chạy trên worker cũ, GitHub Pages không chạy worker. Số liệu đã chuyển sang nguồn chuẩn live: bấm nút \"Nguồn chuẩn\" trên thanh trên, rồi chọn \"Đọc số liệu live từ nguồn\".");
     const response=await fetch(endpoint,{cache:'no-store',credentials:'same-origin',...options});
     const result=await response.json();
     if (!response.ok) throw Object.assign(new Error(result.message),{kind:result.kind});
