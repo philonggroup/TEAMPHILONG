@@ -50,38 +50,67 @@
     return !!o && o.value === HOP_CHUNG;
   }
 
-  /* ---------- Bảng màn (mở trong app, không rời PWA) ---------- */
-  var bang, khung, tieuDe, moTabMoi;
-  function dungBang() {
-    if (bang) return bang;
-    bang = document.createElement('dialog');
-    bang.id = 'gb-screen';
-    bang.className = 'gb-dialog';
-    bang.innerHTML =
-      '<div class="panel-head">' +
-        '<div><h2 id="gb-title">Giao ban</h2><p>Trang giao ban chính thức · số liệu live</p></div>' +
-        '<div class="gb-head-actions">' +
+  /* ---------- Màn giao ban mở NGAY TRONG vùng làm việc ----------
+     Không dùng bảng nổi: bảng nổi che mất menu và bóp nhỏ màn. Mở tại chỗ
+     thì thanh ngang + thanh bên vẫn thấy, thao tác luôn một nơi. */
+  var khungXem, khung, tieuDe, moTabMoi, maDangMo = '';
+  function noiDung() { return document.querySelector('#content'); }
+  function ghiChuLuu() { return document.querySelector('#storage'); }
+
+  function dungKhungXem() {
+    if (khungXem) return khungXem;
+    var cho = document.querySelector('#workspace');
+    if (!cho) return null;
+    khungXem = document.createElement('section');
+    khungXem.id = 'gb-view';
+    khungXem.hidden = true;
+    khungXem.innerHTML =
+      '<div class="gb-bar">' +
+        '<div><strong id="gb-title">Giao ban</strong>' +
+        '<small>Trang giao ban chính thức · số liệu live</small></div>' +
+        '<div class="gb-bar-actions">' +
+          '<button class="button secondary" type="button" data-gb-back>← Về app</button>' +
           '<a class="button secondary" id="gb-open" target="_blank" rel="noopener">Mở tab mới</a>' +
-          '<form method="dialog"><button class="icon-button" type="submit" aria-label="Đóng màn giao ban">×</button></form>' +
         '</div>' +
       '</div>' +
-      '<iframe id="gb-frame" title="Màn giao ban" loading="lazy"></iframe>';
-    document.body.appendChild(bang);
-    khung = bang.querySelector('#gb-frame');
-    tieuDe = bang.querySelector('#gb-title');
-    moTabMoi = bang.querySelector('#gb-open');
-    /* Dừng tải khi đóng để không chạy ngầm tốn pin và tốn gọi API */
-    bang.addEventListener('close', function () { khung.removeAttribute('src'); });
-    return bang;
+      '<iframe id="gb-frame" title="Màn giao ban"></iframe>';
+    var sau = noiDung();
+    if (sau) sau.insertAdjacentElement('afterend', khungXem);
+    else cho.appendChild(khungXem);
+    khung = khungXem.querySelector('#gb-frame');
+    tieuDe = khungXem.querySelector('#gb-title');
+    moTabMoi = khungXem.querySelector('#gb-open');
+    return khungXem;
   }
+
   function moMan(ma) {
-    if (!TEN[ma]) return;
-    dungBang();
+    if (!TEN[ma] || !dungKhungXem()) return;
     var dia = TRANG + '#' + ma;
+    maDangMo = ma;
     tieuDe.textContent = TEN[ma];
     moTabMoi.href = dia;
+    /* Đổi hash trong cùng iframe không tải lại trang -> gán lại src cho chắc */
     khung.src = dia;
-    if (!bang.open) bang.showModal();
+    khungXem.hidden = false;
+    if (noiDung()) noiDung().hidden = true;
+    if (ghiChuLuu()) ghiChuLuu().hidden = true;
+    danhDauDangMo();
+    window.scrollTo(0, 0);
+  }
+
+  function veApp() {
+    maDangMo = '';
+    if (khungXem) { khungXem.hidden = true; if (khung) khung.removeAttribute('src'); }
+    if (noiDung()) noiDung().hidden = false;
+    if (ghiChuLuu()) ghiChuLuu().hidden = false;
+    danhDauDangMo();
+  }
+
+  function danhDauDangMo() {
+    document.querySelectorAll('[data-gb]').forEach(function (nut) {
+      if (nut.dataset.gb === maDangMo && maDangMo) nut.setAttribute('aria-current', 'page');
+      else nut.removeAttribute('aria-current');
+    });
   }
 
   /* ---------- Chèn bộ màn chuẩn vào thanh điều hướng ---------- */
@@ -100,6 +129,7 @@
     hop.setAttribute('data-gb-group', '');
     hop.innerHTML = html;
     nav.appendChild(hop);
+    danhDauDangMo();
   }
 
   /* ---------- Thẻ nhắc trên Tổng quan của họp chung ---------- */
@@ -132,13 +162,17 @@
   }
 
   function khoiDong() {
+    dungKhungXem();
     theoDoi('#nav');
     theoDoi('#content');
     var o = oChon();
-    if (o) o.addEventListener('change', dongBo);
+    if (o) o.addEventListener('change', function () { veApp(); dongBo(); });
     document.addEventListener('click', function (e) {
-      var nut = e.target.closest('[data-gb]');
-      if (nut) { e.preventDefault(); moMan(nut.dataset.gb); }
+      var man = e.target.closest('[data-gb]');
+      if (man) { e.preventDefault(); moMan(man.dataset.gb); return; }
+      if (e.target.closest('[data-gb-back]')) { e.preventDefault(); veApp(); return; }
+      /* Bấm bất kỳ mục nào của app thì trả lại vùng làm việc cho app */
+      if (e.target.closest('[data-view],[data-action]')) veApp();
     });
     dongBo();
   }
