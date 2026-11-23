@@ -20,7 +20,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 31px 21px}.hero{position:relati
 @media(max-width:650px){.period-nav{gap:5px;margin-bottom:11px}.period-nav .button{min-width:0;flex:1}}
 .facilitator{margin-bottom:16px;border-color:#cbdff9;background:#f7faff}.facilitator .panel-head{padding-bottom:10px}.facilitator-body{padding:0 19px 17px}.facilitator-body ul{margin:6px 0 11px;padding-left:1.45rem}.facilitator-time{background:#e5efff;color:#17457d;border-radius:999px;padding:5px 10px;font-size:.875rem;font-weight:750;white-space:nowrap}.facilitator-note{font-size:.875rem;color:#415674}
 @media(max-width:650px){.facilitator-body{padding-inline:12px}}
-.pill.miss{background:#fde8e8;color:#952520}.facilitator-body h3{font-size:.95rem}.kpi-issue{display:block;margin-top:6px;min-height:32px;padding:4px 8px;font-size:.79rem}
+.pill.miss{background:#fde8e8;color:#952520}.facilitator-body h3{font-size:.95rem}.kpi-issue{display:block;margin-top:6px;min-height:32px;padding:4px 8px;font-size:.79rem}.kpi-issue-nho{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;min-width:30px;min-height:30px;padding:3px}.kpi-issue-nho svg,.kpi-issue-nho .cardiy-icon{width:16px;height:16px}
 .facilitator-body h3:not(:first-child){margin-top:10px}.facilitator-body ol{margin:6px 0 11px;padding-left:1.45rem}.facilitator-body>p+.facilitator-note{margin-top:10px}.milestone{white-space:pre-wrap}.priority-discussion{background:#e8f1ff;color:#17457d}.column>.panel:has(.list)+.panel:has(.notes){margin-top:16px}
 .task-ack{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:.875rem;cursor:pointer}
 /* Accent colors sampled from the supplied reference. */

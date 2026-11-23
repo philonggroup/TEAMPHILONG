@@ -188,8 +188,14 @@ function comparisonRows() {
   });
   return [...groups.values()];
 }
-function kpiIssueButton(kpi,branchIndex) {
-  return '<button type="button" class="button secondary kpi-issue" data-action="raise-kpi" data-key="'+branchIndex+'" data-id="'+kpi.id+'">Đưa vào Vấn đề</button>';
+/* Nút Tạo vấn đề — hiện ở MỌI dòng chỉ số, cả Đạt lẫn Chưa đạt.
+   Chỉ số Đạt vẫn có thể có vấn đề cần đưa ra IDS (đạt nhờ may, đạt nhưng hỏng chất lượng).
+   nho = true: bản gọn chỉ có biểu tượng, dùng cho bảng so sánh 3 chi nhánh để không phình cột. */
+function kpiIssueButton(kpi,branchIndex,nho) {
+  return '<button type="button" class="button secondary kpi-issue'+(nho?' kpi-issue-nho':'')+
+    '" data-action="raise-kpi" data-key="'+branchIndex+'" data-id="'+kpi.id+
+    '" title="Tạo vấn đề" aria-label="Tạo vấn đề cho '+label(kpi.title)+'">'+
+    (nho?icon('issue'):'Tạo vấn đề')+'</button>';
 }
 function comparisonPanel(showActions=false) {
   const add = showActions ? addButton('kpis','Thêm chỉ số') : '';
@@ -200,7 +206,7 @@ function comparisonPanel(showActions=false) {
       const hit = kpi.actual >= kpi.target;
       const edit=showActions?'<button type="button" class="icon-button" data-action="edit-branch-kpi" data-key="'+branchIndex+
         '" data-id="'+kpi.id+'" aria-label="Chỉnh sửa '+label(kpi.title)+' · '+label(branchNames[branchIndex])+'">'+icon('edit')+'</button>':'';
-      return '<td class="num"><strong>'+showNumber(kpi.actual,kpi.unit)+'</strong> / '+showNumber(kpi.target,kpi.unit)+'<br>'+pill(hit?'Đạt':'Chưa đạt',hit?'good':'miss')+edit+(!hit&&showActions?kpiIssueButton(kpi,branchIndex):'')+'</td>';
+      return '<td class="num"><strong>'+showNumber(kpi.actual,kpi.unit)+'</strong> / '+showNumber(kpi.target,kpi.unit)+'<br>'+pill(hit?'Đạt':'Chưa đạt',hit?'good':'miss')+edit+kpiIssueButton(kpi,branchIndex,!showActions)+'</td>';
     }).join('');
     return '<tr><th scope="row">'+label(row.title)+'</th>'+cells+'</tr>';
   }).join('');
@@ -212,7 +218,7 @@ function kpiPanel(compact) {
   if (isJoint() && compact) return comparisonPanel();
   const rows = data().kpis.map(kpi=>{
     const hit = kpi.actual>=kpi.target;
-    const actions = compact?'':'<td>'+editButton('kpis',kpi.id)+(!hit?kpiIssueButton(kpi,state.branch):'')+'</td>';
+    const actions = compact?'':'<td>'+editButton('kpis',kpi.id)+kpiIssueButton(kpi,state.branch)+'</td>';
     return '<tr><td>'+label(kpi.title)+'</td><td>'+label(kpi.owner)+'</td><td class="num">'+showNumber(kpi.target,kpi.unit)+'</td><td class="num">'+showNumber(kpi.actual,kpi.unit)+'</td><td>'+pill(hit?'Đạt':'Chưa đạt',hit?'good':'miss')+'</td>'+actions+'</tr>';
   }).join('');
   const title = 'Bảng chỉ số '+periodName();
@@ -737,8 +743,12 @@ document.addEventListener('click',event=>{
     }
     case 'raise-kpi': {
       const index = Number(key);
-      const kpi = periodData().branches[index].kpis.find(item=>item.id===id);
-      openEditor('issues',null,{title:('Chỉ số chưa đạt: '+kpi.title).slice(0,180),branch:branchNames[index]});
+      const branch = periodData().branches[index];
+      const kpi = branch && branch.kpis.find(item=>item.id===id);
+      if (!kpi) break;
+      /* Nút nay có ở cả dòng Đạt nên tiêu đề phải theo đúng trạng thái, không mặc định "chưa đạt" */
+      const dat = kpi.actual >= kpi.target;
+      openEditor('issues',null,{title:((dat?'Vấn đề từ chỉ số: ':'Chỉ số chưa đạt: ')+kpi.title).slice(0,180),branch:branchNames[index]});
       break;
     }
     case 'rate':
