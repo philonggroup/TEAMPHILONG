@@ -138,6 +138,8 @@ function message(text) {
   toast.textContent = text;
   toastTimer = setTimeout(() => { toast.textContent = ''; },3000);
 }
+/* Cac muc Tracy chot dua len MENU NGANG - dung thu tu Tracy liet ke */
+const TOP_KEYS = ['goals','vision','year-kpis','year-goals','overview'];
 function nav() {
   const items = [['overview','Tổng quan','grid'],['meeting',state.period==='week'?'Họp tuần':'Họp nhanh','calendar'],['kpis',kpiTitle(),'chart'],['goals',period().goal,'target'],['awards','Vinh danh','spark'],['tasks','Danh sách hành động','tasks'],['issues','Vấn đề (IDS)','issue'],['history','Lịch sử họp','clock'],['excel','Nhập / Xuất Excel','excel']];
   items.splice(2,0,['joint',jointName,'team']);
@@ -146,11 +148,16 @@ function nav() {
   const selected=key=>key==='vision'&&['vision','annual','swot'].includes(view) ||
     key==='year-'+view&&state.period==='year' || key==='joint'&&isJoint()&&view==='overview' ||
     key===view&&!(isJoint()&&view==='overview') || key==='meeting'&&['good','news','close'].includes(view);
-  document.querySelector('#nav').innerHTML = items.map(([key,title,symbol])=>{
+  const nut = ([key,title,symbol],lop)=>{
     const control=key==='joint'?'data-action="open-joint"':key.startsWith('year-')
       ?'data-action="open-year" data-key="'+key.slice(5)+'"':'data-view="'+key+'"';
-    return '<button '+control+' class="nav-item"'+(selected(key)?' aria-current="page"':'')+'>'+icon(symbol)+title+'</button>';
-  }).join('');
+    return '<button '+control+' class="'+lop+'"'+(selected(key)?' aria-current="page"':'')+'>'+icon(symbol)+title+'</button>';
+  };
+  const tren = TOP_KEYS.map(key=>items.find(item=>item[0]===key)).filter(Boolean);
+  const ben = items.filter(item=>!TOP_KEYS.includes(item[0]));
+  const thanhNgang = document.querySelector('#topnav');
+  if (thanhNgang) thanhNgang.innerHTML = tren.map(item=>nut(item,'top-item')).join('');
+  document.querySelector('#nav').innerHTML = ben.map(item=>nut(item,'nav-item')).join('');
   document.querySelector('#crumb').textContent = isJoint() && ['overview','meeting'].includes(view) ? jointName : items.find(item => item[0] === view)?.[1] ?? (view==='annual'?'Kế hoạch năm':view==='swot'?'SWOT':stepByKey(view)?stepTitle(view):'Họp nhanh');
 }
 function agenda(active) {

@@ -190,3 +190,17 @@ main{max-width:1520px;margin:0 auto;padding:28px 31px 21px}.hero{position:relati
   .gb-dialog{width:100vw;max-width:100vw;height:100vh;border-radius:0}
   #gb-frame{height:calc(100% - 64px)}
 }
+
+/* ---- MENU NGANG: Mục tiêu 90 ngày · Tầm nhìn · Chỉ số năm · Mục tiêu năm · Tổng quan ---- */
+.topnav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 31px;background:white;border-bottom:1px solid var(--line)}
+.topnav:empty{display:none}
+.top-item{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;background:#f3f6fb;border:1px solid var(--line);border-radius:999px;color:#2c3e55;font-weight:650;font-size:.84rem;line-height:1.2;white-space:nowrap}
+.top-item svg{width:16px;height:16px;flex:none}
+.top-item:hover{background:#e6eefa;color:#17365d}
+.top-item[aria-current]{background:#17427b;border-color:#17427b;color:#fff}
+.top-item[aria-current] svg{color:#8dc2ff}
+@media(max-width:650px){
+  .topnav{flex-wrap:nowrap;overflow:auto;gap:5px;padding:7px 12px}
+  .top-item{padding:6px 10px;gap:5px;font-size:.78rem}
+  .top-item svg{width:14px;height:14px}
+}
