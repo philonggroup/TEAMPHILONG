@@ -151,7 +151,6 @@ function nav() {
       ?'data-action="open-year" data-key="'+key.slice(5)+'"':'data-view="'+key+'"';
     return '<button '+control+' class="nav-item"'+(selected(key)?' aria-current="page"':'')+'>'+icon(symbol)+title+'</button>';
   }).join('');
-  document.querySelector('#nav').insertAdjacentHTML('beforeend','<button type="button" class="nav-item" data-cn1-meeting>'+icon('chart')+'Họp CN1 · Tháng 11</button>');
   document.querySelector('#crumb').textContent = isJoint() && ['overview','meeting'].includes(view) ? jointName : items.find(item => item[0] === view)?.[1] ?? (view==='annual'?'Kế hoạch năm':view==='swot'?'SWOT':stepByKey(view)?stepTitle(view):'Họp nhanh');
 }
 function agenda(active) {
