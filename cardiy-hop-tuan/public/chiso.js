@@ -421,6 +421,15 @@
         : '<span class="chiso-chon-wig">WIG</span>') +
       '</div>';
   }
+  function demLaiUT() {
+    if (!hopChon) return;
+    const n = demUT();
+    hopChon.querySelector('.chiso-chon-dem').innerHTML = n > TOI_DA_UT
+      ? '<span class="pill miss">★ ' + n + ' chỉ số ưu tiên</span> 4DX chỉ cho tối đa ' + TOI_DA_UT +
+        ' — thêm nữa là cả 3 bàn cùng mất tập trung.'
+      : '<span class="pill ' + (n ? 'good' : 'neutral') + '">★ ' + n + ' / ' + TOI_DA_UT +
+        ' chỉ số ưu tiên</span> đúng chuẩn 4DX: 1 WIG + 2–3 chỉ số dẫn dắt.';
+  }
   function veHopChon() {
     const hop = dungHopChon();
     const n = demUT();
@@ -462,7 +471,11 @@
         const k = khoa(ut.dataset.ut);
         if (uuTien.has(k)) uuTien.delete(k); else uuTien.add(k);
         ghiBo(KHOA_UT, uuTien);
-        apDung(); veHopChon();
+        /* Chỉ đổi đúng ngôi sao vừa bấm + dòng đếm. Vẽ lại cả hộp thì nút
+           vừa bấm bị thay mới, mất chỗ tay đang đặt và bấm liên tiếp hụt. */
+        ut.classList.toggle('dang', uuTien.has(k));
+        demLaiUT();
+        apDung();
         return;
       }
       if (event.target.closest('[data-het]')) {
