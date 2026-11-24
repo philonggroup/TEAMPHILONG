@@ -279,3 +279,16 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 .row-live>.pill{margin-left:0}
 .row-live>.tt-nut{margin-left:auto}
 .row-live>.button{flex:none}
+
+.tt-nut-moi .tt-o{background:#fffaf0;color:#92400e;border-color:#fcd9a4}
+.tt-nut-moi .tt-o:hover{background:#fdf0d5}
+.viec-day-hop{border:0;border-radius:14px;padding:0;max-width:430px;width:92vw;box-shadow:0 18px 48px #0f172a33}
+.viec-day-hop::backdrop{background:#0f172a66}
+.viec-day-hop form{display:flex;flex-direction:column;gap:11px;padding:20px}
+.viec-day-hop h2{font-size:1.05rem}
+.viec-day-ten{font-weight:700;color:#0e7a52;line-height:1.35;margin:0}
+.viec-day-hop label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:700;color:#475569}
+.viec-day-hop select,.viec-day-hop input{font:inherit;font-size:.86rem;font-weight:500;color:#0f172a;
+  padding:7px 9px;border:1px solid var(--line,#e2e8e5);border-radius:8px;background:#fff}
+.viec-day-bao{margin:0;font-size:.8rem;color:#b42318;min-height:1em}
+.viec-day-nut{display:flex;gap:8px;justify-content:flex-end}

@@ -26,7 +26,21 @@
   const API  = 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec';
   const KHOA = 'PHILONG2026';
   const TT_CHUAN = ['1.Chờ thực hiện','2.Đang làm','3.Hoàn thành'];
+  /* Danh mục 6 Way lấy từ ngân hàng chiến lược của Phi Long; chỉ số dẫn dắt
+     là bộ 8 chỉ số tập trung Tracy chốt 18/11/2026. Việc đã có trên app dùng
+     nhãn nào thì nhãn đó được gộp vào trước, để không sinh nhãn lạ. */
+  const WAY_MAC_DINH = ['Way 1. Khách hàng tiềm năng','Way 2. Tỷ lệ chuyển đổi',
+    'Way 3. Tỷ lệ giữ chân (quay lại mua)','Way 4. Số lần mua',
+    'Way 5. Giá trị bình quân / giao dịch','Way 6. Tỷ suất lợi nhuận'];
+  const CHI_SO_MAC_DINH = ['Lượt xe vào xưởng','Khách được kiểm tra ATX',
+    'Báo giá lên trong ngày','Cuộc gọi chăm sóc khách / Cuộc gọi nhận','Lượt xe đặt lịch',
+    'Đăng bài Facebook Lốp Xe Phi Long','Google Maps - Zalo OA',
+    'Video ngắn kiểm tra lốp - gầm xe đăng TikTok, Facebook'];
+  const gopDanhMuc = (lay,macDinh) =>
+    [...new Set([...(ds||[]).map(lay).map(gon).filter(Boolean), ...macDinh])].sort();
   const nhanTT = t => t.replace(/^\d+\./,'');
+  /* Hạn mặc định: trong 3 ngày — đúng nhịp giao việc Tracy chốt 18/11/2026. */
+  const hanMacDinh = () => new Date(Date.parse(today()+'T00:00:00Z')+3*86400000).toISOString().slice(0,10);
   const TOI_DA_VIEC = 5;      /* Tracy chốt: mỗi chi nhánh tối ưu 5 hành động */
 
   let ds = null;              /* danh sách việc live, null = chưa đọc được */
@@ -205,10 +219,17 @@
       '<strong>' + tre + '</strong> trễ hạn · <strong>' + thieu + '</strong> dòng thiếu yếu tố' + qua + '</p>';
   }
   function nutTrangThai(v) {
-    return '<div class="tt-nut" role="group" aria-label="Trạng thái việc">' + TT_CHUAN.map(t =>
-      '<button type="button" class="tt-o' + (v.status === nhanTT(t) ? ' chon' : '') +
-      '" data-action="viec-tt" data-id="' + label(v.sheetId) + '" data-tt="' + label(t) +
-      '" aria-pressed="' + (v.status === nhanTT(t)) + '">' + nhanTT(t) + '</button>').join('') + '</div>';
+    const live = v.nguon === 'app';
+    /* Việc chốt tại IDS chưa có trên app: bấm trạng thái nào thì đẩy sang app
+       với đúng trạng thái đó — luồng Tracy chốt 24/11/2026. */
+    const hanhDong = live ? 'viec-tt' : 'viec-day';
+    const khoa = live ? label(v.sheetId) : label(v.id);
+    return '<div class="tt-nut' + (live ? '' : ' tt-nut-moi') + '" role="group" aria-label="Trạng thái việc">' +
+      TT_CHUAN.map(t =>
+      '<button type="button" class="tt-o' + (live && v.status === nhanTT(t) ? ' chon' : '') +
+      '" data-action="' + hanhDong + '" data-id="' + khoa + '" data-tt="' + label(t) +
+      '" aria-pressed="' + (live && v.status === nhanTT(t)) + '">' + nhanTT(t) + '</button>').join('') +
+      '</div>' + (live ? '' : '<span class="pill warn">Chưa có trên app</span>');
   }
   function dongViec(v, compact) {
     const live = v.nguon === 'app';
@@ -232,10 +253,10 @@
     const o = live ? '' :
       '<input type="checkbox" data-action="toggle" data-id="' + v.id + '" ' + (v.done?'checked':'') +
       ' aria-label="Hoàn thành ' + label(v.title) + '">';
-    const trangThai = live
-      ? (compact ? pill(v.status, v.done?'good':v.status==='Đang làm'?'warn':'neutral') : nutTrangThai(v))
-      : pill(taskStatus(v), v.done?'good':taskStatus(v)==='Đang làm'?'warn':'neutral');
-    return '<div class="row' + (live?' row-live':'') + '">' + o +
+    const trangThai = compact
+      ? pill(live ? v.status : taskStatus(v), v.done?'good':(live?v.status:taskStatus(v))==='Đang làm'?'warn':'neutral')
+      : nutTrangThai(v);
+    return '<div class="row' + (compact?'':' row-live') + '">' + o +
       '<div class="row-text"><strong class="' + (v.done?'done':'') + '">' +
       label(v.title) + '</strong><small>' + phu + '</small>' + doBang +
       canh.map(c => '<small class="sheet-error">⚠ ' + label(c) + '</small>').join('') + '</div>' +
@@ -256,6 +277,86 @@
       '<div class="session-actions">' + nut + addButton('tasks','Thêm việc') + '</div>',
       thanhTrangThai() + '<div class="list">' + (list || '<p class="empty">App chưa giao việc nào cho bàn này.</p>') + '</div>');
   };
+
+  /* ---------- đưa việc chốt tại IDS sang app PHI LONG GROUP ---------- */
+  let hopThoai = null, viecDangDay = null;
+  function dungHopThoai() {
+    if (hopThoai) return hopThoai;
+    hopThoai = document.createElement('dialog');
+    hopThoai.className = 'viec-day-hop';
+    hopThoai.innerHTML =
+      '<form method="dialog"><h2>Đưa việc sang app PHI LONG GROUP</h2>' +
+      '<p class="viec-day-ten"></p>' +
+      '<label>Người phụ trách<select name="ai" required></select></label>' +
+      '<label>Loại công việc · 6 Way<select name="way" required></select></label>' +
+      '<label>Chỉ số dẫn dắt<select name="chi_so" required></select></label>' +
+      '<label>Hạn hoàn thành<input type="date" name="han" required></label>' +
+      '<p class="viec-day-bao"></p>' +
+      '<div class="viec-day-nut"><button type="button" class="button secondary" data-huy>Hủy</button>' +
+      '<button type="submit" class="button yellow">Ghi về app</button></div></form>';
+    document.body.appendChild(hopThoai);
+    hopThoai.querySelector('[data-huy]').addEventListener('click',()=>hopThoai.close());
+    hopThoai.querySelector('form').addEventListener('submit',guiViec);
+    return hopThoai;
+  }
+  function doOption(sel, ds2, chon) {
+    sel.innerHTML = ds2.map(x =>
+      '<option value="' + label(x) + '"' + (x === chon ? ' selected' : '') + '>' + label(x) + '</option>').join('');
+  }
+  function moHopThoai(viec, tt) {
+    const hop = dungHopThoai();
+    const f = hop.querySelector('form');
+    const nhanSu = (window.CARDIY_NHAN_SU && window.CARDIY_NHAN_SU.dangDung()) || [];
+    if (!nhanSu.length) { message('Chưa đọc được danh sách nhân sự — bấm Đọc lại từ app rồi thử lại.'); return; }
+    viecDangDay = {viec, tt};
+    hop.querySelector('.viec-day-ten').textContent = viec.title;
+    hop.querySelector('.viec-day-bao').textContent = '';
+    f.elements.ai.innerHTML = nhanSu.map(n =>
+      '<option value="' + label(n.ma) + '">' + label(n.ten + ' · ' + n.ban) + '</option>').join('');
+    doOption(f.elements.way, gopDanhMuc(v=>v.way, WAY_MAC_DINH), '');
+    doOption(f.elements.chi_so, gopDanhMuc(v=>v.chiSo, CHI_SO_MAC_DINH), '');
+    f.elements.han.value = viec.date && viec.date >= today() ? viec.date : hanMacDinh();
+    hop.showModal();
+  }
+  async function guiViec(event) {
+    event.preventDefault();
+    if (!viecDangDay || dangGhi) return;
+    const f = event.target;
+    const bao = f.querySelector('.viec-day-bao');
+    const {viec, tt} = viecDangDay;
+    dangGhi = true;
+    f.querySelector('[type="submit"]').disabled = true;
+    bao.textContent = 'Đang ghi việc mới về app…';
+    try {
+      const body = new URLSearchParams({khoa:KHOA, viec:'them_cong_viec', ten:viec.title,
+        ai:f.elements.ai.value, han:f.elements.han.value, way:f.elements.way.value,
+        chi_so:f.elements.chi_so.value, trang_thai:tt, mo_ta:'Chốt tại Vấn đề (IDS) · ' + branchSelect.value,
+        nguoi:'Họp nhanh'}).toString();
+      const r = await fetch(API,{method:'POST',body:body,
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      const j = await r.json().catch(()=>null);
+      if (!j || j.ok !== true) throw new Error((j && j.loi) || 'cầu nối không trả lời đúng');
+      /* Việc đã nằm trên app thì bỏ bản gõ tay, vòng đọc lại sẽ kéo về đúng dòng live. */
+      const list = data().tasks;
+      const i = list.findIndex(x => x.id === viec.id);
+      if (i > -1) list.splice(i,1);
+      dangGhi = false;
+      hopThoai.close();
+      await lamMoi(false);
+      render();
+      message('Đã ghi sang app · ' + j.id + ' · ' + j.ho_va_ten + ' · ' + nhanTT(tt));
+    } catch (e) {
+      dangGhi = false;
+      f.querySelector('[type="submit"]').disabled = false;
+      bao.textContent = 'CHƯA ghi được: ' + (e.message || e);
+    }
+  }
+  document.addEventListener('click', event => {
+    const nut = event.target.closest('[data-action="viec-day"]');
+    if (!nut || dangGhi) return;
+    const viec = data().tasks.find(x => x.id === nut.dataset.id);
+    if (viec) moHopThoai(viec, nut.dataset.tt);
+  });
 
   /* ---------- ô ngày: sửa hạn, ghi thẳng về CONG_VIEC ---------- */
   document.addEventListener('change', async event => {

@@ -24,6 +24,7 @@ var TT_CHUAN = ['1.Chờ thực hiện', '2.Đang làm', '3.Hoàn thành'];
 function dinhTuyenThem_(p) {
   if (p.viec === 'doi_trang_thai') return doiTrangThaiCV_(p);
   if (p.viec === 'doi_han') return doiHanCV_(p);
+  if (p.viec === 'them_cong_viec') return themCongViecCV_(p);
   return { ok: false, loi: 'Không rõ tham số viec=' + p.viec };
 }
 
@@ -147,4 +148,72 @@ function doiTrangThaiCV_(p) {
   return { ok: true, id: id, dong: dong, truoc: truoc, trang_thai: tt,
            ngay_hoan_thanh: ngayXong,
            luc: Utilities.formatDate(new Date(), MUI_GIO, 'HH:mm dd/MM/yyyy') };
+}
+
+/* ---------------------------------------------------------------
+   THÊM VIỆC MỚI VÀO CONG_VIEC — luồng Vấn đề (IDS) → Hành động
+   Tracy chốt 24/11/2026: hành động chốt tại IDS rơi vào Danh sách
+   hành động, bấm trạng thái là ghi thẳng thành việc trên app.
+
+   Chỉ THÊM một dòng mới, không sửa dòng nào đang có.
+   deadline và ngay_tao ghi bằng Date vì là ô ngày thật.
+   --------------------------------------------------------------- */
+function themCongViecCV_(p) {
+  var ten = String(p.ten || '').replace(/\s+/g, ' ').trim();
+  var maNV = String(p.ai || '').trim();
+  var han = String(p.han || '').trim();
+  var tt = String(p.trang_thai || '1.Chờ thực hiện').trim();
+  if (!ten) return { ok: false, loi: 'Thiếu tên công việc' };
+  if (!maNV) return { ok: false, loi: 'Thiếu người phụ trách' };
+  if (TT_CHUAN.indexOf(tt) < 0) return { ok: false, loi: 'Trạng thái không hợp lệ: ' + tt };
+  var m = han.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return { ok: false, loi: 'Hạn phải dạng yyyy-mm-dd, nhận được: ' + han };
+
+  var ss = SpreadsheetApp.openById(FILE_RA);
+  var shNV = ss.getSheetByName('NHAN_VIEN');
+  if (!shNV) return { ok: false, loi: 'Không thấy bảng NHAN_VIEN' };
+  var vNV = shNV.getRange(1, 1, shNV.getLastRow(), 10).getValues();
+  var cNV = {};
+  vNV[0].forEach(function (x, i) { cNV[String(x).trim()] = i; });
+  var ai = '', ban = '', i;
+  for (i = 1; i < vNV.length; i++) {
+    if (String(vNV[i][cNV['id']]).trim() === maNV) {
+      ai = String(vNV[i][cNV['ho_va_ten']] || '').trim();
+      ban = String(vNV[i][cNV['phong_ban']] || '').replace(/\s+/g, ' ').trim();
+      break;
+    }
+  }
+  if (!ai) return { ok: false, loi: 'Không thấy nhân sự mã ' + maNV + ' trong NHAN_VIEN' };
+
+  var sh = ss.getSheetByName('CONG_VIEC');
+  if (!sh) return { ok: false, loi: 'Không thấy bảng CONG_VIEC' };
+  var de = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var c = {};
+  de.forEach(function (x, j) { c[String(x).trim()] = j; });
+  if (c['id'] === undefined || c['ten_cong_viec'] === undefined) {
+    return { ok: false, loi: 'Bảng CONG_VIEC thiếu cột id / ten_cong_viec' };
+  }
+
+  var nay = new Date();
+  var id = 'CV' + Utilities.formatDate(nay, MUI_GIO, 'yyMMdd-HHmmss');
+  var hang = new Array(de.length).fill('');
+  function dat(ten2, gt) { if (c[ten2] !== undefined) hang[c[ten2]] = gt; }
+  dat('id', id);
+  dat('loai_cong_viec', String(p.way || '').trim());
+  dat('ten_cong_viec', ten);
+  dat('ten_khach_hang', String(p.chi_so || '').trim());
+  dat('mo_ta_cong_viec', String(p.mo_ta || '').trim());
+  dat('deadline', new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 17, 30, 0));
+  dat('nguoi_phu_trach', maNV);
+  dat('ho_va_ten', ai);
+  dat('phong_ban', ban);
+  dat('trang_thai', tt);
+  dat('ngay_tao', nay);
+  dat('nguoi_tao', String(p.nguoi || 'Họp nhanh').trim());
+  dat('nhat_ki', '-' + Utilities.formatDate(nay, MUI_GIO, 'ddMM HHmm') + '  ' +
+      String(p.nguoi || 'Họp nhanh').trim() + ':  Tạo từ Vấn đề (IDS)\n');
+  sh.appendRow(hang);
+  SpreadsheetApp.flush();
+  return { ok: true, id: id, dong: sh.getLastRow(), ho_va_ten: ai, phong_ban: ban,
+           trang_thai: tt, han: Utilities.formatDate(nay, MUI_GIO, 'HH:mm dd/MM/yyyy') };
 }

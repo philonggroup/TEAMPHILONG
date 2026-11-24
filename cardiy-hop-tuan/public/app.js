@@ -315,13 +315,16 @@ function feedbackGuide() {
 function actionsGuide() {
   return facilitatorGuide('B6 · Danh sách hành động','tasks',
     '<h3>Người điều phối</h3><p>Mời từng thành viên báo cáo trạng thái công việc được giao từ buổi họp trước.</p>'+
-    '<h3>Thành viên</h3><ul><li>Báo cáo việc đã hoàn thành hoặc còn mở.</li><li>Đánh dấu hoàn thành cho việc đã xong.</li><li>Giữ việc chưa xong trong danh sách và gia hạn thời gian.</li></ul>','');
+    '<h3>Thành viên</h3><ul><li>Báo cáo việc đã hoàn thành hoặc còn mở.</li><li>Bấm trạng thái ngay trên dòng việc · ghi thẳng về app.</li><li>Việc chưa xong thì sửa lại ô hạn, không để trôi.</li></ul>',"Dòng vàng 'Chưa có trên app' là việc vừa chốt ở B5 · bấm một trạng thái để đưa sang app PHI LONG GROUP.");
 }
 function issuesGuide() {
   return facilitatorGuide('B5 · Vấn đề cần giải quyết','issues',
     '<h3>Người điều phối</h3><p>Hỏi đội ngũ có vấn đề nào cần bổ sung. Xếp thứ tự ưu tiên và chọn ba vấn đề cấp thiết nhất.</p>'+
     '<h3>Thành viên</h3><p>Bổ sung vấn đề nếu có. Xử lý từng vấn đề theo IDS:</p>'+
-    '<ol><li><strong>Identify</strong> · Xác định nguyên nhân cốt lõi.</li><li><strong>Discuss</strong> · Thảo luận phương án xử lý.</li><li><strong>Solve</strong> · Chốt phương án và tạo hành động nếu cần.</li></ol>',
+    '<ol><li><strong>Identify</strong> · Xác định nguyên nhân cốt lõi.</li><li><strong>Discuss</strong> · Thảo luận phương án xử lý.</li><li><strong>Solve</strong> · Chốt phương án, đổi trạng thái vấn đề sang <strong>Hành động đã chốt</strong>.</li></ol>'+
+    '<h3>Luồng dữ liệu</h3><ol><li>Vấn đề chuyển <strong>Hành động đã chốt</strong> · việc tự rơi sang <strong>B6 · Danh sách hành động</strong>.</li>'+
+    '<li>Ở B6 bấm trạng thái (Chờ thực hiện · Đang làm · Hoàn thành) · khai người phụ trách, Way, chỉ số dẫn dắt, hạn.</li>'+
+    '<li>Việc ghi thẳng vào bảng CONG_VIEC của app PHI LONG GROUP · cả team thấy ngay trên điện thoại.</li></ol>',
     'Thực hiện IDS đúng trình tự. Hết giờ thì giữ vấn đề còn mở cho buổi sau. Còn giờ thì xếp lại thứ tự ưu tiên để xử lý tiếp.');
 }
 function conclusionGuide() {
