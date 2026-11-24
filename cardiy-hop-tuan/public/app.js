@@ -425,18 +425,19 @@ function overview() {
   ].filter(([, ,kpi])=>kpi).map(([symbol,title,kpi])=>stat(symbol,title,showNumber(kpi.actual,kpi.unit),'Mục tiêu '+showNumber(kpi.target,kpi.unit))).join('') : '';
   const open = d.issues.filter(item=>!item.solved).length;
   return '<section class="hero"><div><p class="eyebrow">PHÒNG ĐIỀU HÀNH · '+label(branchSelect.value)+'</p><h1>'+meetingTitle()+'</h1><div class="hero-meta"><span>'+icon('calendar')+periodDate(d.session?.date||today())+'</span><span>'+icon('clock')+meetingMinutes()+' phút</span>'+pill(active?'Đang diễn ra':d.session?.endedAt?'Đã kết thúc':'Sẵn sàng họp',active?'good':'neutral')+'</div></div><button class="button yellow" data-action="start">'+icon('play')+(active?'Tiếp tục họp':d.session?.endedAt?'Bắt đầu buổi mới':isJoint()?'Bắt đầu họp chung':'Bắt đầu cuộc họp')+'</button></section>'+
-    weeklyHandover()+'<div class="stats">'+branchPicker()+(metrics||stat('chart','KPI đạt',d.kpis.filter(kpi=>kpi.actual>=kpi.target).length+' / '+d.kpis.length,'Chỉ số '+periodName()))+stat('issue','Vấn đề đang mở',open,'Cần xử lý qua IDS')+'</div>'+(isJoint()?'<div class="wide-panel">'+comparisonPanel()+'</div>':'')+'<div class="dashboard"><div class="column">'+(isJoint()?'':kpiPanel(true))+tasksPanel(true)+(isJoint()?branchSummary():'')+'</div></div>';
+    weeklyHandover()+branchPicker()+'<div class="stats">'+(metrics||stat('chart','KPI đạt',d.kpis.filter(kpi=>kpi.actual>=kpi.target).length+' / '+d.kpis.length,'Chỉ số '+periodName()))+stat('issue','Vấn đề đang mở',open,'Cần xử lý qua IDS')+'</div>'+(isJoint()?'<div class="wide-panel">'+comparisonPanel()+'</div>':'')+'<div class="dashboard"><div class="column">'+(isJoint()?'':kpiPanel(true))+tasksPanel(true)+(isJoint()?branchSummary():'')+'</div></div>';
 }
 /* Tracy chốt 24/11/2026: màn Tổng quan LUÔN có nút chọn bàn họp —
-   Tất cả 3 chi nhánh hoặc từng chi nhánh — không phải mở ô xổ trên đầu. */
+   Tất cả hoặc từng chi nhánh — không phải mở ô xổ trên đầu.
+   Chốt tiếp cùng ngày: để DẠNG BOX gọn, nhãn ngắn CN1 · CN2 · CN3,
+   không chiếm một ô thống kê và không in lại tên bàn cỡ lớn. */
 function branchPicker() {
-  const ngan = ten => String(ten).split(' · ')[0];
-  const nut = [['Tất cả',jointIndex],...branchNames.map((ten,i)=>[ngan(ten),i])].map(([ten,i])=>
+  const ma = ten => (String(ten).split(' · ')[1] || String(ten).split(' · ')[0] || ten).trim();
+  const nut = [['Tất cả',jointIndex],...branchNames.map((ten,i)=>[ma(ten),i])].map(([ten,i])=>
     '<button type="button" class="cn-o'+(state.branch===i?' chon':'')+'" aria-pressed="'+(state.branch===i)+'" '+
     (i===jointIndex?'data-action="open-joint"':'data-action="open-branch" data-id="'+i+'"')+'>'+label(ten)+'</button>').join('');
-  return '<article class="stat stat-cn"><span class="stat-icon">'+icon('team')+'</span><div><p>Bàn họp</p>'+
-    '<strong class="num">'+label(isJoint()?'Tất cả 3 chi nhánh':ngan(branchSelect.value))+'</strong>'+
-    '<div class="cn-nut" role="group" aria-label="Chọn bàn họp">'+nut+'</div></div></article>';
+  return '<div class="ban-hop"><span class="ban-hop-nhan">'+icon('team')+'Bàn họp</span>'+
+    '<div class="cn-nut" role="group" aria-label="Chọn bàn họp">'+nut+'</div></div>';
 }
 function jointStats() {
   const kpis = periodData().branches.flatMap(branch=>branch.kpis);

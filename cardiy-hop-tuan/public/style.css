@@ -404,3 +404,14 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .vd-buc3{border-color:#B06A2C;background:#fdf8f3}
 .vd-buc .vd-pham{font-weight:800}
 .vd-buc .vd-tt small{display:block;margin-top:.2rem;font-size:.7rem;color:#64748b;font-weight:700}
+
+/* ───── Bàn họp: hộp chọn gọn, không chiếm một ô thống kê ───── */
+.ban-hop{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;
+  margin:0 0 14px;padding:.45rem .7rem;border:1px solid var(--line);
+  border-radius:.65rem;background:#fff}
+.ban-hop-nhan{display:inline-flex;align-items:center;gap:.35rem;
+  font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);white-space:nowrap}
+.ban-hop-nhan svg{width:15px;height:15px}
+.ban-hop .cn-nut{gap:.3rem}
+.ban-hop .cn-o{padding:.3rem .7rem;font-size:.8rem;font-weight:750;border-radius:.45rem}
