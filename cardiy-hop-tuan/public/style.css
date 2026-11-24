@@ -452,3 +452,24 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .ky-hien{font-size:.76rem;font-weight:750;color:var(--blue);white-space:nowrap}
 .ky-hop{max-width:330px}
 @media (max-width:640px){.ky-nhan{min-width:0;width:100%}}
+
+/* ───── Cổng đăng nhập theo bàn (dangnhap.js) ───── */
+body.dang-khoa{overflow:hidden}
+body.dang-khoa .app,body.dang-khoa #content,body.dang-khoa .top,
+body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;user-select:none}
+#cua-dang-nhap{position:fixed;inset:0;z-index:50;display:flex;align-items:center;
+  justify-content:center;padding:20px;background:linear-gradient(160deg,#0c203f,#17427b)}
+.cua-hop{width:min(94vw,360px);display:flex;flex-direction:column;gap:.7rem;
+  padding:26px 24px;border-radius:16px;background:#fff;box-shadow:0 26px 70px #04122c66;
+  text-align:center}
+.cua-logo{align-self:center;border-radius:14px}
+.cua-hop h1{font-size:1.15rem;letter-spacing:-.02em}
+.cua-phu{font-size:.84rem;color:var(--muted)}
+.cua-o{display:flex;flex-direction:column;gap:.3rem;text-align:left;
+  font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cua-o input{font:inherit;font-size:.95rem;font-weight:600;text-transform:none;letter-spacing:0;
+  color:var(--ink);border:1px solid #cddbef;border-radius:9px;padding:11px}
+.cua-o input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.cua-bao{min-height:1.1em;font-size:.8rem;font-weight:700;color:#942b24}
+.cua-nut{width:100%;justify-content:center}
+.cua-chan{font-size:.72rem;color:#8796ab;line-height:1.5}
