@@ -193,6 +193,7 @@
     else render();
   });
   document.addEventListener('click', event => {
+    if (event.target.closest('[data-action="ky-chon-nguoi"]')) { moHopChon(); return; }
     if (event.target.closest('[data-action="in-bien-ban"]')) { inRa(); return; }
     if (event.target.closest('[data-action="xuat-bien-ban"]')) xuatExcel();
   });
