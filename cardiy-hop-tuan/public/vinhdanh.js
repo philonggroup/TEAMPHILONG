@@ -37,11 +37,11 @@
     {ma:'dvnl',  khoi:'KỸ THUẬT VIÊN', ct:'DVNL',            dv:'đ',
      ten:'Vinh danh KTV · Doanh thu DVNL'},
     /* Tracy chốt 24/11/2026: hai giải này KHÔNG chấm theo mức, cũng không
-       chấm riêng từng bàn — lấy 3 người cao nhất TOÀN HỆ THỐNG, trao hạng
-       1 · 2 · 3. Ai mạnh nhất chuỗi thì lên bục, không phân biệt chi nhánh. */
-    {ma:'phieu', khoi:'KỸ THUẬT VIÊN', ct:'Phiếu Kiểm Tra Xe.', dv:'phiếu', hang: 3,
+       chấm riêng từng bàn — xét TOÀN HỆ THỐNG và mỗi mục vinh danh ĐÚNG
+       MỘT nhân sự. Một chuỗi, một người mạnh nhất, không chia bục. */
+    {ma:'phieu', khoi:'KỸ THUẬT VIÊN', ct:'Phiếu Kiểm Tra Xe.', dv:'phiếu', hang: 1,
      ten:'Bứt tốc mạnh nhất · Phiếu kiểm tra an toàn'},
-    {ma:'luot',  khoi:'KỸ THUẬT VIÊN', ct:'Tổng Lượt xe',    dv:'lượt', hang: 3,
+    {ma:'luot',  khoi:'KỸ THUẬT VIÊN', ct:'Tổng Lượt xe',    dv:'lượt', hang: 1,
      ten:'Bứt tốc mạnh nhất · Tổng lượt xe phục vụ'},
   ];
   const CN = ['CN1','CN2','CN3'];
@@ -302,21 +302,26 @@
   ];
   function theBuc(g, x, i) {
     const h = HANG[i];
-    return '<div class="vd-o vd-co-cup vd-buc vd-buc' + (i+1) + '">' +
-      '<span class="vd-pham">' + h.huy + ' ' + label(h.ten) + ' · toàn hệ thống</span>' +
+    /* Mỗi mục một người thì không gọi là hạng — gọi thẳng HỆ THỐNG. */
+    const mot = g.hang === 1;
+    return '<div class="vd-o vd-co-cup vd-buc vd-buc' + (i+1) + (mot ? ' vd-he' : '') + '">' +
+      '<span class="vd-pham">' + (mot ? '🏆 TOÀN HỆ THỐNG' : h.huy + ' ' + label(h.ten) + ' · toàn hệ thống') + '</span>' +
       '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
       '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
-      '" data-bac="' + label(h.ten) + '">' + h.huy + ' ' + label(x.ten) + '</button>' +
+      '" data-bac="' + label(mot ? 'TOÀN HỆ THỐNG' : h.ten) + '">' +
+      (mot ? '🏆' : h.huy) + ' ' + label(x.ten) + '</button>' +
       '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
-      '<p class="vd-tt"><span class="vd-bac" style="background:' + h.mau + '">' + label(h.ten) + '</span>' +
+      '<p class="vd-tt"><span class="vd-bac" style="background:' + h.mau + '">' +
+      label(mot ? 'CAO NHẤT HỆ THỐNG' : h.ten) + '</span>' +
       '<small>' + label(x.cn) + '</small></p></div>';
   }
   function theGiaiHang(g, k, sot) {
     const ds = xepHang(g, k, null).slice(0, g.hang);
     if (!ds.length) { sot.push(g.ten + ' · toàn hệ thống: chưa có số trong kỳ'); return ''; }
     if (ds.length < g.hang) sot.push(g.ten + ': mới có ' + ds.length + ' người có số, chưa đủ ' + g.hang + ' hạng');
+    const mo = g.hang === 1 ? 'người cao nhất toàn hệ thống' : g.hang + ' người cao nhất toàn hệ thống';
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
-      '<p class="vd-khoi">' + label(g.khoi) + ' · 3 người cao nhất toàn hệ thống · ' + label(k.nhan) + '</p>' +
+      '<p class="vd-khoi">' + label(g.khoi) + ' · ' + mo + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + ds.map((x,i) => theBuc(g,x,i)).join('') + '</div></section>';
   }
   function theGiai(g, k, sot) {
