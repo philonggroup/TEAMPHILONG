@@ -261,10 +261,12 @@ function kpiPanel(compact) {
   const rows = data().kpis.map(kpi=>{
     const hit = kpi.actual>=kpi.target;
     const actions = compact?'':'<td>'+editButton('kpis',kpi.id)+kpiIssueButton(kpi,state.branch)+'</td>';
-    return '<tr><td>'+label(kpi.title)+'</td><td>'+label(kpi.owner)+'</td><td class="num">'+showNumber(kpi.target,kpi.unit)+'</td><td class="num">'+showNumber(kpi.actual,kpi.unit)+'</td><td>'+pill(hit?'Đạt':'Chưa đạt',hit?'good':'miss')+'</td>'+actions+'</tr>';
+    /* Tracy chốt 24/11/2026: cột Phụ trách đưa ra SAU CÙNG. Lúc họp mắt
+       chạy từ chỉ số sang số liệu trước, tên người để cuối hàng. */
+    return '<tr><td>'+label(kpi.title)+'</td><td class="num">'+showNumber(kpi.target,kpi.unit)+'</td><td class="num">'+showNumber(kpi.actual,kpi.unit)+'</td><td>'+pill(hit?'Đạt':'Chưa đạt',hit?'good':'miss')+'</td><td>'+label(kpi.owner)+'</td>'+actions+'</tr>';
   }).join('');
   const title = 'Bảng chỉ số '+periodName();
-  const body = rows ? '<div class="table-wrap" tabindex="0" aria-label="'+title+'"><table><thead><tr><th scope="col">Chỉ số</th><th scope="col">Phụ trách</th><th scope="col">Chỉ tiêu</th><th scope="col">Thực tế</th><th scope="col">Trạng thái</th>'+(compact?'':'<th scope="col"><span class="sr">Chỉnh sửa</span></th>')+'</tr></thead><tbody>'+rows+'</tbody></table></div>' : '<div class="list"><p class="empty">Chưa có chỉ số cho kỳ này.</p></div>';
+  const body = rows ? '<div class="table-wrap" tabindex="0" aria-label="'+title+'"><table><thead><tr><th scope="col">Chỉ số</th><th scope="col">Chỉ tiêu</th><th scope="col">Thực tế</th><th scope="col">Trạng thái</th><th scope="col">Phụ trách</th>'+(compact?'':'<th scope="col"><span class="sr">Chỉnh sửa</span></th>')+'</tr></thead><tbody>'+rows+'</tbody></table></div>' : '<div class="list"><p class="empty">Chưa có chỉ số cho kỳ này.</p></div>';
   return panel(title,'Theo dõi kết quả vận hành chi nhánh',compact?'<button class="button secondary" data-view="kpis">Cập nhật</button>':addButton('kpis','Thêm chỉ số'),body);
 }
 function tasksPanel(compact) {
