@@ -535,3 +535,19 @@ body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;us
 .kn-chu strong,.kn-chu small{display:block;overflow-wrap:anywhere}
 .kn-chu strong{font-size:.86rem;font-weight:700;color:var(--ink)}
 .kn-chu small{font-size:.74rem;color:var(--muted);margin-top:1px}
+
+/* ───── B7 · ký nhận thành viên (bienban.js) ───── */
+.kn-tom{padding:14px 19px 18px;font-size:.9rem;color:var(--ink);line-height:1.6}
+.kn-tom strong{font-size:1.15rem;color:var(--blue)}
+.kn-hop{max-width:420px}
+.kn-hop .kn-phu{font-size:.8rem;color:var(--muted);font-weight:700}
+.kn-hop .kn-dem{color:var(--blue)}
+.kn-ds{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:.55rem;
+  padding:.25rem .5rem}
+.kn-dong{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;
+  border-top:1px solid #eef3f9;cursor:pointer}
+.kn-dong:first-child{border-top:0}
+.kn-dong input{width:18px;height:18px;accent-color:var(--blue);flex:none}
+.kn-dong span{display:block;min-width:0;font-size:.84rem}
+.kn-dong strong{display:block;font-weight:700;color:var(--ink)}
+.kn-dong small{display:block;font-size:.72rem;color:var(--muted)}
