@@ -389,15 +389,10 @@
     const chuaCham = sot.length
       ? '<details class="vd-sot"><summary>' + sot.length + ' ô chưa chấm được — xem lý do</summary><ul>' +
         sot.map(x => '<li>' + label(x) + '</li>').join('') + '</ul></details>' : '';
-    const he = heSoMoc(k);
-    const luat = '<p class="vd-luat"><strong>Luật trao cúp</strong> · Mỗi giải trao cho người dẫn đầu, ' +
-      'kèm MỨC đạt được theo đúng thang bậc của bảng hoa hồng. ' +
-      '<span class="vd-bac" style="background:' + label(mauBac[1]) + '">' + label(tenBac[1]) + '</span>' +
-      '<span class="vd-bac" style="background:' + label(mauBac[2]) + '">' + label(tenBac[2]) + '</span>' +
-      '<span class="vd-bac" style="background:' + label(mauBac[3]) + '">' + label(tenBac[3]) + '</span> · ' +
-      'Mốc lấy từ KPI_BAC_THANG, là mốc THÁNG' +
-      (he !== 1 ? ' quy đổi cho kỳ này (×' + (Math.round(he * 100) / 100) + ')' : '') +
-      '. Bấm vào tên người được vinh danh để chúc mừng — mỗi người nói 30 giây.</p>';
+    /* Tracy chốt 24/11/2026: ẨN khối "Luật trao cúp". Luật không đổi —
+       mốc lấy từ KPI_BAC_THANG, là mốc THÁNG; bấm tên để chúc mừng 30
+       giây — chỉ bỏ khỏi màn cho gọn lúc họp. Bật lại thì sửa một dòng. */
+    const luat = '';
     return panel('Bảng vàng · 6 giải từ KPI', 'Theo ' + label(k.nhan) + ' · từng chi nhánh và toàn hệ thống', '',
       '<div class="vd-than">' + than + nutChiNhanh() + luat + trong + kd + kt + chuaCham + '</div>');
   }
