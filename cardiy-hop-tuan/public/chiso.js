@@ -33,12 +33,11 @@
   ];
   /* Nhóm I · DOANH THU — chỉ số KẾT QUẢ. Dò theo đầu tên vì tỷ trọng %
      mỗi chi nhánh một khác (CN1 62/8/30, CN2 72/10/18). */
+  /* Tracy chốt 24/11/2026: ẩn DT dịch vụ DVL+DVNL+LĐ, DV lốp và DV sửa
+     chữa khỏi khối Chỉ số kết quả — chỉ giữ 3 dòng chính. */
   const KET_QUA = [
     {dau:'DOANH THU MỤC TIÊU', ten:'Doanh thu mục tiêu', dv:'đ'},
     {dau:'— DT lốp',           ten:'DT lốp',              dv:'đ'},
-    {dau:'— DT dịch vụ',       ten:'DT dịch vụ DVL+DVNL+LĐ', dv:'đ'},
-    {dau:'· DV lốp',           ten:'DV lốp',              dv:'đ'},
-    {dau:'· DV sửa chữa',      ten:'DV sửa chữa',         dv:'đ'},
     {dau:'— DT BD-SC-PK',      ten:'DT BD-SC-PK / NTP',   dv:'đ'},
   ];
   /* Kỳ QUÝ và 6 THÁNG: file CARDIY không có số thực đạt của quý (chỉ có
