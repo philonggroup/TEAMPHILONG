@@ -109,6 +109,14 @@
     if (o) o.placeholder = 'Gõ để tìm trong ' + loc().length + ' nhân sự';
   });
 
-  window.CARDIY_NHAN_SU = { doc: doc, danhSach: () => ds, dangDung: () => loc() };
+  /* Đổi BÀN HỌP trên thanh chọn cũng phải dựng lại danh sách gợi ý.
+     Thiếu chỗ này thì đứng ở PHI LONG 2 mà ô "Người duyệt · QLCN" vẫn
+     xổ ra đủ 29 người cả ba chi nhánh — duyệt nhầm người bàn khác. */
+  document.addEventListener('click', event => {
+    if (!event.target.closest('[data-action="open-branch"],[data-action="open-joint"]')) return;
+    window.setTimeout(ve, 0);
+  });
+
+  window.CARDIY_NHAN_SU = { doc: doc, danhSach: () => ds, dangDung: () => loc(), ve: ve };
   doc();
 }
