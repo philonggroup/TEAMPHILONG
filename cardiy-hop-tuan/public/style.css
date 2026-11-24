@@ -378,3 +378,12 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .vd-dem strong{font-variant-numeric:tabular-nums}
 .vd-o.vd-he{border-color:#b7cdeb;background:#f5f9ff}
 .vd-o.vd-he .vd-pham{color:#0a4da2}
+
+/* ───── Vinh danh: nút chọn chi nhánh + dòng lý do chưa chấm ───── */
+.vd-chon{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:0 0 .9rem}
+.vd-chon>span{font-size:.78rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted)}
+.vd-sot{margin-top:1rem;padding:.55rem .75rem;border:1px solid var(--line);
+  border-radius:.6rem;background:#f7f9fc;font-size:.8rem;color:var(--muted)}
+.vd-sot summary{cursor:pointer;font-weight:700;color:#425e80}
+.vd-sot ul{margin:.5rem 0 0;padding-left:1.1rem;line-height:1.6}

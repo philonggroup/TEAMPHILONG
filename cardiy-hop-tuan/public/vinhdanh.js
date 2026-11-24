@@ -184,37 +184,48 @@
   }
 
   /* ---------- vẽ ---------- */
+  /* Tracy chốt 24/11/2026: CHỈ HIỆN nhân sự ĐỦ ĐIỀU KIỆN. Chưa ai qua
+     vạch chuẩn thì ô đó ẩn hẳn — không bêu tên người chưa đạt lên màn
+     họp, cũng không để ai tưởng mình sắp có cúp. Lý do không chấm được
+     (thiếu vạch chuẩn / chưa có số) gom xuống một dòng cuối bảng. */
   function theNguoi(g, x, ten, he) {
-    const lop = 'vd-o' + (he ? ' vd-he' : '');
-    if (!x) return '<div class="' + lop + ' vd-trong"><span class="vd-pham">' + label(ten) + '</span>' +
-      '<p class="vd-khong">Chưa có số trong kỳ này</p></div>';
+    if (!x || !x.qua) return '';
+    const lop = 'vd-o vd-co-cup' + (he ? ' vd-he' : '');
     const tyLe = x.vach ? Math.round(x.gt / x.vach * 100) : null;
-    const thieu = x.vach && !x.qua ? tien(x.vach - x.gt, g.dv) : '';
-    const nut = x.qua
-      ? '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
-        '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
-        '" data-vach="' + x.vach + '">🏆 ' + label(x.ten) + '</button>'
-      : '<span class="vd-ten vd-chua">' + label(x.ten) + '</span>';
-    const trangThai = x.vach === null
-      ? '<span class="pill warn">chưa đặt vạch chuẩn</span><small>Không trao cúp cho tới khi KPI_DINH_MUC có dòng này.</small>'
-      : x.qua
-        ? '<span class="pill good">Đã qua vạch chuẩn</span>'
-        : '<span class="pill miss">Chưa qua vạch chuẩn</span><small>còn thiếu ' + thieu + '</small>';
-    return '<div class="' + lop + (x.qua ? ' vd-co-cup' : '') + '">' +
-      '<span class="vd-pham">' + label(ten) + '</span>' + nut +
-      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong>' +
-      (x.vach !== null ? ' / ' + tien(x.vach, g.dv) + (tyLe !== null ? ' · ' + tyLe + '%' : '') : '') + '</p>' +
-      '<p class="vd-tt">' + trangThai + '</p>' +
-      (x.nhi ? '<p class="vd-nhi">Kế sau: ' + label(x.nhi.ten) + ' · ' + tien(x.nhi.gt, g.dv) + '</p>' : '') +
+    return '<div class="' + lop + '">' +
+      '<span class="vd-pham">' + label(ten) + '</span>' +
+      '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
+      '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
+      '" data-vach="' + x.vach + '">🏆 ' + label(x.ten) + '</button>' +
+      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong> / ' + tien(x.vach, g.dv) +
+      (tyLe !== null ? ' · ' + tyLe + '%' : '') + '</p>' +
+      '<p class="vd-tt"><span class="pill good">Đã qua vạch chuẩn</span></p>' +
+      (x.nhi && x.nhi.gt >= x.vach
+        ? '<p class="vd-nhi">Kế sau: ' + label(x.nhi.ten) + ' · ' + tien(x.nhi.gt, g.dv) + '</p>' : '') +
       '</div>';
   }
-  function theGiai(g, k) {
+  /* Vì sao một ô trống — để báo xuống dòng cuối, không hiện trên thẻ giải. */
+  function viSao(g, x, nhan) {
+    if (!x) return nhan + ': chưa có số trong kỳ';
+    if (x.vach === null) return nhan + ': thiếu vạch chuẩn "' + g.ct + '" trong KPI_DINH_MUC';
+    return '';
+  }
+  function theGiai(g, k, sot) {
     const pham = isJoint() ? CN : [CN[state.branch]];
-    const o = pham.map((cn,i) => theNguoi(g, top1(g, k, cn),
-      isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch])).join('');
+    const o = pham.map(cn => {
+      const nhan = isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch];
+      const x = top1(g, k, cn);
+      const ly = viSao(g, x, nhan);
+      if (ly) sot.push(g.ten + ' · ' + ly);
+      return theNguoi(g, x, nhan);
+    }).join('');
     /* Thẻ HỆ THỐNG hiện ở CẢ hai chế độ: xem riêng một bàn vẫn phải thấy
        người đang dẫn đầu toàn hệ thống, đó là mức để so. */
-    const he = theNguoi(g, top1(g, k, null), 'HỆ THỐNG', true);
+    const xHe = top1(g, k, null);
+    const lyHe = viSao(g, xHe, 'HỆ THỐNG');
+    if (lyHe) sot.push(g.ten + ' · ' + lyHe);
+    const he = theNguoi(g, xHe, 'HỆ THỐNG', true);
+    if (!o && !he) return '';        /* chưa ai đủ điều kiện → ẩn cả giải */
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + o + he + '</div></section>';
@@ -234,20 +245,40 @@
       ' · đọc lúc ' + gio + ' · <strong>' + dong.length + '</strong> dòng nguồn · ' +
       '<button class="button secondary" type="button" data-action="vd-live">Đọc lại</button></p>' + thieuThang + rong;
   }
+  /* Tracy chốt 24/11/2026: màn Vinh danh phải có nút chọn chi nhánh và
+     hệ thống ngay tại chỗ, dùng lại đúng nút của app nên chọn ở đây thì
+     cả app đổi theo, không lệch bàn. */
+  function nutChiNhanh() {
+    const ngan = ten => String(ten).split(' · ')[0];
+    const nut = [['Hệ thống', jointIndex], ...branchNames.map((ten,i) => [ngan(ten), i])]
+      .map(([ten,i]) => '<button type="button" class="cn-o' + (state.branch === i ? ' chon' : '') +
+        '" aria-pressed="' + (state.branch === i) + '" ' +
+        (i === jointIndex ? 'data-action="open-joint"' : 'data-action="open-branch" data-id="' + i + '"') +
+        '>' + label(ten) + '</button>').join('');
+    return '<div class="vd-chon"><span>Trao giải cho</span>' +
+      '<div class="cn-nut" role="group" aria-label="Chọn chi nhánh trao giải">' + nut + '</div></div>';
+  }
   function bangVang() {
     const k = ky();
     const than = thanh(k);
     if (!dong || !chuan) {
       return panel('Bảng vàng · 6 giải từ KPI', 'Cúp chỉ trao cho người đã qua vạch chuẩn', '', than);
     }
-    const kd = GIAI.filter(g => g.khoi === 'KINH DOANH').map(g => theGiai(g,k)).join('');
-    const kt = GIAI.filter(g => g.khoi === 'KỸ THUẬT VIÊN').map(g => theGiai(g,k)).join('');
+    const sot = [];
+    const kd = GIAI.filter(g => g.khoi === 'KINH DOANH').map(g => theGiai(g,k,sot)).join('');
+    const kt = GIAI.filter(g => g.khoi === 'KỸ THUẬT VIÊN').map(g => theGiai(g,k,sot)).join('');
+    const trong = !kd && !kt
+      ? '<p class="vd-canh"><strong>Kỳ này chưa có ai qua vạch chuẩn.</strong> Không trao cúp — ' +
+        'đúng luật thì bảng vàng để trống, không hạ chuẩn.</p>' : '';
+    const chuaCham = sot.length
+      ? '<details class="vd-sot"><summary>' + sot.length + ' ô chưa chấm được — xem lý do</summary><ul>' +
+        sot.map(x => '<li>' + label(x) + '</li>').join('') + '</ul></details>' : '';
     const luat = '<p class="vd-luat"><strong>Luật trao cúp</strong> · Cúp chỉ trao cho người ĐÃ QUA VẠCH CHUẨN. ' +
       'Bấm vào tên người được vinh danh để chúc mừng — mỗi người nói 30 giây. ' +
       'Vạch chuẩn lấy từ KPI_DINH_MUC: tuần = định mức ngày × ' + NGAY_TUAN +
       ' · tháng = định mức tháng · quý = ×3.</p>';
     return panel('Bảng vàng · 6 giải từ KPI', 'Theo ' + label(k.nhan) + ' · từng chi nhánh và toàn hệ thống', '',
-      '<div class="vd-than">' + than + luat + kd + kt + '</div>');
+      '<div class="vd-than">' + than + nutChiNhanh() + luat + trong + kd + kt + chuaCham + '</div>');
   }
 
   /* ---------- chúc mừng 30 giây ---------- */
