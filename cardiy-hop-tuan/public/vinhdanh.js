@@ -32,9 +32,14 @@
      ten:'Tăng tốc về đích · Bứt phá doanh số lốp'},
     {ma:'ngoai', khoi:'KINH DOANH', ct:'SP Ngoài Lốp',       dv:'đ', hm:'SP Ngoài Lốp',
      ten:'Top 1 · Bảo dưỡng + Sửa chữa + Phụ kiện'},
-    {ma:'dvl',   khoi:'KỸ THUẬT VIÊN', ct:'DVL',             dv:'đ',
+    /* Tracy chốt 24/11/2026: DVL và DVNL dùng CHUNG thang 10 tr / 20 tr
+       của hạng mục "Doanh Thu Trực Tiếp" trong KPI_BAC_THANG — vẫn là hai
+       giải riêng, chỉ chung một cái thước.
+       Lưu ý khi đọc: thước này vốn đặt cho DVL+DVNL CỘNG LẠI, nên đo
+       từng dòng riêng thì con số nằm thấp hơn trên thang. */
+    {ma:'dvl',   khoi:'KỸ THUẬT VIÊN', ct:'DVL',             dv:'đ', hm:'Doanh Thu Trực Tiếp',
      ten:'Vinh danh KTV · Doanh thu DVL'},
-    {ma:'dvnl',  khoi:'KỸ THUẬT VIÊN', ct:'DVNL',            dv:'đ',
+    {ma:'dvnl',  khoi:'KỸ THUẬT VIÊN', ct:'DVNL',            dv:'đ', hm:'Doanh Thu Trực Tiếp',
      ten:'Vinh danh KTV · Doanh thu DVNL'},
     /* Tracy chốt 24/11/2026: hai giải này KHÔNG chấm theo mức, cũng không
        chấm riêng từng bàn — xét TOÀN HỆ THỐNG và mỗi mục vinh danh ĐÚNG
