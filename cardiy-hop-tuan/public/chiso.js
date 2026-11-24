@@ -43,8 +43,10 @@
   ];
   const LAM_MOI = 300000;        /* chỉ số đổi chậm hơn việc — 5 phút một lần */
 
-  let bang = null;               /* {CN1:[{ten,dv,target,actual}], …} */
-  let ketQua = null;             /* {CN1:[{ten,ty,target,actual}], …} */
+  let bang = null;               /* kỳ TUẦN  — {CN1:[…]} */
+  let bangThang = null;          /* kỳ THÁNG — {CN1:[…]} */
+  let ketQua = null;             /* kỳ TUẦN  — nhóm doanh thu */
+  let ketQuaThang = null;        /* kỳ THÁNG — nhóm doanh thu */
   let loi = '';
   let docLuc = null;
   let canhBao = [];
@@ -66,6 +68,14 @@
     return Math.min(5, Math.floor((ngay - 1) / 7) + 1);
   }
   const cotTuan = n => ({kpi: 5 + (n-1)*3, thuc: 6 + (n-1)*3});   /* 0-based */
+  /* Cột tháng dò theo tiêu đề dòng 3 ("KPI THÁNG 11" · "THỰC ĐẠT THÁNG"),
+     không đếm cứng, để sang tháng khác vẫn đúng. */
+  function cotThang(v) {
+    const de = (v[2] || []).map(khoa);
+    const kpi = de.findIndex(x => x.indexOf('KPITHÁNG') === 0);
+    const thuc = de.findIndex(x => x.indexOf('THỰCĐẠTTHÁNG') === 0);
+    return (kpi > -1 && thuc > -1) ? {kpi, thuc} : null;
+  }
 
   function tachCsv(text) {
     const ra = [];
@@ -102,7 +112,7 @@
     throw new Error(cuoi || 'không gọi được Google Sheets');
   }
 
-  function rutChiSo(v, ma) {
+  function rutChiSo(v, ma, cot) {
     /* Dòng 1 ghi "… THÁNG 11/2026 …" — lệch tháng là số đã cũ, phải báo. */
     const tieuDe = gon((v[0] || []).join(' '));
     const thang = Number(today().slice(5,7));
@@ -110,8 +120,7 @@
       canhBao.push(ma + ': tab đang là "' + (tieuDe.match(/THÁNG[^·]*/i) || [''])[0].trim() +
         '" trong khi nay là tháng ' + thang);
     }
-    const tuan = soTuan();
-    const {kpi, thuc} = cotTuan(tuan);
+    const {kpi, thuc} = cot;
     const quanLy = gon((tieuDe.split('—')[0] || '').replace(/QLCH|QLCN/i,''));
     const ds = [];
     for (const cs of CHI_SO) {
@@ -129,9 +138,8 @@
   }
 
   /* Nhóm I · DOANH THU của một chi nhánh */
-  function rutKetQua(v) {
-    const tuan = soTuan();
-    const {kpi, thuc} = cotTuan(tuan);
+  function rutKetQua(v, cot) {
+    const {kpi, thuc} = cot;
     return KET_QUA.map(k => {
       const dong = v.find(h => khoa(h[1]).indexOf(khoa(k.dau)) === 0);
       if (!dong) return null;
@@ -147,19 +155,26 @@
     dangDoc = true;
     canhBao = [];
     try {
-      const ra = {}, rb = {};
+      const ra = {}, rb = {}, rc = {}, rd = {};
+      const cTuan = cotTuan(soTuan());
       for (const t of TAB) {
         const v = await docTab(t.gid);
-        ra[t.ma] = rutChiSo(v, t.ma);
-        rb[t.ma] = rutKetQua(v);
+        ra[t.ma] = rutChiSo(v, t.ma, cTuan);
+        rb[t.ma] = rutKetQua(v, cTuan);
+        const cThang = cotThang(v);
+        if (cThang) {
+          rc[t.ma] = rutChiSo(v, t.ma, cThang);
+          rd[t.ma] = rutKetQua(v, cThang);
+        } else canhBao.push(t.ma + ': không thấy cột KPI THÁNG / THỰC ĐẠT THÁNG');
       }
       bang = ra;
       ketQua = rb;
+      bangThang = Object.keys(rc).length === TAB.length ? rc : null;
+      ketQuaThang = Object.keys(rd).length === TAB.length ? rd : null;
       loi = '';
       docLuc = new Date();
     } catch (e) {
-      bang = null;
-      ketQua = null;
+      bang = null; ketQua = null; bangThang = null; ketQuaThang = null;
       loi = String(e.message || e);
     } finally {
       dangDoc = false;
@@ -167,11 +182,18 @@
   }
 
   /* ---------- nối vào state: chỉ kỳ tuần ---------- */
+  const nguonKy = () => state.period === 'month' ? bangThang
+    : state.period === 'week' ? bang : null;
+  const ketQuaKy = () => state.period === 'month' ? ketQuaThang
+    : state.period === 'week' ? ketQua : null;
+  const coLive = () => !!nguonKy();
   function nhapVaoApp() {
-    if (!bang) return;
+    const nguon = nguonKy();
+    if (!nguon) return;
+    const kho = state.period === 'week' ? state.branches : state.periods[state.period].branches;
     for (let i = 0; i < TAB.length; i++) {
-      const khung = state.branches[i];
-      const ds = bang[TAB[i].ma];
+      const khung = kho[i];
+      const ds = nguon[TAB[i].ma];
       if (!khung || !ds || !ds.length) continue;
       /* Giữ id cũ theo tên chỉ số để nút "Tạo vấn đề" và bản ghi không đứt. */
       const cu = new Map((khung.kpis || []).map(k => [k.title, k.id]));
@@ -182,37 +204,45 @@
   /* ---------- thanh trạng thái trên bảng so sánh ---------- */
   const gocComparison = window.comparisonPanel;
   const gocKpiPanel = window.kpiPanel;
+  function nhanKy() {
+    return state.period === 'month'
+      ? 'tháng ' + Number(today().slice(5,7))
+      : 'tuần ' + soTuan() + ' tháng ' + Number(today().slice(5,7));
+  }
   function thanhChiSo() {
     if (loi) return '<p class="sheet-error"><strong>CHƯA ĐỌC ĐƯỢC CHỈ SỐ LIVE</strong> · ' + label(loi) +
       ' · đang hiện bản đã soạn. <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button></p>';
     if (!bang) return '<p class="empty">Đang đọc live 3 tab chỉ số dẫn dắt…</p>';
+    if (!coLive()) return '<p class="sheet-error"><strong>KỲ NÀY CHƯA NỐI NGUỒN</strong> · ' +
+      'số đang hiện là bản soạn trên máy, KHÔNG dùng để chốt. Nguồn chuẩn hiện chỉ có kỳ tuần và kỳ tháng.</p>';
     const gio = new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit'}).format(docLuc);
     const canh = canhBao.length
       ? '<span class="pill miss">⚠ ' + canhBao.length + ' cảnh báo nguồn</span> <small>' + label(canhBao.join(' · ')) + '</small>'
       : '';
-    return '<p class="viec-live"><span class="pill good">LIVE</span> Chỉ số dẫn dắt · tuần ' + soTuan() +
-      ' tháng ' + Number(today().slice(5,7)) + ' · đọc lúc ' + gio + ' · <strong>' + CHI_SO.length +
+    return '<p class="viec-live"><span class="pill good">LIVE</span> Chỉ số dẫn dắt · ' + nhanKy() +
+      ' · đọc lúc ' + gio + ' · <strong>' + CHI_SO.length +
       '</strong> chỉ số × 3 chi nhánh · <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button> ' + canh + '</p>';
   }
   /* Bảng CHỈ SỐ KẾT QUẢ — nhóm doanh thu, tách riêng khỏi chỉ số dẫn dắt. */
   function bangKetQua() {
-    if (!ketQua) return '';
+    const kq = ketQuaKy();
+    if (!kq) return '';
     const cot = isJoint() ? [0,1,2] : [state.branch];
-    if (!cot.length || cot.some(i => !ketQua[TAB[i].ma])) return '';
+    if (!cot.length || cot.some(i => !kq[TAB[i].ma])) return '';
     const dau = cot.map(i => '<th scope="col">' + label(branchNames[i]) + '</th>').join('');
     const dong = KET_QUA.map((k,j) => {
       const o = cot.map(i => {
-        const x = (ketQua[TAB[i].ma] || [])[j];
+        const x = (kq[TAB[i].ma] || [])[j];
         if (!x) return '<td><span class="missing">Chưa có</span></td>';
         const dat = x.actual >= x.target && x.target > 0;
         return '<td class="num"><strong>' + showNumber(x.actual,x.unit) + '</strong> / ' +
           showNumber(x.target,x.unit) + '<br>' + (x.target > 0 ? pill(dat?'Đạt':'Chưa đạt',dat?'good':'miss') : '') +
           (x.ty ? '<small class="kq-ty">' + label(x.ty) + '</small>' : '') + '</td>';
       }).join('');
-      const x0 = (ketQua[TAB[cot[0]].ma] || [])[j];
+      const x0 = (kq[TAB[cot[0]].ma] || [])[j];
       return '<tr><th scope="row">' + label(x0 ? x0.title : KET_QUA[j].ten) + '</th>' + o + '</tr>';
     }).join('');
-    return panel('Chỉ số kết quả','Doanh thu tuần ' + soTuan() + ' · thực tế / chỉ tiêu theo từng chi nhánh','',
+    return panel('Chỉ số kết quả','Doanh thu ' + nhanKy() + ' · thực tế / chỉ tiêu theo từng chi nhánh','',
       thanhChiSo() + '<div class="table-wrap comparison" tabindex="0" aria-label="Chỉ số kết quả">' +
       '<table><thead><tr><th scope="col">Chỉ số</th>' + dau + '</tr></thead><tbody>' + dong + '</tbody></table></div>');
   }
@@ -223,11 +253,11 @@
   }
   window.comparisonPanel = function() {
     const html = gocComparison();
-    return (state.period === 'week' && (bang || loi)) ? bangKetQua() + chen(html) : html;
+    return (bang || loi) ? bangKetQua() + chen(html) : html;
   };
   window.kpiPanel = function(compact) {
     const html = gocKpiPanel(compact);
-    return (!compact && state.period === 'week' && !isJoint() && (bang || loi)) ? bangKetQua() + chen(html) : html;
+    return (!compact && !isJoint() && (bang || loi)) ? bangKetQua() + chen(html) : html;
   };
 
   async function lamMoi(hienThi) {
@@ -241,13 +271,18 @@
     loi = '';
     lamMoi();
   });
+  /* Đổi kỳ thì nạp lại số của đúng kỳ đó, không để kỳ này mượn số kỳ kia. */
+  document.addEventListener('click', event => {
+    if (!event.target.closest('[data-action="period"]')) return;
+    window.setTimeout(() => { nhapVaoApp(); save(); render(); }, 0);
+  });
   window.setInterval(() => {
     if (document.hidden) return;
     if (!['kpis','overview','meeting'].includes(view)) return;
     lamMoi();
   }, LAM_MOI);
 
-  window.CARDIY_CHI_SO = {doc: () => lamMoi(), bang: () => bang, loi: () => loi,
-    canhBao: () => canhBao, tuan: soTuan};
+  window.CARDIY_CHI_SO = {doc: () => lamMoi(), bang: () => bang, bangThang: () => bangThang,
+    loi: () => loi, canhBao: () => canhBao, tuan: soTuan, coLive: coLive};
   lamMoi();
 }
