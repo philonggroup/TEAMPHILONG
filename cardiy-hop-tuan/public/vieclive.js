@@ -42,6 +42,7 @@
   /* Hạn mặc định: trong 3 ngày — đúng nhịp giao việc Tracy chốt 18/11/2026. */
   const hanMacDinh = () => new Date(Date.parse(today()+'T00:00:00Z')+3*86400000).toISOString().slice(0,10);
   const TOI_DA_VIEC = 5;      /* Tracy chốt: mỗi chi nhánh tối ưu 5 hành động */
+  const TOI_DA_HO_TRO = 3;    /* Tracy chốt: mỗi chi nhánh tối đa 3 việc đưa sang B5 */
 
   let ds = null;              /* danh sách việc live, null = chưa đọc được */
   let loi = '';
@@ -248,6 +249,13 @@
     const doBang = live && v.chiSo ? '<small class="viec-chiso">Đo bằng · ' + label(v.chiSo) + '</small>' : '';
     const moApp = live && !compact
       ? '<a class="button secondary" href="' + APP_VIEW + '&row=' + encodeURIComponent(v.sheetId) + '" target="_blank" rel="noopener">Mở trong app</a>' : '';
+    /* Chưa xong ngay tuần 1 thì đẩy sang B5 · Vấn đề, không để trôi sang tuần 2.
+       Tracy chốt 22/11/2026, nhắc lại 24/11/2026. */
+    const daGui = live && daDuaHoTro(v.sheetId);
+    const hoTro = (live && !compact && !v.done)
+      ? (daGui ? '<span class="pill neutral">→ Đã đưa sang B5</span>'
+        : '<button type="button" class="button ho-tro" data-action="viec-hotro" data-id="' + label(v.sheetId) + '">→ HỖ TRỢ</button>')
+      : '';
     /* Dòng live KHÔNG còn ô tick: tick chỉ đổi tại chỗ rồi bị vòng đọc lại xoá.
        Thay bằng 3 nút ghi thẳng về bảng CONG_VIEC. */
     const o = live ? '' :
@@ -261,7 +269,7 @@
       label(v.title) + '</strong><small>' + phu + '</small>' + doBang +
       canh.map(c => '<small class="sheet-error">⚠ ' + label(c) + '</small>').join('') + '</div>' +
       (taskLate(v) ? pill('🔥 Trễ kế hoạch','miss') : han ? pill(han,'warn') : '') + trangThai +
-      (live ? '' : editButton('tasks',v.id)) + moApp +
+      (live ? '' : editButton('tasks',v.id)) + hoTro + moApp +
       (!compact && !v.done && !live ? workflowButton('renew',v.id,'Gia hạn') : '') + '</div>';
   }
   window.tasksPanel = function(compact) {
@@ -356,6 +364,37 @@
     if (!nut || dangGhi) return;
     const viec = data().tasks.find(x => x.id === nut.dataset.id);
     if (viec) moHopThoai(viec, nut.dataset.tt);
+  });
+
+  /* ---------- → HỖ TRỢ: đưa việc chưa xong sang B5 · Vấn đề ---------- */
+  const dsVanDe = () => (data().issues ||= []);
+  const daDuaHoTro = sid => dsVanDe().some(x => x.tuViec === sid);
+  function demHoTro(ban) {
+    return dsVanDe().filter(x => x.tuViec && (!ban || x.branch === ban)).length;
+  }
+  document.addEventListener('click', event => {
+    const nut = event.target.closest('[data-action="viec-hotro"]');
+    if (!nut) return;
+    const sid = nut.dataset.id;
+    const v = (ds || []).find(x => x.sheetId === sid);
+    if (!v) return;
+    if (daDuaHoTro(sid)) { message('Việc này đã nằm ở B5 · Vấn đề rồi.'); return; }
+    if (demHoTro(v.branch) >= TOI_DA_HO_TRO) {
+      message('Bàn ' + (v.branch || 'này') + ' đã đủ ' + TOI_DA_HO_TRO + ' việc đưa sang B5 — chọn lại việc cần nhất.');
+      return;
+    }
+    dsVanDe().push(record({
+      title: v.title,
+      priority: 'Cao',
+      cause: '', discussion: '', solution: '',
+      solved: false,
+      branch: v.branch,
+      tuViec: sid,
+      owner: v.owner,
+    }));
+    save();
+    render();
+    message('Đã đưa sang B5 · Vấn đề — xử lý theo IDS, không giải thích ở bước này.');
   });
 
   /* ---------- ô ngày: sửa hạn, ghi thẳng về CONG_VIEC ---------- */

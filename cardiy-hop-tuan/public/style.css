@@ -292,3 +292,6 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
   padding:7px 9px;border:1px solid var(--line,#e2e8e5);border-radius:8px;background:#fff}
 .viec-day-bao{margin:0;font-size:.8rem;color:#b42318;min-height:1em}
 .viec-day-nut{display:flex;gap:8px;justify-content:flex-end}
+
+.button.ho-tro{background:#fff4e5;color:#92400e;border:1px solid #fcd9a4;font-weight:700}
+.button.ho-tro:hover{background:#fde8c8}

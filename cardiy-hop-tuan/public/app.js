@@ -315,7 +315,7 @@ function feedbackGuide() {
 function actionsGuide() {
   return facilitatorGuide('B6 · Danh sách hành động','tasks',
     '<h3>Người điều phối</h3><p>Mời từng thành viên báo cáo trạng thái công việc được giao từ buổi họp trước.</p>'+
-    '<h3>Thành viên</h3><ul><li>Báo cáo việc đã hoàn thành hoặc còn mở.</li><li>Bấm trạng thái ngay trên dòng việc · ghi thẳng về app.</li><li>Việc chưa xong thì sửa lại ô hạn, không để trôi.</li></ul>',"Dòng vàng 'Chưa có trên app' là việc vừa chốt ở B5 · bấm một trạng thái để đưa sang app PHI LONG GROUP.");
+    '<h3>Thành viên</h3><ul><li>Báo cáo việc đã hoàn thành hoặc còn mở.</li><li>Bấm trạng thái ngay trên dòng việc · ghi thẳng về app.</li><li>Việc chưa xong tự chuyển sang tuần này · người nhận chốt hạn mới ngay ở ô ngày.</li><li>Chưa xong ngay tuần 1 thì bấm <strong>→ HỖ TRỢ</strong> để đưa sang B5 · Vấn đề, không để trôi sang tuần 2. Mỗi chi nhánh tối đa 3 việc.</li></ul>',"Không giải thích ở bước này. Dòng vàng 'Chưa có trên app' là việc vừa chốt ở B5 · bấm một trạng thái để đưa sang app PHI LONG GROUP.");
 }
 function issuesGuide() {
   return facilitatorGuide('B5 · Vấn đề cần giải quyết','issues',
