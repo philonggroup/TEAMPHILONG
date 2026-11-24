@@ -563,7 +563,7 @@ const fieldsByKey = {
   kpis:[textField('title','Tên chỉ số',true),textField('owner','Người phụ trách',true),selectField('unit','Đơn vị',['xe','lượt','%','triệu đ','khách','lốp','phiếu','đơn']),numberField('target','Chỉ tiêu'),numberField('actual','Thực tế')],
   goals:[...mainFields,selectField('status','Trạng thái',['Đúng tiến độ','Cần xử lý','Hoàn thành']),areaField('milestones','Tiến độ cột mốc')],
   tasks:[...mainFields,{name:'date',title:'Hạn hoàn thành',type:'date'},selectField('status','Trạng thái',TRANG_THAI_VIEC)],
-  issues:[textField('title','Vấn đề',true),selectField('priority','Mức ưu tiên',['Cao','Vừa','Thấp']),areaField('cause','Xác định nguyên nhân'),areaField('discussion','Ghi nhận thảo luận'),areaField('solution','Hành động đã chốt'),selectField('solved','Trạng thái',['Đang mở',TRANG_THAI_CHOT,'Đã xử lý'])],
+  issues:[textField('title','Vấn đề',true),textField('owner','Người phụ trách'),selectField('priority','Mức ưu tiên',['Cao','Vừa','Thấp']),areaField('cause','Xác định nguyên nhân'),areaField('discussion','Ghi nhận thảo luận'),areaField('solution','Hành động đã chốt'),selectField('solved','Trạng thái',['Đang mở',TRANG_THAI_CHOT,'Đã xử lý'])],
 };
 function fieldMarkup(field,item,key) {
   const value = field.name==='solved' ? issueStatus(item)
@@ -658,7 +658,7 @@ form.addEventListener('submit',event=>{
     viecMoi = record({
       done:false,
       title:((item.solution||('Xử lý: '+item.title)).replace(/\s+/g,' ').trim()).slice(0,180),
-      owner:'',
+      owner:item.owner||'',
       date:cuoiTuan(),
       status:'Chờ thực hiện',
       branch:item.branch||''

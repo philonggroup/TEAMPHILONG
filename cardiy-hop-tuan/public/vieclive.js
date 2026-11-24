@@ -319,8 +319,11 @@
     viecDangDay = {viec, tt};
     hop.querySelector('.viec-day-ten').textContent = viec.title;
     hop.querySelector('.viec-day-bao').textContent = '';
+    /* Vấn đề đã ghi người phụ trách thì chọn sẵn đúng người đó. */
+    const sanCo = nhanSu.find(n => gon(n.ten).toLowerCase() === gon(viec.owner).toLowerCase());
     f.elements.ai.innerHTML = nhanSu.map(n =>
-      '<option value="' + label(n.ma) + '">' + label(n.ten + ' · ' + n.ban) + '</option>').join('');
+      '<option value="' + label(n.ma) + '"' + (sanCo && n.ma === sanCo.ma ? ' selected' : '') + '>' +
+      label(n.ten + ' · ' + n.ban) + '</option>').join('');
     doOption(f.elements.way, gopDanhMuc(v=>v.way, WAY_MAC_DINH), '');
     doOption(f.elements.chi_so, gopDanhMuc(v=>v.chiSo, CHI_SO_MAC_DINH), '');
     f.elements.han.value = viec.date && viec.date >= today() ? viec.date : hanMacDinh();

@@ -62,12 +62,21 @@
     } catch (e) { ds = null; }
   }
 
-  /* Bàn nào họp thì ưu tiên người của bàn đó; BGĐ (không gắn CN) luôn có mặt. */
+  /* Bàn nào họp thì ưu tiên người của bàn đó; BGĐ (không gắn CN) luôn có mặt.
+     Form nào có ô "Chi nhánh phụ trách" thì bám theo chi nhánh chọn trong form
+     — Tracy chốt 24/11/2026: chọn người phụ trách THEO CHI NHÁNH. */
+  function maDangChon() {
+    const o = document.querySelector('#edit-form [name="branch"]');
+    if (o) {
+      const i = branchNames.indexOf(o.value);
+      return i > -1 ? MA_CN[i] : '';
+    }
+    return isJoint() ? '' : MA_CN[state.branch];
+  }
   function loc() {
     if (!ds) return [];
-    if (isJoint()) return ds;
-    const ma = MA_CN[state.branch];
-    return ds.filter(n => !n.cn || n.cn === ma);
+    const ma = maDangChon();
+    return ma ? ds.filter(n => !n.cn || n.cn === ma) : ds;
   }
   function ve() {
     let dl = document.querySelector('#' + DS_ID);
@@ -91,6 +100,14 @@
     return html.replace('<input type="text" name="owner"',
       '<input type="text" name="owner" list="' + DS_ID + '" autocomplete="off" placeholder="Gõ để tìm trong ' + so + ' nhân sự"');
   };
+
+  /* Đổi chi nhánh ngay trong form thì danh sách gợi ý đổi theo liền. */
+  document.addEventListener('change', event => {
+    if (!event.target.closest('#edit-form [name="branch"]')) return;
+    ve();
+    const o = document.querySelector('#edit-form input[name="owner"]');
+    if (o) o.placeholder = 'Gõ để tìm trong ' + loc().length + ' nhân sự';
+  });
 
   window.CARDIY_NHAN_SU = { doc: doc, danhSach: () => ds, dangDung: () => loc() };
   doc();
