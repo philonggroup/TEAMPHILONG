@@ -83,6 +83,40 @@
   }
   const khoa = v => gon(v).toUpperCase().replace(/\s+/g,'');
 
+  /* ──────────────────────────────────────────────────────────────────
+     ẨN CHỈ SỐ + ƯU TIÊN THEO 4DX
+     Tracy chốt 24/11/2026: phải có nút ẨN chỉ số khi cần, và chọn được
+     bộ chỉ số ƯU TIÊN theo 4 Nguyên Tắc Thực Thi.
+     4DX: 1 WIG (chỉ số kết quả) + 2–3 chỉ số dẫn dắt. Quá 3 là mất
+     tập trung, nên hộp chọn cảnh báo chứ không chặn — quyền chốt là
+     của người họp.
+     Lưu trên máy từng người (localStorage), KHÔNG ghi vào nguồn: ẩn chỉ
+     là chuyện hiển thị, số gốc trong Sheet không đổi.
+     ────────────────────────────────────────────────────────────────── */
+  const KHOA_AN = 'cardiy_chiso_an';
+  const KHOA_UT = 'cardiy_chiso_uutien';
+  const TOI_DA_UT = 3;           /* 4DX: tối đa 3 chỉ số dẫn dắt */
+  function docBo(k) {
+    try {
+      const v = JSON.parse(window.localStorage.getItem(k) || '[]');
+      return new Set(Array.isArray(v) ? v : []);
+    } catch (e) { return new Set(); }
+  }
+  function ghiBo(k, bo) {
+    try { window.localStorage.setItem(k, JSON.stringify([...bo])); } catch (e) {}
+  }
+  let an = docBo(KHOA_AN);
+  let uuTien = docBo(KHOA_UT);
+  const daAn = ten => an.has(khoa(ten));
+  const laUT = ten => uuTien.has(khoa(ten));
+  const demUT = () => CHI_SO.filter(c => laUT(c.ten)).length;
+  function nutAn(ten) {
+    return '<button type="button" class="chiso-an-nut" data-action="chiso-an" data-ten="' +
+      label(ten) + '" title="Ẩn chỉ số này khỏi bảng" aria-label="Ẩn chỉ số ' + label(ten) + '">✕</button>';
+  }
+  const dauUT = ten => laUT(ten)
+    ? '<span class="chiso-ut" title="Chỉ số ưu tiên theo 4DX">★</span>' : '';
+
   /* "2.870.000" → 2870000 · "114,3%" → 114.3 · "" → null */
   function so(v) {
     const t = gon(v).replace(/%/g,'');
@@ -264,7 +298,10 @@
       if (!khung || !ds || !ds.length) continue;
       /* Giữ id cũ theo tên chỉ số để nút "Tạo vấn đề" và bản ghi không đứt. */
       const cu = new Map((khung.kpis || []).map(k => [k.title, k.id]));
-      khung.kpis = ds.map(k => ({id: cu.get(k.title) || uid(), nguon:'chiso', ...k}));
+      /* Chỉ số đang ẩn thì không nạp vào state — bảng so sánh và bảng chỉ
+         số cùng vắng nó, không phải lọc ở hai nơi. */
+      khung.kpis = ds.filter(k => !daAn(k.title))
+        .map(k => ({id: cu.get(k.title) || uid(), nguon:'chiso', ...k}));
     }
   }
 
@@ -287,9 +324,21 @@
     const canh = canhBao.length
       ? '<span class="pill miss">⚠ ' + canhBao.length + ' cảnh báo nguồn</span> <small>' + label(canhBao.join(' · ')) + '</small>'
       : '';
+    const hien = CHI_SO.filter(c => !daAn(c.ten)).length;
+    const soAn = an.size;
+    const baoAn = soAn
+      ? ' · <span class="pill warn">đang ẩn ' + soAn + '</span>' +
+        ' <button class="button secondary" type="button" data-action="chiso-hien-het">Hiện lại tất cả</button>'
+      : '';
+    const baoUT = demUT()
+      ? ' · <span class="pill ' + (demUT() > TOI_DA_UT ? 'miss' : 'good') + '">★ ' + demUT() +
+        ' chỉ số ưu tiên</span>' + (demUT() > TOI_DA_UT ? ' <small>4DX chỉ cho tối đa ' + TOI_DA_UT + '</small>' : '')
+      : '';
     return '<p class="viec-live"><span class="pill good">LIVE</span> Chỉ số dẫn dắt · ' + nhanKy() +
-      ' · đọc lúc ' + gio + ' · <strong>' + CHI_SO.length +
-      '</strong> chỉ số × 3 chi nhánh · <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button> ' + canh + '</p>';
+      ' · đọc lúc ' + gio + ' · <strong>' + hien + '</strong>/' + CHI_SO.length +
+      ' chỉ số × 3 chi nhánh · <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button>' +
+      ' <button class="button secondary" type="button" data-action="chiso-chon">Chọn chỉ số · 4DX</button>' +
+      baoAn + baoUT + ' ' + canh + '</p>';
   }
   /* Bảng CHỈ SỐ KẾT QUẢ — nhóm doanh thu, tách riêng khỏi chỉ số dẫn dắt. */
   function bangKetQua() {
@@ -299,6 +348,7 @@
     if (!cot.length || cot.some(i => !kq[TAB[i].ma])) return '';
     const dau = cot.map(i => '<th scope="col">' + label(branchNames[i]) + '</th>').join('');
     const dong = KET_QUA.map((k,j) => {
+      if (daAn(k.ten)) return '';
       const o = cot.map(i => {
         const x = (kq[TAB[i].ma] || [])[j];
         if (!x) return '<td><span class="missing">Chưa có</span></td>';
@@ -308,16 +358,34 @@
           (x.ty ? '<small class="kq-ty">' + label(x.ty) + '</small>' : '') + '</td>';
       }).join('');
       const x0 = (kq[TAB[cot[0]].ma] || [])[j];
-      return '<tr><th scope="row">' + label(x0 ? x0.title : KET_QUA[j].ten) + '</th>' + o + '</tr>';
+      return '<tr><th scope="row">' + dauUT(k.ten) + label(x0 ? x0.title : KET_QUA[j].ten) +
+        nutAn(k.ten) + '</th>' + o + '</tr>';
     }).join('');
+    if (!dong) return '';
     return panel('Chỉ số kết quả','Doanh thu ' + nhanKy() + ' · thực tế / chỉ tiêu theo từng chi nhánh','',
       thanhChiSo() + '<div class="table-wrap comparison" tabindex="0" aria-label="Chỉ số kết quả">' +
       '<table><thead><tr><th scope="col">Chỉ số</th>' + dau + '</tr></thead><tbody>' + dong + '</tbody></table></div>');
   }
 
+  /* Bảng so sánh và bảng chỉ số do app.js dựng, không có chỗ cho nút ẩn.
+     Gắn thêm vào đúng ô tên chỉ số bằng cách khớp nguyên tên đã escape —
+     khớp cả hai dạng ô: <th scope="row"> của bảng so sánh và <td> của
+     bảng chỉ số một chi nhánh. */
+  function themNut(html) {
+    for (const cs of CHI_SO) {
+      const nhan = label(cs.ten);
+      html = html
+        .replace('<th scope="row">' + nhan + '</th>',
+                 '<th scope="row">' + dauUT(cs.ten) + nhan + nutAn(cs.ten) + '</th>')
+        .replace('<tr><td>' + nhan + '</td>',
+                 '<tr><td>' + dauUT(cs.ten) + nhan + nutAn(cs.ten) + '</td>');
+    }
+    return html;
+  }
   function chen(html) {
-    return html.replace('<div class="table-wrap', thanhChiSo() + '<div class="table-wrap')
-               .replace('<div class="list"><p class="empty">', thanhChiSo() + '<div class="list"><p class="empty">');
+    const ra = themNut(html);
+    return ra.replace('<div class="table-wrap', thanhChiSo() + '<div class="table-wrap')
+             .replace('<div class="list"><p class="empty">', thanhChiSo() + '<div class="list"><p class="empty">');
   }
   window.comparisonPanel = function() {
     const html = gocComparison();
@@ -327,6 +395,92 @@
     const html = gocKpiPanel(compact);
     return (!compact && !isJoint() && (bang || loi)) ? bangKetQua() + chen(html) : html;
   };
+
+  /* ──────────────────────────────────────────────────────────────────
+     HỘP CHỌN CHỈ SỐ · 4DX
+     Nguyên tắc 2 của 4DX là tập trung vào chỉ số DẪN DẮT, và sách chốt
+     2–3 chỉ số cho mỗi WIG. Hộp này không tự chọn thay người họp: nó
+     chỉ đếm và cảnh báo khi vượt 3, còn chốt là việc của cuộc họp.
+     ────────────────────────────────────────────────────────────────── */
+  /* Gợi ý Claude đề xuất 24/11/2026 — chờ Tracy chốt, KHÔNG tự áp. */
+  const GOI_Y_4DX = [
+    'Khách được kiểm tra ATX',
+    'Báo Giá Lên Trong ngày',
+    'Lượt xe đặt lịch',
+  ];
+  let hopChon = null;
+
+  function dongChon(ten, nhom) {
+    const k = label(ten);
+    return '<div class="chiso-chon-dong">' +
+      '<label class="chiso-chon-hien"><input type="checkbox" data-hien="' + k + '"' +
+      (daAn(ten) ? '' : ' checked') + '><span>' + k + '</span></label>' +
+      (nhom === 'dan'
+        ? '<button type="button" class="chiso-chon-ut' + (laUT(ten) ? ' dang' : '') +
+          '" data-ut="' + k + '" title="Đánh dấu chỉ số ưu tiên theo 4DX">★</button>'
+        : '<span class="chiso-chon-wig">WIG</span>') +
+      '</div>';
+  }
+  function veHopChon() {
+    const hop = dungHopChon();
+    const n = demUT();
+    hop.querySelector('.chiso-chon-dem').innerHTML = n > TOI_DA_UT
+      ? '<span class="pill miss">★ ' + n + ' chỉ số ưu tiên</span> 4DX chỉ cho tối đa ' + TOI_DA_UT +
+        ' — thêm nữa là cả 3 bàn cùng mất tập trung.'
+      : '<span class="pill ' + (n ? 'good' : 'neutral') + '">★ ' + n + ' / ' + TOI_DA_UT +
+        ' chỉ số ưu tiên</span> đúng chuẩn 4DX: 1 WIG + 2–3 chỉ số dẫn dắt.';
+    hop.querySelector('.chiso-chon-kq').innerHTML = KET_QUA.map(k => dongChon(k.ten,'kq')).join('');
+    hop.querySelector('.chiso-chon-dan').innerHTML = CHI_SO.map(c => dongChon(c.ten,'dan')).join('');
+  }
+  function dungHopChon() {
+    if (hopChon) return hopChon;
+    hopChon = document.createElement('dialog');
+    hopChon.className = 'chiso-chon';
+    hopChon.innerHTML =
+      '<form method="dialog"><h2>Chọn chỉ số lên bảng điểm</h2>' +
+      '<p class="chiso-chon-dem"></p>' +
+      '<h3>Chỉ số KẾT QUẢ · đích phải tới</h3>' +
+      '<div class="chiso-chon-kq"></div>' +
+      '<h3>Chỉ số DẪN DẮT · việc làm mỗi ngày <small>★ = ưu tiên</small></h3>' +
+      '<div class="chiso-chon-dan"></div>' +
+      '<div class="chiso-chon-nut">' +
+      '<button type="button" class="button secondary" data-goiy>Chỉ hiện 3 chỉ số gợi ý</button>' +
+      '<button type="button" class="button secondary" data-het>Hiện tất cả</button>' +
+      '<button type="submit" class="button yellow">Xong</button></div></form>';
+    document.body.appendChild(hopChon);
+    hopChon.addEventListener('change', event => {
+      const o = event.target.closest('[data-hien]');
+      if (!o) return;
+      const ten = o.dataset.hien;
+      if (o.checked) an.delete(khoa(ten)); else an.add(khoa(ten));
+      ghiBo(KHOA_AN, an);
+      apDung();
+    });
+    hopChon.addEventListener('click', event => {
+      const ut = event.target.closest('[data-ut]');
+      if (ut) {
+        const k = khoa(ut.dataset.ut);
+        if (uuTien.has(k)) uuTien.delete(k); else uuTien.add(k);
+        ghiBo(KHOA_UT, uuTien);
+        apDung(); veHopChon();
+        return;
+      }
+      if (event.target.closest('[data-het]')) {
+        an = new Set(); ghiBo(KHOA_AN, an); apDung(); veHopChon(); return;
+      }
+      if (event.target.closest('[data-goiy]')) {
+        /* Chỉ ẩn / hiện — không tự đánh dấu ưu tiên, chuyện đó phải do họp chốt. */
+        an = new Set(CHI_SO.filter(c => !GOI_Y_4DX.includes(c.ten)).map(c => khoa(c.ten)));
+        ghiBo(KHOA_AN, an); apDung(); veHopChon();
+      }
+    });
+    return hopChon;
+  }
+  function apDung() {
+    nhapVaoApp();
+    save();
+    render();
+  }
 
   async function lamMoi(hienThi) {
     await doc();
@@ -338,6 +492,26 @@
     if (!event.target.closest('[data-action="chiso-live"]')) return;
     loi = '';
     lamMoi();
+  });
+  document.addEventListener('click', event => {
+    const nut = event.target.closest('[data-action="chiso-an"]');
+    if (nut) {
+      an.add(khoa(nut.dataset.ten));
+      ghiBo(KHOA_AN, an);
+      apDung();
+      if (hopChon && hopChon.open) veHopChon();
+      return;
+    }
+    if (event.target.closest('[data-action="chiso-hien-het"]')) {
+      an = new Set();
+      ghiBo(KHOA_AN, an);
+      apDung();
+      return;
+    }
+    if (event.target.closest('[data-action="chiso-chon"]')) {
+      veHopChon();
+      dungHopChon().showModal();
+    }
   });
   /* Đổi kỳ thì nạp lại số của đúng kỳ đó, không để kỳ này mượn số kỳ kia. */
   document.addEventListener('click', event => {
@@ -351,6 +525,7 @@
   }, LAM_MOI);
 
   window.CARDIY_CHI_SO = {doc: () => lamMoi(), bang: () => bang, bangThang: () => bangThang,
-    loi: () => loi, canhBao: () => canhBao, tuan: soTuan, coLive: coLive};
+    loi: () => loi, canhBao: () => canhBao, tuan: soTuan, coLive: coLive,
+    dangAn: () => [...an], uuTien: () => [...uuTien], goiY: () => GOI_Y_4DX.slice()};
   lamMoi();
 }

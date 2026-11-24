@@ -307,3 +307,40 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 .viec-nhom strong{font-weight:800}
 
 .kq-ty{display:block;margin-top:.15rem;font-size:.7rem;color:#64748b;font-weight:700}
+
+/* ───── ẨN CHỈ SỐ + ƯU TIÊN 4DX (chiso.js) ───── */
+.chiso-an-nut{margin-left:.35rem;border:1px solid var(--line);border-radius:.4rem;
+  background:#f6f9fd;color:#8796ab;font:inherit;font-size:.7rem;line-height:1;
+  padding:.18rem .34rem;cursor:pointer;vertical-align:middle;opacity:.55}
+.chiso-an-nut:hover,.chiso-an-nut:focus-visible{opacity:1;background:#fdecea;
+  border-color:#f3b7b0;color:#942b24}
+.chiso-ut{display:inline-block;margin-right:.3rem;color:#d08c00;font-size:.85rem;line-height:1}
+
+.chiso-chon{border:0;border-radius:14px;padding:0;max-width:520px;width:94vw;
+  box-shadow:0 18px 48px #0f172a33}
+.chiso-chon::backdrop{background:#0f172a66}
+.chiso-chon form{display:flex;flex-direction:column;gap:.6rem;padding:20px;
+  max-height:84vh;overflow:auto}
+.chiso-chon h2{font-size:1.05rem}
+.chiso-chon h3{margin-top:.5rem;font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted)}
+.chiso-chon h3 small{text-transform:none;letter-spacing:0;font-weight:600;color:#a0abbd}
+.chiso-chon-dem{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;
+  padding:.5rem .7rem;border-radius:.6rem;background:#f4f8fd;
+  font-size:.8rem;line-height:1.5;color:#425e80}
+.chiso-chon-dong{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;
+  border-top:1px solid #eef3f9}
+.chiso-chon-dong:first-child{border-top:0}
+.chiso-chon-hien{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0;
+  font-size:.84rem;font-weight:600;color:var(--ink);cursor:pointer}
+.chiso-chon-hien span{overflow-wrap:anywhere}
+.chiso-chon-hien input{width:18px;height:18px;accent-color:var(--blue);flex:none}
+.chiso-chon-ut{flex:none;width:30px;height:30px;border:1px solid var(--line);
+  border-radius:.45rem;background:white;color:#c8d2e0;font-size:.95rem;line-height:1;
+  cursor:pointer}
+.chiso-chon-ut.dang{border-color:#f0c048;background:#fff8e6;color:#d08c00}
+.chiso-chon-wig{flex:none;padding:.2rem .4rem;border-radius:.4rem;background:#eef4fb;
+  color:#0a4da2;font-size:.66rem;font-weight:800;letter-spacing:.03em}
+.chiso-chon-nut{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-end;
+  margin-top:.5rem}
+.chiso-chon-nut .button{font-size:.8rem}
