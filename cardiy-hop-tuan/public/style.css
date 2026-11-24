@@ -551,3 +551,11 @@ body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;us
 .kn-dong span{display:block;min-width:0;font-size:.84rem}
 .kn-dong strong{display:block;font-weight:700;color:var(--ink)}
 .kn-dong small{display:block;font-size:.72rem;color:var(--muted)}
+
+/* ───── Thanh báo có bản mới (install.js + sw.js) ───── */
+#ban-moi{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;justify-content:center;
+  padding:.6rem .85rem;border-radius:.7rem;background:#14355d;color:#fff;
+  box-shadow:0 16px 40px #04122c55;font-size:.85rem;font-weight:700;
+  max-width:calc(100vw - 32px)}
+#ban-moi .button{font-size:.8rem;padding:.35rem .8rem}
