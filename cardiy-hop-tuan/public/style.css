@@ -517,3 +517,21 @@ body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;us
 /* ───── B7 · ký nhận thành viên ───── */
 .kn-dong{cursor:pointer}
 .kn-dong input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue);flex:none}
+
+/* ───── B7 · Ký nhận gọn + hộp chọn thành viên ───── */
+.kn-than{padding:0 19px 14px}
+.kn-ten{font-size:.84rem;line-height:1.6;color:var(--ink);font-weight:650;overflow-wrap:anywhere}
+.kn-ten.kn-trong{color:var(--muted);font-weight:500}
+.kn-hop{max-width:440px}
+.kn-hop .kn-dem{font-size:.78rem;font-weight:800;color:#425e80;
+  padding:.4rem .6rem;border-radius:.5rem;background:#f4f8fd}
+.kn-tim{font:inherit;font-size:.88rem;border:1px solid #cddbef;border-radius:8px;padding:9px}
+.kn-ds{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:.55rem}
+.kn-dong{display:flex;align-items:center;gap:.6rem;padding:.45rem .6rem;
+  border-top:1px solid #eef3f9;cursor:pointer}
+.kn-ds .kn-dong:first-child{border-top:0}
+.kn-dong input{width:18px;height:18px;accent-color:var(--blue);flex:none}
+.kn-chu{min-width:0}
+.kn-chu strong,.kn-chu small{display:block;overflow-wrap:anywhere}
+.kn-chu strong{font-size:.86rem;font-weight:700;color:var(--ink)}
+.kn-chu small{font-size:.74rem;color:var(--muted);margin-top:1px}

@@ -90,32 +90,82 @@
         '</tr></thead><tbody>' + dongHD + '</tbody></table></div>' : ''));
   }
 
-  /* ---------- khối ký nhận ở B7 ---------- */
+  /* ---------- khối ký nhận ở B7 ----------
+     Tracy chốt 24/11/2026: ẨN danh sách tên. Bày đủ 29 người ngay trên
+     màn B7 làm vỡ bố cục, trong khi mỗi buổi chỉ vài người có mặt.
+     Màn chỉ giữ một dòng đếm; ai tham gia thì mở hộp lọc mà tích. */
   function oKyNhan() {
     const ds = nhanSu();
     const ky = kho();
-    if (!ds.length) {
-      return panel('Ký nhận thành viên tham gia',
-        'Chưa đọc được danh sách nhân sự', '',
-        '<div class="list"><p class="empty">Chưa đọc được danh sách nhân sự của bàn này. ' +
-        'Mở lại trang hoặc kiểm tra kết nối rồi thử lại.</p></div>');
-    }
-    const dong = ds.map(n =>
-      '<label class="row kn-dong"><input type="checkbox" data-action="ky-nhan" data-ma="' + label(n.ma) + '"' +
-      (daKy(n.ma) ? ' checked' : '') + '>' +
-      '<div class="row-text"><strong>' + label(n.ten) + '</strong>' +
-      '<small>' + label([n.viTri, n.ban].filter(Boolean).join(' · ')) + '</small></div>' +
-      (daKy(n.ma)
-        ? '<span class="pill good">đã ký ' + label((kho().find(x => x.ma === n.ma) || {}).luc || '') + '</span>'
-        : '<span class="pill neutral">chưa ký</span>') + '</label>').join('');
+    const ten = ky.length
+      ? '<p class="kn-ten">' + ky.map(x => label(x.ten)).join(' · ') + '</p>'
+      : '<p class="kn-ten kn-trong">Chưa ai ký nhận. Bấm “Chọn thành viên tham gia” để tích người có mặt.</p>';
     const nut = '<div class="session-actions">' +
-      '<button class="button secondary" type="button" data-action="ky-het">Tích cả bàn</button>' +
-      '<button class="button secondary" type="button" data-action="in-bien-ban">In để ký tay</button>' +
-      '<button class="button yellow" type="button" data-action="xuat-bien-ban">Xuất biên bản gửi sếp</button></div>';
+      '<button class="button secondary" type="button" data-action="ky-chon-nguoi">Chọn thành viên tham gia</button>' +
+      '<button class="button secondary" type="button" data-action="in-bien-ban">In / lưu PDF</button>' +
+      '<button class="button yellow" type="button" data-action="xuat-bien-ban">Xuất biên bản họp</button></div>';
     return panel('Ký nhận thành viên tham gia',
-      ky.length + ' / ' + ds.length + ' người đã xác nhận đã nắm rõ công việc được giao · ' +
-      label(branchSelect.value), nut, '<div class="list">' + dong + '</div>');
+      '<strong>' + ky.length + ' / ' + (ds.length || '—') + '</strong> đã ký nhận · ' +
+      label(branchSelect.value), nut, '<div class="kn-than">' + ten + '</div>');
   }
+
+  /* ---------- hộp lọc và chọn người tham gia ---------- */
+  let hopChon = null, timKiem = '';
+  function veHopChon() {
+    if (!hopChon) return;
+    const ky = kho();
+    const t = timKiem.toLowerCase();
+    const ds = nhanSu().filter(n => !t ||
+      (n.ten + ' ' + (n.viTri || '') + ' ' + (n.ban || '')).toLowerCase().includes(t));
+    hopChon.querySelector('.kn-dem').textContent =
+      ky.length + ' / ' + nhanSu().length + ' đã ký · đang hiện ' + ds.length + ' người';
+    hopChon.querySelector('.kn-ds').innerHTML = ds.length
+      ? ds.map(n => '<label class="kn-dong"><input type="checkbox" data-action="ky-nhan" data-ma="' +
+          label(n.ma) + '"' + (ky.some(x => x.ma === n.ma) ? ' checked' : '') + '>' +
+          '<span class="kn-chu"><strong>' + label(n.ten) + '</strong>' +
+          '<small>' + label([n.viTri, n.ban].filter(Boolean).join(' · ')) + '</small></span></label>').join('')
+      : '<p class="empty">Không thấy ai khớp “' + label(timKiem) + '”.</p>';
+  }
+  function moHopChon() {
+    if (!nhanSu().length) {
+      if (typeof message === 'function') message('Chưa đọc được danh sách nhân sự — mở lại trang rồi thử lại.');
+      return;
+    }
+    if (!hopChon) {
+      hopChon = document.createElement('dialog');
+      hopChon.className = 'viec-day-hop kn-hop';
+      hopChon.innerHTML = '<form method="dialog"><h2>Chọn thành viên tham gia</h2>' +
+        '<p class="kn-dem"></p>' +
+        '<input class="kn-tim" type="search" placeholder="Tìm theo tên, vị trí, bộ phận…" autocomplete="off">' +
+        '<div class="kn-ds"></div>' +
+        '<div class="viec-day-nut">' +
+        '<button type="button" class="button secondary" data-ky-het>Tích hết đang hiện</button>' +
+        '<button type="button" class="button secondary" data-ky-bo>Bỏ hết</button>' +
+        '<button type="submit" class="button yellow">Xong</button></div></form>';
+      document.body.appendChild(hopChon);
+      hopChon.querySelector('.kn-tim').addEventListener('input', event => {
+        timKiem = event.target.value || '';
+        veHopChon();
+      });
+      hopChon.querySelector('[data-ky-het]').addEventListener('click', () => {
+        const t = timKiem.toLowerCase();
+        const ds = kho();
+        nhanSu().filter(n => !t ||
+          (n.ten + ' ' + (n.viTri || '') + ' ' + (n.ban || '')).toLowerCase().includes(t))
+          .forEach(n => { if (!ds.some(x => x.ma === n.ma)) ds.push(moiKy(n)); });
+        save(); veHopChon(); render();
+      });
+      hopChon.querySelector('[data-ky-bo]').addEventListener('click', () => {
+        kho().length = 0; save(); veHopChon(); render();
+      });
+      hopChon.querySelector('form').addEventListener('submit', () => { render(); });
+    }
+    timKiem = '';
+    hopChon.querySelector('.kn-tim').value = '';
+    veHopChon();
+    hopChon.showModal();
+  }
+  const moiKy = n => ({ma: n.ma, ten: n.ten, viTri: n.viTri, luc: gio(new Date())});
 
   const gocContentFor = window.contentFor;
   window.contentFor = function(key) {
@@ -132,25 +182,17 @@
     const ds = kho();
     const i = ds.findIndex(x => x.ma === ma);
     if (o.checked && i < 0) {
-      ds.push({ma: ma, ten: n ? n.ten : ma, viTri: n ? n.viTri : '', luc: gio(new Date())});
+      ds.push(n ? moiKy(n) : {ma: ma, ten: ma, viTri: '', luc: gio(new Date())});
     } else if (!o.checked && i > -1) {
       ds.splice(i, 1);
     }
     save();
-    render();
+    if (hopChon && hopChon.open) { hopChon.querySelector('.kn-dem').textContent =
+      kho().length + ' / ' + nhanSu().length + ' đã ký · đang hiện ' +
+      hopChon.querySelectorAll('.kn-ds .kn-dong').length + ' người'; }
+    else render();
   });
   document.addEventListener('click', event => {
-    if (event.target.closest('[data-action="ky-het"]')) {
-      const ds = kho();
-      nhanSu().forEach(n => {
-        if (!ds.some(x => x.ma === n.ma)) {
-          ds.push({ma: n.ma, ten: n.ten, viTri: n.viTri, luc: gio(new Date())});
-        }
-      });
-      save();
-      render();
-      return;
-    }
     if (event.target.closest('[data-action="in-bien-ban"]')) { inRa(); return; }
     if (event.target.closest('[data-action="xuat-bien-ban"]')) xuatExcel();
   });
