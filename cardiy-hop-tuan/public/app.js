@@ -184,10 +184,11 @@ function nav() {
 /* Chương trình họp trên thanh menu: nhấp vào mới hiện menu con các bước.
    Đang ở trong một bước thì tự xổ sẵn để biết mình đang ở đâu. */
 function chuongTrinhMenu() {
-  const dangBuoc = steps.some(step=>step.key===view);
+  const dangBuoc = steps.some(step=>step.key===view) || view==='meeting';
   const mo = moChuongTrinh || dangBuoc;
   const phien = data().session;
-  const dangChay = phien && !phien.endedAt ? phien.step : '';
+  /* Đang họp thì bám bước của phiên; chưa họp thì bám bước đang xem thử. */
+  const dangChay = phien && !phien.endedAt ? phien.step : previewStep;
   const con = steps.map((step,i)=>{
     const xong = phien?.done.includes(step.key);
     const chon = view===step.key || (view==='meeting' && dangChay===step.key);
