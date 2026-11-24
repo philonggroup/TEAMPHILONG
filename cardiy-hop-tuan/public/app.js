@@ -5,18 +5,18 @@ const steps = [
   {key:'kpis',title:'Chỉ số tuần',icon:'chart',detail:'Đối chiếu kết quả thực tế với chỉ tiêu của chi nhánh.'},
   {key:'goals',title:'Mục tiêu 90 ngày',icon:'target',detail:'Cập nhật tiến độ và ghi nhận các mục tiêu đang chậm.'},
   {key:'news',title:'Phản hồi',icon:'news',detail:'Ghi nhận phản hồi từ khách hàng, đối tác và đội ngũ.'},
-  {key:'tasks',title:'Danh sách hành động',icon:'tasks',detail:'Rà soát cam kết, người phụ trách và hạn hoàn thành.'},
   {key:'issues',title:'Vấn đề cần giải quyết',icon:'issue',detail:'Xác định nguyên nhân, thảo luận và chốt hành động (IDS).'},
+  {key:'tasks',title:'Danh sách hành động',icon:'tasks',detail:'Rà soát cam kết, người phụ trách và hạn hoàn thành.'},
   {key:'close',title:'Kết luận',icon:'flag',detail:'Chốt biên bản và chấm điểm buổi họp.'},
 ];
 
 const periods = {
-  week:{label:'Tuần',goal:'Mục tiêu 90 ngày',minutes:[2,4,3,2,4,12,3]},
-  month:{label:'Tháng',goal:'Mục tiêu tháng',minutes:[3,7,5,3,5,17,5]},
-  quarter:{label:'Quý',goal:'Mục tiêu quý',minutes:[4,10,8,4,6,22,6]},
-  year:{label:'Năm',goal:'Mục tiêu năm',minutes:[5,15,15,5,10,30,10]},
+  week:{label:'Tuần',goal:'Mục tiêu 90 ngày',minutes:[2,4,3,2,12,4,3]},
+  month:{label:'Tháng',goal:'Mục tiêu tháng',minutes:[3,7,5,3,17,5,5]},
+  quarter:{label:'Quý',goal:'Mục tiêu quý',minutes:[4,10,8,4,22,6,6]},
+  year:{label:'Năm',goal:'Mục tiêu năm',minutes:[5,15,15,5,30,10,10]},
 };
-const l10Minutes = [5,5,5,5,5,60,5];
+const l10Minutes = [5,5,5,5,60,5,5];
 const storeKey = 'cardiy-l10-v1';
 const branchSelect = document.querySelector('#branch');
 const branchNames = Array.from(branchSelect.options).slice(0,-1).map(option=>option.value);
@@ -160,7 +160,7 @@ function message(text) {
 /* Cac muc Tracy chot dua len MENU NGANG - dung thu tu Tracy liet ke */
 const TOP_KEYS = ['goals','vision','year-kpis','year-goals','overview'];
 function nav() {
-  const items = [['overview','Tổng quan','grid'],['meeting',state.period==='week'?'Họp tuần':'Họp nhanh','calendar'],['kpis',kpiTitle(),'chart'],['goals',period().goal,'target'],['awards','Vinh danh','spark'],['tasks','Danh sách hành động','tasks'],['issues','Vấn đề (IDS)','issue'],['history','Lịch sử họp','clock'],['excel','Nhập / Xuất Excel','excel']];
+  const items = [['overview','Tổng quan','grid'],['meeting',state.period==='week'?'Họp tuần':'Họp nhanh','calendar'],['kpis',kpiTitle(),'chart'],['goals',period().goal,'target'],['awards','Vinh danh','spark'],['issues','Vấn đề (IDS)','issue'],['tasks','Danh sách hành động','tasks'],['history','Lịch sử họp','clock'],['excel','Nhập / Xuất Excel','excel']];
   items.splice(2,0,['joint',jointName,'team']);
   if (state.period==='year') items.splice(items.findIndex(item=>item[0]==='kpis'),2);
   items.unshift(['vision','Tầm nhìn','target'],['year-kpis','Chỉ số năm','chart'],['year-goals','Mục tiêu năm','target']);
@@ -296,12 +296,12 @@ function feedbackGuide() {
     'Tập trung chia sẻ phản hồi. Chuyển phần thảo luận sang IDS.');
 }
 function actionsGuide() {
-  return facilitatorGuide('B5 · Danh sách hành động','tasks',
+  return facilitatorGuide('B6 · Danh sách hành động','tasks',
     '<h3>Người điều phối</h3><p>Mời từng thành viên báo cáo trạng thái công việc được giao từ buổi họp trước.</p>'+
     '<h3>Thành viên</h3><ul><li>Báo cáo việc đã hoàn thành hoặc còn mở.</li><li>Đánh dấu hoàn thành cho việc đã xong.</li><li>Giữ việc chưa xong trong danh sách và gia hạn thời gian.</li></ul>','');
 }
 function issuesGuide() {
-  return facilitatorGuide('B6 · Vấn đề cần giải quyết','issues',
+  return facilitatorGuide('B5 · Vấn đề cần giải quyết','issues',
     '<h3>Người điều phối</h3><p>Hỏi đội ngũ có vấn đề nào cần bổ sung. Xếp thứ tự ưu tiên và chọn ba vấn đề cấp thiết nhất.</p>'+
     '<h3>Thành viên</h3><p>Bổ sung vấn đề nếu có. Xử lý từng vấn đề theo IDS:</p>'+
     '<ol><li><strong>Identify</strong> · Xác định nguyên nhân cốt lõi.</li><li><strong>Discuss</strong> · Thảo luận phương án xử lý.</li><li><strong>Solve</strong> · Chốt phương án và tạo hành động nếu cần.</li></ol>',
@@ -383,8 +383,8 @@ function weeklyHandover() {
     ['B2 · Chỉ số','3 · Toàn cảnh và giải trình từng chi nhánh'],
     ['B3 · Rà soát mục tiêu','3 · Phần giải trình tiến độ, lồng ghép trong báo cáo chi nhánh'],
     ['B4 · Phản hồi','4 · Vinh danh và 5 · Cần hỗ trợ, tùy nội dung phản hồi'],
-    ['B5 · Danh sách hành động','2 · Việc tuần trước'],
-    ['B6 · Vấn đề cần giải quyết','5 · Cần hỗ trợ'],
+    ['B5 · Vấn đề cần giải quyết','5 · Cần hỗ trợ'],
+    ['B6 · Danh sách hành động','2 · Việc tuần trước'],
     ['B7 · Kết luận','6 · Chốt việc, 7 · Thông điệp và 8 · Chấm điểm'],
   ].map(([quick,formal])=>'<tr><th scope="row">'+quick+'</th><td>'+formal+'</td></tr>').join('');
   return '<section class="panel weekly-handover" aria-labelledby="handover-title"><div class="panel-head">'+

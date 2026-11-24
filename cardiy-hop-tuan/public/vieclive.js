@@ -212,8 +212,16 @@
     const live = v.nguon === 'app';
     const canh = live ? coCanhBao(v) : [];
     const han = nhanHan(v);
-    const phu = [v.branch, v.owner + (v.ownerCode ? ' ('+v.ownerCode+')' : ''), dateText(v.date) + (v.gio ? ' ' + v.gio : '')]
+    const nguoi = [v.branch, v.owner + (v.ownerCode ? ' ('+v.ownerCode+')' : '')]
       .map(gon).filter(Boolean).join(' · ');
+    /* Hạn sửa được ngay tại họp: ô ngày bấm là đổi, ghi thẳng về cột
+       deadline của CONG_VIEC (ô ngày thật) — Tracy chốt 24/11/2026. */
+    const oHan = (live && !compact)
+      ? '<input type="date" class="han-o" data-action="viec-han" data-id="' + label(v.sheetId) +
+        '" value="' + label(v.date) + '" aria-label="Hạn hoàn thành của ' + label(v.title) + '">' +
+        (v.gio ? '<span class="han-gio">' + label(v.gio) + '</span>' : '')
+      : label(dateText(v.date) + (v.gio ? ' ' + v.gio : ''));
+    const phu = label(nguoi) + (nguoi ? ' · ' : '') + oHan;
     const doBang = live && v.chiSo ? '<small class="viec-chiso">Đo bằng · ' + label(v.chiSo) + '</small>' : '';
     const moApp = live && !compact
       ? '<a class="button secondary" href="' + APP_VIEW + '&row=' + encodeURIComponent(v.sheetId) + '" target="_blank" rel="noopener">Mở trong app</a>' : '';
@@ -227,7 +235,7 @@
       : pill(taskStatus(v), v.done?'good':taskStatus(v)==='Đang làm'?'warn':'neutral');
     return '<div class="row' + (live?' row-live':'') + '">' + o +
       '<div class="row-text"><strong class="' + (v.done?'done':'') + '">' +
-      label(v.title) + '</strong><small>' + label(phu) + '</small>' + doBang +
+      label(v.title) + '</strong><small>' + phu + '</small>' + doBang +
       canh.map(c => '<small class="sheet-error">⚠ ' + label(c) + '</small>').join('') + '</div>' +
       (taskLate(v) ? pill('🔥 Trễ kế hoạch','miss') : han ? pill(han,'warn') : '') + trangThai +
       (live ? '' : editButton('tasks',v.id)) + moApp +
@@ -246,6 +254,37 @@
       '<div class="session-actions">' + nut + addButton('tasks','Thêm việc') + '</div>',
       thanhTrangThai() + '<div class="list">' + (list || '<p class="empty">App chưa giao việc nào cho bàn này.</p>') + '</div>');
   };
+
+  /* ---------- ô ngày: sửa hạn, ghi thẳng về CONG_VIEC ---------- */
+  document.addEventListener('change', async event => {
+    const o = event.target.closest('[data-action="viec-han"]');
+    if (!o || dangGhi) return;
+    const sid = o.dataset.id, moiHan = o.value;
+    const v = (ds || []).find(x => x.sheetId === sid);
+    if (!v) return;
+    if (!moiHan) { o.value = v.date; message('Phải có hạn hoàn thành — không để trống.'); return; }
+    if (moiHan === v.date) return;
+    dangGhi = true;
+    o.disabled = true;
+    message('Đang ghi hạn mới về app…');
+    try {
+      const body = new URLSearchParams({khoa:KHOA, viec:'doi_han', id:sid,
+        han:moiHan, nguoi:'Họp nhanh'}).toString();
+      const r = await fetch(API,{method:'POST',body:body,
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      const j = await r.json().catch(()=>null);
+      if (!j || j.ok !== true) throw new Error((j && j.loi) || 'cầu nối không trả lời đúng');
+      dangGhi = false;
+      await lamMoi(false);
+      render();
+      message('Đã gia hạn ' + sid + ' · ' + j.truoc + ' → ' + j.han);
+    } catch (e) {
+      dangGhi = false;
+      o.disabled = false;
+      o.value = v.date;
+      message('CHƯA ghi được hạn mới: ' + (e.message || e));
+    }
+  });
 
   /* ---------- vòng đọc lại ---------- */
   async function lamMoi(hienThi) {
