@@ -22,14 +22,15 @@
   const FILE = '1zYikNTqsKFnqOBPxarg2RJk4yaTEZjp3mez74pfRJsI';
   const GID_LOG = '1051521304';      /* KPI_LOG      */
   const GID_DM  = '2050987137';      /* KPI_DINH_MUC */
+  const GID_BAC = '152476500';       /* KPI_BAC_THANG — thang bac + màu */
   const NGAY_TUAN = 6;               /* 26 ngày công / 4,333 tuần */
   const LAM_MOI = 300000;
 
   /* 6 giải Tracy chốt. nhom chỉ để gom thẻ cho dễ nhìn. */
   const GIAI = [
-    {ma:'lop',   khoi:'KINH DOANH', ct:'Lốp Xe',             dv:'đ',
+    {ma:'lop',   khoi:'KINH DOANH', ct:'Lốp Xe',             dv:'đ', hm:'Lốp Xe',
      ten:'Tăng tốc về đích · Bứt phá doanh số lốp'},
-    {ma:'ngoai', khoi:'KINH DOANH', ct:'SP Ngoài Lốp',       dv:'đ',
+    {ma:'ngoai', khoi:'KINH DOANH', ct:'SP Ngoài Lốp',       dv:'đ', hm:'SP Ngoài Lốp',
      ten:'Top 1 · Bảo dưỡng + Sửa chữa + Phụ kiện'},
     {ma:'dvl',   khoi:'KỸ THUẬT VIÊN', ct:'DVL',             dv:'đ',
      ten:'Vinh danh KTV · Doanh thu DVL'},
@@ -44,8 +45,14 @@
 
   let dong = null;        /* [{ngay,cn,nhom,ten,ct,gt}] */
   let chuan = null;       /* Map 'CN|NHÓM|CHỈ TIÊU' → {ngay,thang} */
+  let bacThang = null;    /* Map 'NHÓM|HẠNG MỤC' → {m1,m2,m3} */
+  /* Tên và màu của từng mức — đọc từ nguồn, đây chỉ là bản dự phòng khi
+     tab chưa về kịp. Màu lấy đúng cột mau_hex của KPI_BAC_THANG. */
+  let tenBac = {1:'MỨC 1', 2:'MỨC 2', 3:'MỨC 3 · LŨY TIẾN'};
+  let mauBac = {1:'#FECB00', 2:'#0C6FD4', 3:'#1B9D6F'};
   let thangCo = [];       /* các tháng nguồn thật sự có số */
   let loi = '';
+  let canhBao = [];
   let docLuc = null;
   let dangDoc = false;
 
@@ -96,6 +103,7 @@
   async function doc() {
     if (dangDoc) return;
     dangDoc = true;
+    canhBao = [];
     try {
       /* KPI_LOG: B ngay · C chi_nhanh · D nhom · E ten_kpi · F chi_tieu · G gia_tri */
       const v = await docCsv(GID_LOG, 'select B,C,D,E,F,G');
@@ -120,6 +128,28 @@
         m.set(khoa(h[0]) + '|' + khoa(h[1]) + '|' + khoa(h[2]), {ngay: so(h[3]), thang: so(h[4])});
       }
       chuan = m;
+      /* KPI_BAC_THANG: E nhom · G hang_muc · I muc_1 · J muc_2 · K muc_3 ·
+         L bac · M ten_bac · P mau_hex. Thang bậc giống nhau cho mọi người
+         cùng (nhóm | hạng mục) — đã kiểm 56/56 dòng — nên chỉ cần một bộ
+         mốc, không phải dò theo từng tên. */
+      try {
+        const b = await docCsv(GID_BAC, 'select E,G,I,J,K,L,M,P');
+        const mb = new Map();
+        for (const h of b) {
+          const nhom = gon(h[0]), hm = gon(h[1]);
+          const bac = so(h[5]);
+          if (bac && gon(h[6])) { tenBac[bac] = gon(h[6]); if (gon(h[7])) mauBac[bac] = gon(h[7]); }
+          if (!nhom || !hm) continue;
+          const m1 = so(h[2]), m2 = so(h[3]);
+          if (!m1) continue;
+          mb.set(khoa(nhom) + '|' + khoa(hm), {m1: m1, m2: m2 || m1 * 2, m3: so(h[4]) || m2 || m1 * 2});
+        }
+        bacThang = mb.size ? mb : null;
+        if (!bacThang) canhBao.push('KPI_BAC_THANG: không đọc được mốc nào');
+      } catch (e) {
+        bacThang = null;
+        canhBao.push('KPI_BAC_THANG: ' + (e.message || e));
+      }
       loi = '';
       docLuc = new Date();
     } catch (e) {
@@ -179,13 +209,31 @@
     const qua = Math.min(tong, Math.max(1, soNgay(nay) - soNgay(k.tu) + 1));
     return {ty: qua / tong, nhan: qua + '/' + tong + ' ngày', tong, qua};
   }
-  /* Vạch chuẩn của một người cho một giải trong kỳ đang xem */
-  function vach(g, cn, nhom, k) {
-    const c = chuan.get(khoa(cn) + '|' + khoa(nhom) + '|' + khoa(g.ct));
-    if (!c) return null;
-    const goc = k.theoNgay ? c.ngay : c.thang;
-    if (!goc) return null;
-    return Math.round(goc * k.heSo * tienDo(k).ty);
+  /* Tracy chốt 24/11/2026: BỎ VẠCH CHUẨN đạt/không đạt, thay bằng MỨC.
+     Mốc lấy từ KPI_BAC_THANG — cùng thang bậc với bảng hoa hồng
+     BAC_HOA_HONG, nên mức trên bảng vàng và mức tính tiền là MỘT.
+       Mức 1: từ 0 tới mốc 1   · Mức 2: qua mốc 1  · Mức 3: qua mốc 2, lũy tiến
+     Mốc là của THÁNG. Kỳ khác thì quy đổi theo 26 ngày công/tháng:
+     tuần = ×6/26 · quý = ×3 · 6 tháng = ×6. KHÔNG nhân theo phần kỳ đã
+     trôi qua: mức là bậc leo được tính dồn, y như cách tính hoa hồng. */
+  function heSoMoc(k) {
+    return k.theoNgay ? NGAY_TUAN / 26 : k.heSo;
+  }
+  function mucDat(g, gt, k) {
+    if (!g.hm || !bacThang) return null;
+    const t = bacThang.get(khoa(g.khoi) + '|' + khoa(g.hm));
+    if (!t) return null;
+    const he = heSoMoc(k);
+    const m1 = t.m1 * he, m2 = t.m2 * he;
+    const bac = gt >= m2 ? 3 : (gt >= m1 ? 2 : 1);
+    const day = bac === 1 ? m1 : (bac === 2 ? m2 : null);
+    const san = bac === 2 ? m1 : 0;
+    return {
+      bac: bac, ten: tenBac[bac] || ('MỨC ' + bac), mau: mauBac[bac] || '#5F6B7A',
+      m1: m1, m2: m2, tran: day,
+      tien: day ? Math.min(1, Math.max(0, (gt - san) / (day - san))) : 1,
+      thieu: day ? Math.max(0, day - gt) : 0,
+    };
   }
   /* Top 1 của một giải trong một phạm vi (một chi nhánh, hoặc cả hệ thống) */
   function top1(g, k, cn) {
@@ -206,8 +254,7 @@
     const ds = [...cong.values()].sort((a,b) => b.gt - a.gt);
     if (!ds.length) return null;
     const x = ds[0];
-    x.vach = vach(g, x.cn, x.nhom, k);
-    x.qua = x.vach !== null && x.gt >= x.vach;
+    x.muc = mucDat(g, x.gt, k);
     x.nhi = ds[1] || null;
     return x;
   }
@@ -218,25 +265,33 @@
      họp, cũng không để ai tưởng mình sắp có cúp. Lý do không chấm được
      (thiếu vạch chuẩn / chưa có số) gom xuống một dòng cuối bảng. */
   function theNguoi(g, x, ten, he) {
-    if (!x || !x.qua) return '';
-    const lop = 'vd-o vd-co-cup' + (he ? ' vd-he' : '');
-    const tyLe = x.vach ? Math.round(x.gt / x.vach * 100) : null;
+    if (!x || !(x.gt > 0)) return '';          /* không có số thì ẩn, như Tracy chốt */
+    const m = x.muc;
+    const lop = 'vd-o vd-co-cup' + (he ? ' vd-he' : '') + (m ? ' vd-muc' + m.bac : '');
+    const huy = m
+      ? '<p class="vd-tt"><span class="vd-bac" style="background:' + label(m.mau) + '">' +
+        label(m.ten) + '</span>' +
+        (m.tran
+          ? '<small>' + Math.round(m.tien * 100) + '% tới ' + (m.bac === 1 ? 'Mức 2' : 'Mức 3') +
+            ' · còn ' + tien(m.thieu, g.dv) + '</small>'
+          : '<small>đã lên bậc cao nhất</small>') + '</p>'
+      : '<p class="vd-tt"><span class="pill neutral">chưa đặt mức</span></p>';
     return '<div class="' + lop + '">' +
       '<span class="vd-pham">' + label(ten) + '</span>' +
       '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
       '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
-      '" data-vach="' + x.vach + '">🏆 ' + label(x.ten) + '</button>' +
-      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong> / ' + tien(x.vach, g.dv) +
-      (tyLe !== null ? ' · ' + tyLe + '%' : '') + '</p>' +
-      '<p class="vd-tt"><span class="pill good">Đã qua vạch chuẩn</span></p>' +
-      (x.nhi && x.nhi.gt >= x.vach
+      '" data-bac="' + label(m ? m.ten : '') + '">🏆 ' + label(x.ten) + '</button>' +
+      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong>' +
+      (m ? ' <small>mốc ' + tien(m.m1, g.dv) + ' · ' + tien(m.m2, g.dv) + '</small>' : '') + '</p>' +
+      huy +
+      (x.nhi && x.nhi.gt > 0
         ? '<p class="vd-nhi">Kế sau: ' + label(x.nhi.ten) + ' · ' + tien(x.nhi.gt, g.dv) + '</p>' : '') +
       '</div>';
   }
   /* Vì sao một ô trống — để báo xuống dòng cuối, không hiện trên thẻ giải. */
   function viSao(g, x, nhan) {
-    if (!x) return nhan + ': chưa có số trong kỳ';
-    if (x.vach === null) return nhan + ': thiếu vạch chuẩn "' + g.ct + '" trong KPI_DINH_MUC';
+    if (!x || !(x.gt > 0)) return nhan + ': chưa có số trong kỳ';
+    if (!x.muc) return nhan + ': "' + g.ct + '" chưa có thang mức trong KPI_BAC_THANG';
     return '';
   }
   function theGiai(g, k, sot) {
@@ -291,24 +346,25 @@
     const k = ky();
     const than = thanh(k);
     if (!dong || !chuan) {
-      return panel('Bảng vàng · 6 giải từ KPI', 'Cúp chỉ trao cho người đã qua vạch chuẩn', '', than);
+      return panel('Bảng vàng · 6 giải từ KPI', 'Mức đạt được theo thang bậc hoa hồng', '', than);
     }
     const sot = [];
     const kd = GIAI.filter(g => g.khoi === 'KINH DOANH').map(g => theGiai(g,k,sot)).join('');
     const kt = GIAI.filter(g => g.khoi === 'KỸ THUẬT VIÊN').map(g => theGiai(g,k,sot)).join('');
     const trong = !kd && !kt
-      ? '<p class="vd-canh"><strong>Kỳ này chưa có ai qua vạch chuẩn.</strong> Không trao cúp — ' +
-        'đúng luật thì bảng vàng để trống, không hạ chuẩn.</p>' : '';
+      ? '<p class="vd-canh"><strong>Kỳ này chưa có số nào.</strong> Chưa tới kỳ, hoặc chi nhánh chưa nhập.</p>' : '';
     const chuaCham = sot.length
       ? '<details class="vd-sot"><summary>' + sot.length + ' ô chưa chấm được — xem lý do</summary><ul>' +
         sot.map(x => '<li>' + label(x) + '</li>').join('') + '</ul></details>' : '';
-    const td = tienDo(k);
-    const luat = '<p class="vd-luat"><strong>Luật trao cúp</strong> · Cúp chỉ trao cho người ĐÃ QUA VẠCH CHUẨN. ' +
-      'Bấm vào tên người được vinh danh để chúc mừng — mỗi người nói 30 giây. ' +
-      'Vạch chuẩn lấy từ KPI_DINH_MUC: tuần = định mức ngày × ' + NGAY_TUAN +
-      ' · tháng = định mức tháng · quý = ×3' +
-      (td.ty < 1 ? ', rồi nhân theo phần kỳ đã qua (<strong>' + label(td.nhan) + '</strong>) vì kỳ chưa khép'
-                 : ', kỳ đã khép nên tính trọn') + '.</p>';
+    const he = heSoMoc(k);
+    const luat = '<p class="vd-luat"><strong>Luật trao cúp</strong> · Mỗi giải trao cho người dẫn đầu, ' +
+      'kèm MỨC đạt được theo đúng thang bậc của bảng hoa hồng. ' +
+      '<span class="vd-bac" style="background:' + label(mauBac[1]) + '">' + label(tenBac[1]) + '</span>' +
+      '<span class="vd-bac" style="background:' + label(mauBac[2]) + '">' + label(tenBac[2]) + '</span>' +
+      '<span class="vd-bac" style="background:' + label(mauBac[3]) + '">' + label(tenBac[3]) + '</span> · ' +
+      'Mốc lấy từ KPI_BAC_THANG, là mốc THÁNG' +
+      (he !== 1 ? ' quy đổi cho kỳ này (×' + (Math.round(he * 100) / 100) + ')' : '') +
+      '. Bấm vào tên người được vinh danh để chúc mừng — mỗi người nói 30 giây.</p>';
     return panel('Bảng vàng · 6 giải từ KPI', 'Theo ' + label(k.nhan) + ' · từng chi nhánh và toàn hệ thống', '',
       '<div class="vd-than">' + than + nutChiNhanh() + luat + trong + kd + kt + chuaCham + '</div>');
   }
@@ -319,13 +375,13 @@
     const hop = document.querySelector('#award-celebration');
     if (!hop) return;
     const g = GIAI.find(x => x.ma === b.dataset.giai);
-    const gt = Number(b.dataset.gt), v = Number(b.dataset.vach);
+    const gt = Number(b.dataset.gt), bac = b.dataset.bac || '';
     hop.querySelector('#award-portrait').innerHTML =
       '<div class="award-portrait"><span class="award-icon" aria-hidden="true">🏆</span></div>';
     hop.querySelector('#award-criterion').textContent = (g ? g.ten : '') + ' · ' + b.dataset.cn;
     hop.querySelector('#award-heading').textContent = 'Chúc mừng ' + b.dataset.ten + '!';
     const o = hop.querySelector('#award-result');
-    o.innerHTML = '<span>' + tien(gt, g ? g.dv : '') + ' / vạch chuẩn ' + tien(v, g ? g.dv : '') + '</span>' +
+    o.innerHTML = '<span>' + tien(gt, g ? g.dv : '') + (bac ? ' · ' + label(bac) : '') + '</span>' +
       '<span class="vd-dem">Mời chia sẻ 30 giây — <strong>30</strong></span>';
     hop.showModal();
     hop.querySelector('button').focus();

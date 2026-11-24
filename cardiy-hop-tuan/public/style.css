@@ -387,3 +387,13 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
   border-radius:.6rem;background:#f7f9fc;font-size:.8rem;color:var(--muted)}
 .vd-sot summary{cursor:pointer;font-weight:700;color:#425e80}
 .vd-sot ul{margin:.5rem 0 0;padding-left:1.1rem;line-height:1.6}
+
+/* ───── Vinh danh: huy hiệu MỨC thay cho vạch chuẩn ───── */
+.vd-bac{display:inline-block;padding:.2rem .55rem;border-radius:999px;color:#fff;
+  font-size:.68rem;font-weight:900;letter-spacing:.03em;white-space:nowrap;
+  margin-right:.35rem;text-shadow:0 1px 1px #00000033}
+.vd-luat .vd-bac{margin:0 .2rem}
+.vd-so small{display:block;margin-top:.15rem;font-size:.68rem;font-weight:700;color:#8796ab}
+.vd-o.vd-muc1{border-color:#FECB00;background:#fffdf3}
+.vd-o.vd-muc2{border-color:#0C6FD4;background:#f3f8ff}
+.vd-o.vd-muc3{border-color:#1B9D6F;background:#f2fbf7}
