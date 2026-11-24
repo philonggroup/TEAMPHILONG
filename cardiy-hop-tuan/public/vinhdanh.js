@@ -23,6 +23,10 @@
   const GID_LOG = '1051521304';      /* KPI_LOG      */
   const GID_DM  = '2050987137';      /* KPI_DINH_MUC */
   const GID_BAC = '152476500';       /* KPI_BAC_THANG — thang bac + màu */
+  /* Cầu nối Apps Script — cùng một bản triển khai với màn Danh sách
+     hành động, nên sửa một chỗ là cả app theo. */
+  const API  = 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec';
+  const KHOA = 'PHILONG2026';
   const NGAY_TUAN = 6;               /* 26 ngày công / 4,333 tuần */
   const LAM_MOI = 300000;
 
