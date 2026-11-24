@@ -191,7 +191,7 @@ function chuongTrinhMenu() {
   const con = steps.map((step,i)=>{
     const xong = phien?.done.includes(step.key);
     const chon = view===step.key || (view==='meeting' && dangChay===step.key);
-    return '<button type="button" class="nav-sub'+(chon?' chon':'')+'" data-action="step" data-key="'+step.key+'"'+
+    return '<button type="button" class="nav-sub" data-action="step" data-key="'+step.key+'"'+
       (chon?' aria-current="step"':'')+'><span class="nav-sub-ma">B'+(i+1)+'</span>'+
       '<span class="nav-sub-ten">'+label(stepTitle(step.key))+'</span>'+
       (xong?'<span class="nav-sub-xong">'+icon('check')+'</span>':'')+
