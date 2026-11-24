@@ -295,3 +295,8 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 
 .button.ho-tro{background:#fff4e5;color:#92400e;border:1px solid #fcd9a4;font-weight:700}
 .button.ho-tro:hover{background:#fde8c8}
+
+.viec-luat{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:0 0 .75rem;
+  padding:.5rem .7rem;border:1px dashed #fcd9a4;border-radius:.6rem;background:#fffaf0;
+  font-size:.8rem;line-height:1.5;color:#92400e}
+.viec-luat strong{font-weight:800}

@@ -215,9 +215,19 @@
     const thieu = hien.filter(v => coCanhBao(v).length).length;
     const qua = !isJoint() && hien.length > TOI_DA_VIEC
       ? ' · <span class="pill warn">Giao ' + hien.length + ' việc, vượt mức tối ưu ' + TOI_DA_VIEC + '</span>' : '';
+    /* Luật Tracy chốt: chưa xong tuần 1 thì bấm → HỖ TRỢ đưa sang B5,
+       không để trôi sang tuần 2; mỗi chi nhánh tối đa 3 việc. Hiện ngay
+       trên thẻ kèm bộ đếm để lúc họp không phải nhớ. */
+    const suat = isJoint()
+      ? branchNames.map(ten => ten.split(' · ')[0] + ' ' + demHoTro(ten) + '/' + TOI_DA_HO_TRO).join(' · ')
+      : demHoTro(branchSelect.value) + '/' + TOI_DA_HO_TRO;
+    const het = !isJoint() && demHoTro(branchSelect.value) >= TOI_DA_HO_TRO;
     return '<p class="viec-live"><span class="pill good">LIVE</span> App PHI LONG GROUP · CONG_VIEC · đọc lúc ' + tt +
       ' · <strong>' + hien.length + '</strong> việc · <strong>' + chuaXong + '</strong> chưa xong · ' +
-      '<strong>' + tre + '</strong> trễ hạn · <strong>' + thieu + '</strong> dòng thiếu yếu tố' + qua + '</p>';
+      '<strong>' + tre + '</strong> trễ hạn · <strong>' + thieu + '</strong> dòng thiếu yếu tố' + qua + '</p>' +
+      '<p class="viec-luat">Chưa xong tuần 1 thì bấm <strong>→ HỖ TRỢ</strong> ở dòng việc để đưa sang ' +
+      '<strong>B5 · Vấn đề</strong>, không để trôi sang tuần 2. Mỗi chi nhánh tối đa ' + TOI_DA_HO_TRO + ' việc · ' +
+      '<span class="pill ' + (het ? 'miss' : 'neutral') + '">Đã đưa ' + suat + '</span></p>';
   }
   function nutTrangThai(v) {
     const live = v.nguon === 'app';
