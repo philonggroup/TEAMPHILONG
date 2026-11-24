@@ -209,28 +209,12 @@
     dongBoChon();
   }
 
-  /* ---------- Thẻ trên Tổng quan: chọn bước ngay tại đây ---------- */
-  function chenThe() {
-    var nd = noiDung();
-    if (!nd || !dangHopChung() || nd.querySelector('[data-gb-card]')) return;
-    var hero = nd.querySelector('.hero');
-    if (!hero) return;
-    var the = document.createElement('section');
-    the.className = 'gb-card';
-    the.setAttribute('data-gb-card', '');
-    the.innerHTML =
-      '<div class="gb-card-text"><p class="eyebrow">CHUẨN HỌP CHUNG 3 CHI NHÁNH</p>' +
-      '<h2>Giao ban 9 bước · 60 phút</h2>' +
-      '<p>Số liệu live từ 3 workbook hệ thống chuẩn. Chọn bước rồi bấm Vào bước, ' +
-      'hoặc dùng nút ← → để đi từng bước.</p></div>' +
-      '<div class="gb-card-pick">' + menuXo('gb-select') +
-      '<button class="button yellow" type="button" data-gb-open>' +
-      bieuTuong('play') + 'Vào bước</button></div>';
-    hero.insertAdjacentElement('afterend', the);
-    dongBoChon();
-  }
+  /* ---------- Thẻ trên Tổng quan: Tracy chốt 24/11/2026 BỎ ----------
+     Bỏ hẳn thẻ "CHUẨN HỌP CHUNG 3 CHI NHÁNH · Giao ban 9 bước · 60 phút"
+     khỏi màn Tổng quan. Lối vào giao ban giữ nguyên ở mục "Giao ban 9 bước"
+     trên thanh bên; bấm vào đó vẫn mở đúng bước đang xem. */
 
-  function dongBo() { chenNav(); chenThe(); }
+  function dongBo() { chenNav(); }
 
   function theoDoi(id) {
     var nut = document.querySelector(id);
