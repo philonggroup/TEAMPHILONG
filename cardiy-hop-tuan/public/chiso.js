@@ -35,11 +35,11 @@
      mỗi chi nhánh một khác (CN1 62/8/30, CN2 72/10/18). */
   const KET_QUA = [
     {dau:'DOANH THU MỤC TIÊU', ten:'Doanh thu mục tiêu', dv:'đ'},
-    {dau:'— DT lốp',           ten:'— DT lốp',            dv:'đ'},
-    {dau:'— DT dịch vụ',       ten:'— DT dịch vụ DVL+DVNL+LĐ', dv:'đ'},
-    {dau:'· DV lốp',           ten:'· DV lốp',            dv:'đ'},
-    {dau:'· DV sửa chữa',      ten:'· DV sửa chữa',       dv:'đ'},
-    {dau:'— DT BD-SC-PK',      ten:'— DT BD-SC-PK / NTP', dv:'đ'},
+    {dau:'— DT lốp',           ten:'DT lốp',              dv:'đ'},
+    {dau:'— DT dịch vụ',       ten:'DT dịch vụ DVL+DVNL+LĐ', dv:'đ'},
+    {dau:'· DV lốp',           ten:'DV lốp',              dv:'đ'},
+    {dau:'· DV sửa chữa',      ten:'DV sửa chữa',         dv:'đ'},
+    {dau:'— DT BD-SC-PK',      ten:'DT BD-SC-PK / NTP',   dv:'đ'},
   ];
   /* Kỳ QUÝ và 6 THÁNG: file CARDIY không có số thực đạt của quý (chỉ có
      tab tháng 11), nên lấy từ cặp tab sẵn có trong 3 workbook chi nhánh:
@@ -74,6 +74,17 @@
   let dangDoc = false;
 
   const gon = v => String(v ?? '').replace(/\s+/g,' ').trim();
+  /* Tiền để nguyên từng đồng thì dài quá, đọc trong lúc họp không kịp.
+     Từ 1 triệu trở lên quy về "tr"; dưới 1 triệu giữ đủ số.
+     Chỉ áp cho ô có đơn vị "đ" — tức các bảng chỉ số của module này. */
+  const trieu = new Intl.NumberFormat('vi-VN',{maximumFractionDigits:1});
+  const gocShowNumber = window.showNumber;
+  window.showNumber = function(value, unit) {
+    if (unit === 'đ' && Math.abs(Number(value)) >= 1000000) {
+      return trieu.format(Number(value) / 1000000) + ' tr';
+    }
+    return gocShowNumber(value, unit);
+  };
   const khoa = v => gon(v).toUpperCase().replace(/\s+/g,'');
 
   /* "2.870.000" → 2870000 · "114,3%" → 114.3 · "" → null */
