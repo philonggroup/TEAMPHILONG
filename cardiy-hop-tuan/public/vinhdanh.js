@@ -212,7 +212,9 @@
     const pham = isJoint() ? CN : [CN[state.branch]];
     const o = pham.map((cn,i) => theNguoi(g, top1(g, k, cn),
       isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch])).join('');
-    const he = isJoint() ? theNguoi(g, top1(g, k, null), 'HỆ THỐNG', true) : '';
+    /* Thẻ HỆ THỐNG hiện ở CẢ hai chế độ: xem riêng một bàn vẫn phải thấy
+       người đang dẫn đầu toàn hệ thống, đó là mức để so. */
+    const he = theNguoi(g, top1(g, k, null), 'HỆ THỐNG', true);
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + o + he + '</div></section>';
