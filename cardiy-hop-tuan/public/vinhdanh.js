@@ -277,7 +277,7 @@
     const ngan = ten => String(ten).split(' · ')[0];
     const nut = [['Hệ thống', jointIndex], ...branchNames.map((ten,i) => [ngan(ten), i])]
       .map(([ten,i]) => '<button type="button" class="cn-o' + (state.branch === i ? ' chon' : '') +
-        '" aria-pressed="' + (state.branch === i) + '" ' +
+        '" aria-pressed="' + (state.branch === i) + '" data-vd-chon ' +
         (i === jointIndex ? 'data-action="open-joint"' : 'data-action="open-branch" data-id="' + i + '"') +
         '>' + label(ten) + '</button>').join('');
     return '<div class="vd-chon"><span>Trao giải cho</span>' +
@@ -351,7 +351,12 @@
   document.addEventListener('click', event => {
     const b = event.target.closest('[data-action="vd-chuc"]');
     if (b) { chucMung(b); return; }
-    if (event.target.closest('[data-action="vd-live"]')) { loi = ''; lamMoi(); }
+    if (event.target.closest('[data-action="vd-live"]')) { loi = ''; lamMoi(); return; }
+    /* Nút chọn chi nhánh của app luôn nhảy về Tổng quan. Chọn bàn ngay
+       trên màn Vinh danh thì phải ở lại Vinh danh, không bị hất ra. */
+    if (event.target.closest('[data-vd-chon]')) {
+      window.setTimeout(() => { if (typeof changeView === 'function') changeView('awards'); }, 0);
+    }
   });
   window.setInterval(() => {
     if (document.hidden) return;
