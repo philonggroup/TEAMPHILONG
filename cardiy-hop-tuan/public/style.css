@@ -509,3 +509,7 @@ body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;us
   .bb-noi{padding:0;overflow:visible;max-height:none}
   #bb-giay{font-size:11pt}
 }
+
+/* ───── B7: ký nhận thành viên ───── */
+.kn-dong{cursor:pointer}
+.kn-dong input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue);flex:none}
