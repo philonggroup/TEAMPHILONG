@@ -264,7 +264,9 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
   border:1px solid transparent;border-radius:8px;padding:5px 7px;color:var(--ink,#172742);font-size:.8rem}
 .nav-sub:hover{background:#f0f6ff;border-color:#dbe9fc}
 .nav-sub.chon{background:#0a4da2;border-color:#0a4da2;color:#fff}
-.nav-sub svg,.nav-sub .cardiy-icon{width:15px;height:15px;flex:none}
-.nav-sub-ma{font-weight:800;font-size:.7rem;opacity:.75;min-width:1.1rem}
-.nav-sub-ten{flex:1;line-height:1.25}
-.nav-sub small{font-size:.7rem;opacity:.75;white-space:nowrap}
+.nav-sub{flex-wrap:wrap}
+.nav-sub svg,.nav-sub .cardiy-icon{width:14px;height:14px;flex:none}
+.nav-sub-ma{font-weight:800;font-size:.7rem;opacity:.75;min-width:1.25rem;flex:none}
+.nav-sub-ten{flex:1 1 60%;line-height:1.25;min-width:0}
+.nav-sub-xong{display:inline-grid;place-items:center;flex:none}
+.nav-sub small{font-size:.7rem;opacity:.75;white-space:nowrap;margin-left:auto}

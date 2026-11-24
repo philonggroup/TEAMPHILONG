@@ -193,7 +193,8 @@ function chuongTrinhMenu() {
     const chon = view===step.key || (view==='meeting' && dangChay===step.key);
     return '<button type="button" class="nav-sub'+(chon?' chon':'')+'" data-action="step" data-key="'+step.key+'"'+
       (chon?' aria-current="step"':'')+'><span class="nav-sub-ma">B'+(i+1)+'</span>'+
-      icon(xong?'check':step.icon)+'<span class="nav-sub-ten">'+label(stepTitle(step.key))+'</span>'+
+      '<span class="nav-sub-ten">'+label(stepTitle(step.key))+'</span>'+
+      (xong?'<span class="nav-sub-xong">'+icon('check')+'</span>':'')+
       '<small>'+duration(step.key)+'′</small></button>';
   }).join('');
   return '<div class="nav-ct"><button type="button" class="nav-item nav-ct-mo" data-action="mo-chuong-trinh" '+
