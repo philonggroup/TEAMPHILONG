@@ -38,8 +38,12 @@ const TRANG_THAI_CHOT = 'Hành động đã chốt';
 const issueStatus = item => item.solved ? 'Đã xử lý' : (item.status===TRANG_THAI_CHOT ? TRANG_THAI_CHOT : 'Đang mở');
 /* Việc cần làm cũng 3 trạng thái, khớp đúng bộ trạng thái bảng CONG_VIEC của PHI LONG_GROUP
    (1.Chờ thực hiện / 2.Đang làm / 3.Hoàn thành). done giữ nguyên kiểu boolean cho ô tick. */
-const TRANG_THAI_VIEC = ['Chờ thực hiện','Đang xử lý','Hoàn thành'];
-const taskStatus = item => item.done ? 'Hoàn thành' : (item.status==='Đang xử lý' ? 'Đang xử lý' : 'Chờ thực hiện');
+const TRANG_THAI_VIEC = ['Chờ thực hiện','Đang làm','Hoàn thành'];
+/* 'Đang xử lý' là nhãn cũ đã lỡ lưu, quy về 'Đang làm' cho khớp bộ trạng thái chuẩn. */
+const taskStatus = item => item.done ? 'Hoàn thành'
+  : (item.status==='Đang làm'||item.status==='Đang xử lý' ? 'Đang làm' : 'Chờ thực hiện');
+/* Trễ kế hoạch tính tự động theo hạn, không ai tự bấm. */
+const taskLate = item => !item.done && !!item.date && item.date < today();
 /* Hạn mặc định của hành động chốt tại họp: chủ nhật của tuần đang họp */
 function cuoiTuan() {
   const [y,m,d] = today().split('-').map(Number);
@@ -249,7 +253,8 @@ function kpiPanel(compact) {
 function tasksPanel(compact) {
   const tasks = data().tasks;
   const list = (compact ? tasks.slice(0,3) : tasks).map(task => '<div class="row"><input type="checkbox" data-action="toggle" data-id="'+task.id+'" '+(task.done?'checked':'')+' aria-label="Hoàn thành '+label(task.title)+'"><div class="row-text"><strong class="'+(task.done?'done':'')+'">'+label(task.title)+'</strong><small>'+label([task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · '))+'</small></div>'+
-    pill(taskStatus(task),task.done?'good':taskStatus(task)==='Đang xử lý'?'warn':'neutral')+editButton('tasks',task.id)+(!compact&&!task.done?workflowButton('renew',task.id,'Gia hạn'):'')+'</div>').join('');
+    (taskLate(task)?pill('🔥 Trễ kế hoạch','miss'):'')+
+    pill(taskStatus(task),task.done?'good':taskStatus(task)==='Đang làm'?'warn':'neutral')+editButton('tasks',task.id)+(!compact&&!task.done?workflowButton('renew',task.id,'Gia hạn'):'')+'</div>').join('');
   const preview=compact?'':'<button class="button secondary" type="button" data-task-preview="'+(isJoint()?'':branchSelect.value.slice(0,3))+'">Đồng bộ công việc</button>';
   return panel('Việc cần làm',tasks.filter(task=>task.done).length+' / '+tasks.length+' đã hoàn thành','<div class="session-actions">'+preview+addButton('tasks','Thêm việc')+'</div>','<div class="list">'+(list||'<p class="empty">Chưa có việc cần làm.</p>')+'</div>');
 }
@@ -649,7 +654,7 @@ editor.addEventListener('close',()=>{ editContext = null; });
 branchSelect.addEventListener('change',()=>switchBranch(branchSelect.selectedIndex,['excel','awards','vision','annual','swot','kpis','goals'].includes(view)?view:'overview'));
 function reportText(item) {
   const kind = item.period || 'week';
-  const taskLines = item.tasks.map(task=>'['+taskStatus(task)+'] '+[task.title,task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · ')+(item.acknowledged?.includes(task.id)?' · Đã xác nhận nhiệm vụ':''));
+  const taskLines = item.tasks.map(task=>'['+taskStatus(task)+(taskLate(task)?' · 🔥 Trễ kế hoạch':'')+'] '+[task.title,task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · ')+(item.acknowledged?.includes(task.id)?' · Đã xác nhận nhiệm vụ':''));
   const issueLines = item.issues.map(issue=>'['+issueStatus(issue)+'] '+issue.title+(issue.branch?' · '+issue.branch:'')+(issue.cause?'\n  Nguyên nhân: '+issue.cause:'')+(issue.discussion?'\n  Thảo luận: '+issue.discussion:'')+(issue.solution?'\n  Hành động: '+issue.solution:''));
   const metricLine = kpi=>showNumber(kpi.actual,kpi.unit)+' / '+showNumber(kpi.target,kpi.unit);
   const kpiLines = item.comparison
@@ -712,7 +717,7 @@ workspace.addEventListener('change',event=>{
   if (action!=='toggle') return;
   const viec = get('tasks',event.target.dataset.id);
   viec.done = event.target.checked;
-  viec.status = event.target.checked ? 'Hoàn thành' : (viec.status==='Hoàn thành' ? 'Đang xử lý' : viec.status||'Chờ thực hiện');
+  viec.status = event.target.checked ? 'Hoàn thành' : (taskStatus(viec)==='Hoàn thành' ? 'Đang làm' : taskStatus(viec));
   save();
   const id = event.target.dataset.id;
   render();

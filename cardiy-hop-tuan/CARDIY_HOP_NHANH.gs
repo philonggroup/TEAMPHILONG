@@ -164,6 +164,15 @@ function timCotChua_(hang, ten) {
   for (i = 0; i < hang.length; i++) if (chuan_(hang[i]).indexOf(muc) === 0) return i;
   return -1;
 }
+/* Suy chi nhánh từ phòng ban ("Quản lý CN1") hoặc từ tên việc ("CN3 · ...").
+   Trả đúng dạng nhãn app đang dùng ở ô chọn chi nhánh: "PHI LONG 1 · CN1". */
+function tenCN_(chuoi) {
+  var i, t = chuan_(chuoi);
+  for (i = 0; i < CHI_NHANH.length; i++) {
+    if (t.indexOf(CHI_NHANH[i].ma) > -1) return CHI_NHANH[i].ten + ' · ' + CHI_NHANH[i].ma;
+  }
+  return '';
+}
 function timDong_(bang, cot, ten) {
   var i, muc = chuan_(ten);
   for (i = 0; i < bang.length; i++) if (chuan_(bang[i][cot]) === muc) return i;
@@ -380,11 +389,18 @@ function doc6Ways_(ss) {
    ĐỌC DANH SÁCH HÀNH ĐỘNG — PHI LONG_GROUP · bảng CONG_VIEC
    "Chưa xong" = trang_thai <> "3.Hoàn thành" (chuẩn đã chốt 22/11/2026)
    ================================================================ */
-function docCongViec_(maCN) {
+/* CONG_VIEC bị đọc 4 lần mỗi lần tải (3 chi nhánh + họp chung). Đọc 1 lần rồi dùng lại
+   để khỏi mở file 4 lượt, tránh chạm trần thời gian của Web App. */
+var _bangCongViec = null;
+function bangCongViec_() {
+  if (_bangCongViec !== null) return _bangCongViec;
   var sh = SpreadsheetApp.openById(FILE_APP).getSheetByName('CONG_VIEC');
-  if (!sh) return { loi: 'Không thấy bảng CONG_VIEC trong PHI LONG_GROUP', ds: [] };
-
-  var bang = sh.getDataRange().getValues();
+  _bangCongViec = sh ? sh.getDataRange().getValues() : [];
+  return _bangCongViec;
+}
+function docCongViec_(maCN) {
+  var bang = bangCongViec_();
+  if (!bang.length) return { loi: 'Không thấy bảng CONG_VIEC trong PHI LONG_GROUP', ds: [] };
   if (bang.length < 2) return { loi: '', ds: [] };
 
   var de = bang[0];
@@ -403,11 +419,18 @@ function docCongViec_(maCN) {
     if (maCN && ban.indexOf(maCN) < 0 && chuan_(ten).indexOf(maCN) < 0) continue;
     tt = String(cTT > -1 ? bang[i][cTT] : '').trim();
     han = cHan > -1 ? bang[i][cHan] : '';
+    /* Bộ trạng thái chuẩn của Phi Long: 1.Chờ thực hiện · 2.Đang làm · 3.Hoàn thành.
+       Đọc theo tiền tố số để không phụ thuộc cách gõ chữ. "Trễ kế hoạch" KHÔNG đọc ở đây:
+       app tự suy theo hạn, tránh hai nơi nói hai kiểu. */
+    var xong = tt.indexOf('3.') === 0 || chuan_(tt).indexOf('HOÀN THÀNH') > -1;
+    var dangLam = tt.indexOf('2.') === 0 || chuan_(tt).indexOf('ĐANG LÀM') > -1;
     ds.push({
       title: ten,
       owner: cAi > -1 ? String(bang[i][cAi] || '').trim() : '',
       date: (han instanceof Date) ? ngayVN_(han) : String(han || '').slice(0, 10),
-      done: tt.indexOf('3.') === 0 || chuan_(tt).indexOf('HOÀN THÀNH') > -1
+      branch: tenCN_(ban + ' ' + ten),
+      status: xong ? 'Hoàn thành' : dangLam ? 'Đang làm' : 'Chờ thực hiện',
+      done: xong
     });
   }
   return { loi: '', ds: ds };
@@ -575,7 +598,15 @@ function docNguon_(p) {
     gopKhung.history = chung.history || [];
     gopKhung.kpis    = congChiSo_(nhom.branches);
     gopKhung.goals   = chung.goals || [];
-    gopKhung.tasks   = chung.tasks || [];
+    /* Họp chung cũng phải thấy cam kết live, không để trống: gộp CONG_VIEC cả 3 chi nhánh
+       (không lọc mã CN), mỗi việc đã kèm nhãn chi nhánh từ tenCN_. */
+    if (kieu === 'week') {
+      var viecChung = docCongViec_('');
+      if (viecChung.loi) canhBao.push('Họp chung: ' + viecChung.loi);
+      gopKhung.tasks = viecChung.ds.length ? viecChung.ds : (chung.tasks || []);
+    } else {
+      gopKhung.tasks = chung.tasks || [];
+    }
     nhom.joint = gopKhung;
 
     ketQua[kieu] = nhom;
