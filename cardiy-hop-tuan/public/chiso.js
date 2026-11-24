@@ -314,6 +314,16 @@
     if (state.period === 'year') return '6 tháng cuối năm · từ TỔNG HỢP 6T của 3 chi nhánh';
     return 'tuần ' + soTuan() + ' tháng ' + Number(today().slice(5,7));
   }
+  /* Nguồn chỉ số dẫn dắt chỉ có cột TUẦN và THÁNG. Chọn kỳ theo ngày thì
+     phải nói thẳng là bảng này KHÔNG theo kỳ đó, chứ không im lặng hiện
+     số tuần rồi để người họp tưởng là số hôm nay. */
+  function canhKyNgay() {
+    const k = window.CARDIY_KY ? window.CARDIY_KY.khoang() : null;
+    if (!k || !k.theoNgay) return '';
+    return '<p class="vd-canh"><strong>Kỳ "' + label(k.nhan) + '" chưa có nguồn cho chỉ số dẫn dắt.</strong> ' +
+      'Nguồn chỉ có cột theo TUẦN và THÁNG — bảng dưới đang hiện số tuần ' + soTuan() +
+      '. Chỉ số kết quả và bảng vàng thì theo đúng kỳ đã chọn.</p>';
+  }
   function thanhChiSo() {
     if (loi) return '<p class="sheet-error"><strong>CHƯA ĐỌC ĐƯỢC CHỈ SỐ LIVE</strong> · ' + label(loi) +
       ' · đang hiện bản đã soạn. <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button></p>';
@@ -334,7 +344,7 @@
       ? ' · <span class="pill ' + (demUT() > TOI_DA_UT ? 'miss' : 'good') + '">★ ' + demUT() +
         ' chỉ số ưu tiên</span>' + (demUT() > TOI_DA_UT ? ' <small>4DX chỉ cho tối đa ' + TOI_DA_UT + '</small>' : '')
       : '';
-    return '<p class="viec-live"><span class="pill good">LIVE</span> Chỉ số dẫn dắt · ' + nhanKy() +
+    return canhKyNgay() + '<p class="viec-live"><span class="pill good">LIVE</span> Chỉ số dẫn dắt · ' + nhanKy() +
       ' · đọc lúc ' + gio + ' · <strong>' + hien + '</strong>/' + CHI_SO.length +
       ' chỉ số × 3 chi nhánh · <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button>' +
       ' <button class="button secondary" type="button" data-action="chiso-chon">Chọn chỉ số · 4DX</button>' +

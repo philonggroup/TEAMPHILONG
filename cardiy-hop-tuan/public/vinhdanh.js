@@ -165,28 +165,14 @@
 
   /* ---------- kỳ đang xem ---------- */
   /* Tuần trong tháng: T1 01–07 · T2 08–14 · T3 15–21 · T4 22–28 · T5 29–hết */
+  /* Kỳ lấy từ thanh chọn chung (kychon.js) — một chỗ duy nhất quyết
+     định mọi khối số, không mỗi màn một kiểu tính. */
   function ky() {
+    const k = window.CARDIY_KY ? window.CARDIY_KY.khoang() : null;
+    if (k) return {tu: k.tu, den: k.den, nhan: k.nhan, ngayCong: k.ngayCong, theoNgay: k.theoNgay};
     const nay = today();
-    const nam = nay.slice(0,4), thang = nay.slice(5,7);
-    const p = state.period;
-    if (p === 'week') {
-      const n = Math.min(5, Math.floor((Number(nay.slice(8,10)) - 1) / 7) + 1);
-      const tu = String(1 + (n-1)*7).padStart(2,'0');
-      const den = n === 5 ? '31' : String(n*7).padStart(2,'0');
-      return {tu: nam+'-'+thang+'-'+tu, den: nam+'-'+thang+'-'+den,
-        nhan: 'tuần ' + n + ' tháng ' + Number(thang), heSo: NGAY_TUAN, theoNgay: true};
-    }
-    if (p === 'month') {
-      return {tu: nam+'-'+thang+'-01', den: nam+'-'+thang+'-31',
-        nhan: 'tháng ' + Number(thang), heSo: 1, theoNgay: false};
-    }
-    if (p === 'quarter') {
-      const q = Math.floor((Number(thang)-1)/3);
-      const t1 = String(q*3+1).padStart(2,'0'), t3 = String(q*3+3).padStart(2,'0');
-      return {tu: nam+'-'+t1+'-01', den: nam+'-'+t3+'-31',
-        nhan: 'quý ' + (q+1), heSo: 3, theoNgay: false};
-    }
-    return {tu: nam+'-07-01', den: nam+'-12-31', nhan: '6 tháng cuối năm', heSo: 6, theoNgay: false};
+    return {tu: nay.slice(0,8) + '01', den: nay.slice(0,8) + '31',
+      nhan: 'tháng ' + Number(nay.slice(5,7)), ngayCong: 26, theoNgay: false};
   }
   /* Kỳ chưa đi hết thì vạch chuẩn phải co theo.
      Họp tuần vào thứ ba mà bắt đủ chỉ tiêu cả tuần thì không ai qua nổi —
@@ -220,7 +206,7 @@
      tuần = ×6/26 · quý = ×3 · 6 tháng = ×6. KHÔNG nhân theo phần kỳ đã
      trôi qua: mức là bậc leo được tính dồn, y như cách tính hoa hồng. */
   function heSoMoc(k) {
-    return k.theoNgay ? NGAY_TUAN / 26 : k.heSo;
+    return (k.ngayCong || 26) / 26;      /* mốc THÁNG quy theo 26 ngày công */
   }
   function mucDat(g, gt, k) {
     if (!g.hm || !bacThang) return null;
@@ -353,9 +339,11 @@
     if (!dong) return '<p class="empty">Đang đọc KPI 3 chi nhánh…</p>';
     const gio = new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit'}).format(docLuc);
     const trong = !dong.some(d => d.ngay >= k.tu && d.ngay <= k.den);
-    const thieuThang = !k.theoNgay && k.heSo > 1 && thangCo.length < k.heSo
+    /* Kỳ dài hơn phần nguồn đang có thì phải nói rõ, đừng để ai tưởng đủ. */
+    const canThang = Math.round((k.ngayCong || 26) / 26);
+    const thieuThang = canThang > 1 && thangCo.length < canThang
       ? '<p class="vd-canh">Nguồn KPI mới có ' + thangCo.length + ' tháng (' + label(thangCo.join(', ')) +
-        '), nhưng kỳ này cần ' + k.heSo + ' tháng. Số đang hiện là phần đã có — <strong>chưa đủ để chốt giải kỳ này</strong>.</p>'
+        '), nhưng kỳ này cần ' + canThang + ' tháng. Số đang hiện là phần đã có — <strong>chưa đủ để chốt giải kỳ này</strong>.</p>'
       : '';
     const rong = trong ? '<p class="vd-canh">Kỳ này chưa có dòng KPI nào. Chưa tới kỳ, hoặc chi nhánh chưa nhập số.</p>' : '';
     return '<p class="viec-live"><span class="pill good">LIVE</span> KPI 3 chi nhánh · ' + label(k.nhan) +
