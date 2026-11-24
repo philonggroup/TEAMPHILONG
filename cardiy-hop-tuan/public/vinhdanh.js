@@ -193,6 +193,10 @@
     for (const d of dong) {
       if (d.ngay < k.tu || d.ngay > k.den) continue;
       if (khoa(d.ct) !== khoa(g.ct)) continue;
+      /* Giải của khối nào chỉ xét người khối đó. Bỏ dòng này thì người
+         KINH DOANH đứng đầu "Phiếu kiểm tra" sẽ nhận giải mang tên Kỹ
+         thuật viên — đúng số nhưng sai người. */
+      if (khoa(d.nhom) !== khoa(g.khoi)) continue;
       if (cn && d.cn !== cn) continue;
       const kh = d.cn + '|' + d.ten;
       const o = cong.get(kh) || {ten: d.ten, cn: d.cn, nhom: d.nhom, gt: 0};

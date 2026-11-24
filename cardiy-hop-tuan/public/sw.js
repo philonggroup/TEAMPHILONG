@@ -1,7 +1,7 @@
 'use strict';
 
 const PREFIX = 'cardiy-meeting-';
-const CACHE = PREFIX+'v57';
+const CACHE = PREFIX+'v58';
 const FILES = [
   './index.html','./style.css','./icons.js','./awards.js','./vision-form.js','./annual-plan.js','./strategy-excel.js','./swot.js','./app.js','./assistant.js','./install.js','./nguon.js','./sheet-sync.js','./task-preview.js','./vieclive.js','./nhansu.js','./chiso.js','./cn1-meeting.js','./vinhdanh.js','./giaoban.js',
   './excel.js','./excel-ui.js','./vendor/jszip.min.js','./plg-plan-love-grow.png',
