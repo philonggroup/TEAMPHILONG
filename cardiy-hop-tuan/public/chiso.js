@@ -31,9 +31,20 @@
     {ten:'Google Maps /Zalo OA: ảnh thật, xin đánh giá sau mỗi lượt', dv:'lượt'},
     {ten:'Video ngắn kiểm tra lốp, gầm xe thật đăng TikTok, Facebook mỗi ngày', dv:'video'},
   ];
+  /* Nhóm I · DOANH THU — chỉ số KẾT QUẢ. Dò theo đầu tên vì tỷ trọng %
+     mỗi chi nhánh một khác (CN1 62/8/30, CN2 72/10/18). */
+  const KET_QUA = [
+    {dau:'DOANH THU MỤC TIÊU', ten:'Doanh thu mục tiêu', dv:'đ'},
+    {dau:'— DT lốp',           ten:'— DT lốp',            dv:'đ'},
+    {dau:'— DT dịch vụ',       ten:'— DT dịch vụ DVL+DVNL+LĐ', dv:'đ'},
+    {dau:'· DV lốp',           ten:'· DV lốp',            dv:'đ'},
+    {dau:'· DV sửa chữa',      ten:'· DV sửa chữa',       dv:'đ'},
+    {dau:'— DT BD-SC-PK',      ten:'— DT BD-SC-PK / NTP', dv:'đ'},
+  ];
   const LAM_MOI = 300000;        /* chỉ số đổi chậm hơn việc — 5 phút một lần */
 
   let bang = null;               /* {CN1:[{ten,dv,target,actual}], …} */
+  let ketQua = null;             /* {CN1:[{ten,ty,target,actual}], …} */
   let loi = '';
   let docLuc = null;
   let canhBao = [];
@@ -117,18 +128,38 @@
     return ds;
   }
 
+  /* Nhóm I · DOANH THU của một chi nhánh */
+  function rutKetQua(v) {
+    const tuan = soTuan();
+    const {kpi, thuc} = cotTuan(tuan);
+    return KET_QUA.map(k => {
+      const dong = v.find(h => khoa(h[1]).indexOf(khoa(k.dau)) === 0);
+      if (!dong) return null;
+      const nhan = gon(dong[1]);
+      const ty = (nhan.match(/\(([^)]*%)\)/) || ['',''])[1];
+      return {title: k.ten, unit: k.dv, ty: ty,
+        target: so(dong[kpi]) ?? 0, actual: so(dong[thuc]) ?? 0};
+    }).filter(Boolean);
+  }
+
   async function doc() {
     if (dangDoc) return;
     dangDoc = true;
     canhBao = [];
     try {
-      const ra = {};
-      for (const t of TAB) ra[t.ma] = rutChiSo(await docTab(t.gid), t.ma);
+      const ra = {}, rb = {};
+      for (const t of TAB) {
+        const v = await docTab(t.gid);
+        ra[t.ma] = rutChiSo(v, t.ma);
+        rb[t.ma] = rutKetQua(v);
+      }
       bang = ra;
+      ketQua = rb;
       loi = '';
       docLuc = new Date();
     } catch (e) {
       bang = null;
+      ketQua = null;
       loi = String(e.message || e);
     } finally {
       dangDoc = false;
@@ -163,17 +194,40 @@
       ' tháng ' + Number(today().slice(5,7)) + ' · đọc lúc ' + gio + ' · <strong>' + CHI_SO.length +
       '</strong> chỉ số × 3 chi nhánh · <button class="button secondary" type="button" data-action="chiso-live">Đọc lại</button> ' + canh + '</p>';
   }
+  /* Bảng CHỈ SỐ KẾT QUẢ — nhóm doanh thu, tách riêng khỏi chỉ số dẫn dắt. */
+  function bangKetQua() {
+    if (!ketQua) return '';
+    const cot = isJoint() ? [0,1,2] : [state.branch];
+    if (!cot.length || cot.some(i => !ketQua[TAB[i].ma])) return '';
+    const dau = cot.map(i => '<th scope="col">' + label(branchNames[i]) + '</th>').join('');
+    const dong = KET_QUA.map((k,j) => {
+      const o = cot.map(i => {
+        const x = (ketQua[TAB[i].ma] || [])[j];
+        if (!x) return '<td><span class="missing">Chưa có</span></td>';
+        const dat = x.actual >= x.target && x.target > 0;
+        return '<td class="num"><strong>' + showNumber(x.actual,x.unit) + '</strong> / ' +
+          showNumber(x.target,x.unit) + '<br>' + (x.target > 0 ? pill(dat?'Đạt':'Chưa đạt',dat?'good':'miss') : '') +
+          (x.ty ? '<small class="kq-ty">' + label(x.ty) + '</small>' : '') + '</td>';
+      }).join('');
+      const x0 = (ketQua[TAB[cot[0]].ma] || [])[j];
+      return '<tr><th scope="row">' + label(x0 ? x0.title : KET_QUA[j].ten) + '</th>' + o + '</tr>';
+    }).join('');
+    return panel('Chỉ số kết quả','Doanh thu tuần ' + soTuan() + ' · thực tế / chỉ tiêu theo từng chi nhánh','',
+      thanhChiSo() + '<div class="table-wrap comparison" tabindex="0" aria-label="Chỉ số kết quả">' +
+      '<table><thead><tr><th scope="col">Chỉ số</th>' + dau + '</tr></thead><tbody>' + dong + '</tbody></table></div>');
+  }
+
   function chen(html) {
     return html.replace('<div class="table-wrap', thanhChiSo() + '<div class="table-wrap')
                .replace('<div class="list"><p class="empty">', thanhChiSo() + '<div class="list"><p class="empty">');
   }
   window.comparisonPanel = function() {
     const html = gocComparison();
-    return (state.period === 'week' && (bang || loi)) ? chen(html) : html;
+    return (state.period === 'week' && (bang || loi)) ? bangKetQua() + chen(html) : html;
   };
   window.kpiPanel = function(compact) {
     const html = gocKpiPanel(compact);
-    return (!compact && state.period === 'week' && !isJoint() && (bang || loi)) ? chen(html) : html;
+    return (!compact && state.period === 'week' && !isJoint() && (bang || loi)) ? bangKetQua() + chen(html) : html;
   };
 
   async function lamMoi(hienThi) {
