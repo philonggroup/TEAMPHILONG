@@ -31,6 +31,65 @@
     return k ? k.nhan : '';
   }
 
+  /* ──────────────────────────────────────────────────────────────────
+     BẢN TỔNG HỢP · Mục tiêu — Hành động — Chỉ số dẫn dắt — Người phụ trách
+     Tracy chốt 24/11/2026. Một bảng để nhìn cả chuỗi trong 5 giây: định
+     đi đâu, ai làm gì, đo bằng gì. Chỗ nào trống thì để trống và đếm vào
+     dòng cảnh báo — không tự suy ra người hay chỉ số, vì đoán sai ở đây
+     là giao việc sai người.
+     ────────────────────────────────────────────────────────────────── */
+  const trong = v => !gon(v);
+  function soLieuTongHop() {
+    const d = data();
+    const viec = d.tasks || [];
+    const muctieu = d.goals || [];
+    return {
+      viec: viec, muctieu: muctieu,
+      thieuNguoi: viec.filter(x => trong(x.owner)).length,
+      thieuChiSo: viec.filter(x => trong(x.chiSo)).length,
+      thieuHan: viec.filter(x => trong(x.date)).length,
+      mtThieuNguoi: muctieu.filter(x => trong(x.owner)).length,
+    };
+  }
+  function bangTongHop() {
+    const t = soLieuTongHop();
+    if (!t.viec.length && !t.muctieu.length) {
+      return panel('Bản tổng hợp', 'Mục tiêu · Hành động · Chỉ số dẫn dắt · Người phụ trách', '',
+        '<div class="list"><p class="empty">Kỳ này chưa có mục tiêu và hành động nào.</p></div>');
+    }
+    const dongMT = t.muctieu.map(x =>
+      '<tr><td>' + label(x.title) + '</td><td>' + (trong(x.owner)
+        ? '<span class="missing">Chưa có</span>' : label(x.owner)) +
+      '</td><td>' + label(x.status || '') + '</td></tr>').join('');
+    const dongHD = t.viec.map(x =>
+      '<tr><td>' + label(x.title) + '</td>' +
+      '<td>' + (trong(x.chiSo) ? '<span class="missing">Chưa có</span>' : label(x.chiSo)) + '</td>' +
+      '<td>' + (trong(x.owner) ? '<span class="missing">Chưa có</span>' : label(x.owner)) + '</td>' +
+      '<td>' + label(x.branch || '') + '</td>' +
+      '<td>' + (trong(x.date) ? '<span class="missing">Chưa có</span>' : label(dateText(x.date))) + '</td>' +
+      '<td>' + pill(x.done ? 'Hoàn thành' : (x.status || 'Chờ thực hiện'),
+        x.done ? 'good' : x.status === 'Đang làm' ? 'warn' : 'neutral') + '</td></tr>').join('');
+    const thieu = [];
+    if (t.mtThieuNguoi) thieu.push(t.mtThieuNguoi + ' mục tiêu chưa có người phụ trách');
+    if (t.thieuNguoi) thieu.push(t.thieuNguoi + ' hành động chưa có người');
+    if (t.thieuChiSo) thieu.push(t.thieuChiSo + ' hành động chưa có chỉ số đo');
+    if (t.thieuHan) thieu.push(t.thieuHan + ' hành động chưa có hạn');
+    const canh = thieu.length
+      ? '<p class="vd-canh"><strong>Còn thiếu:</strong> ' + label(thieu.join(' · ')) +
+        '. Việc không có người hoặc không có chỉ số đo thì tuần sau không chấm được.</p>'
+      : '<p class="viec-live"><span class="pill good">ĐỦ</span> Mọi mục tiêu và hành động đều có người phụ trách, chỉ số đo và hạn.</p>';
+    return panel('Bản tổng hợp', 'Mục tiêu · Hành động · Chỉ số dẫn dắt · Người phụ trách — ' +
+      label(branchSelect.value), '',
+      canh +
+      (dongMT ? '<div class="table-wrap" tabindex="0" aria-label="Mục tiêu"><table><thead><tr>' +
+        '<th scope="col">Mục tiêu</th><th scope="col">Người phụ trách</th><th scope="col">Trạng thái</th>' +
+        '</tr></thead><tbody>' + dongMT + '</tbody></table></div>' : '') +
+      (dongHD ? '<div class="table-wrap" tabindex="0" aria-label="Hành động"><table><thead><tr>' +
+        '<th scope="col">Hành động</th><th scope="col">Chỉ số dẫn dắt</th><th scope="col">Người phụ trách</th>' +
+        '<th scope="col">Chi nhánh</th><th scope="col">Hạn</th><th scope="col">Trạng thái</th>' +
+        '</tr></thead><tbody>' + dongHD + '</tbody></table></div>' : ''));
+  }
+
   /* ---------- khối ký nhận ở B7 ---------- */
   function oKyNhan() {
     const ds = nhanSu();
@@ -61,7 +120,7 @@
   const gocContentFor = window.contentFor;
   window.contentFor = function(key) {
     const html = gocContentFor(key);
-    return key === 'close' ? html + oKyNhan() : html;
+    return key === 'close' ? html + bangTongHop() + oKyNhan() : html;
   };
 
   /* ---------- bấm ký ---------- */
@@ -155,6 +214,14 @@
         ' — ' + esc([x.owner, x.branch, x.date].filter(Boolean).join(' · ')) +
         (x.done ? ' [Hoàn thành]' : '') + '</li>')) +
       muc('7. Kết luận và thông điệp', d.notes ? '<p>' + esc(d.notes).replace(/\n/g,'<br>') + '</p>' : '') +
+      muc('8. Bản tổng hợp · mục tiêu — hành động — chỉ số dẫn dắt — người phụ trách',
+        (d.tasks || []).length
+          ? '<table><thead><tr><th>Hành động</th><th>Chỉ số dẫn dắt</th><th>Người phụ trách</th>' +
+            '<th>Chi nhánh</th><th>Hạn</th><th>Trạng thái</th></tr></thead><tbody>' +
+            d.tasks.map(x => '<tr><td>' + esc(x.title) + '</td><td>' + esc(x.chiSo || '') + '</td><td>' +
+              esc(x.owner || '') + '</td><td>' + esc(x.branch || '') + '</td><td>' + esc(x.date || '') +
+              '</td><td>' + esc(x.done ? 'Hoàn thành' : (x.status || 'Chờ thực hiện')) + '</td></tr>').join('') +
+            '</tbody></table>' : '') +
       '<h2>Ký nhận của thành viên tham gia</h2>' +
       '<p style="font-size:13px;margin:2px 0 0">Các thành viên dưới đây xác nhận đã nắm rõ công việc được giao.</p>' +
       bangKy +

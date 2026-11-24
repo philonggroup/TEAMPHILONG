@@ -513,3 +513,7 @@ body.dang-khoa aside,body.dang-khoa main{filter:blur(6px);pointer-events:none;us
 /* ───── B7: ký nhận thành viên ───── */
 .kn-dong{cursor:pointer}
 .kn-dong input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue);flex:none}
+
+/* ───── B7 · ký nhận thành viên ───── */
+.kn-dong{cursor:pointer}
+.kn-dong input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue);flex:none}
