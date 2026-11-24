@@ -155,12 +155,37 @@
     }
     return {tu: nam+'-07-01', den: nam+'-12-31', nhan: '6 tháng cuối năm', heSo: 6, theoNgay: false};
   }
+  /* Kỳ chưa đi hết thì vạch chuẩn phải co theo.
+     Họp tuần vào thứ ba mà bắt đủ chỉ tiêu cả tuần thì không ai qua nổi —
+     bảng vàng trống mãi, giải thành vô nghĩa. Nên vạch chuẩn = vạch trọn
+     kỳ × phần kỳ đã trôi qua. Cùng một thước cho mọi người, nói ra được
+     trước mặt cả ba bàn. */
+  const NGAY_THANG = [31,28,31,30,31,30,31,31,30,31,30,31];
+  function ngayCuoi(nam, thang) {
+    const n = NGAY_THANG[thang-1];
+    return thang === 2 && (nam % 4 === 0 && (nam % 100 !== 0 || nam % 400 === 0)) ? 29 : n;
+  }
+  const soNgay = d => Date.UTC(+d.slice(0,4), +d.slice(5,7)-1, +d.slice(8,10)) / 86400000;
+  /* '2026-11-31' không có thật — kéo về ngày cuối tháng. */
+  function thatNgay(d) {
+    const nam = +d.slice(0,4), thang = +d.slice(5,7);
+    const cuoi = ngayCuoi(nam, thang);
+    return +d.slice(8,10) > cuoi ? d.slice(0,8) + String(cuoi) : d;
+  }
+  function tienDo(k) {
+    const den = thatNgay(k.den), nay = today();
+    const tong = soNgay(den) - soNgay(k.tu) + 1;
+    if (nay >= den) return {ty: 1, nhan: 'trọn kỳ', tong, qua: tong};
+    const qua = Math.min(tong, Math.max(1, soNgay(nay) - soNgay(k.tu) + 1));
+    return {ty: qua / tong, nhan: qua + '/' + tong + ' ngày', tong, qua};
+  }
   /* Vạch chuẩn của một người cho một giải trong kỳ đang xem */
   function vach(g, cn, nhom, k) {
     const c = chuan.get(khoa(cn) + '|' + khoa(nhom) + '|' + khoa(g.ct));
     if (!c) return null;
     const goc = k.theoNgay ? c.ngay : c.thang;
-    return goc ? goc * k.heSo : null;
+    if (!goc) return null;
+    return Math.round(goc * k.heSo * tienDo(k).ty);
   }
   /* Top 1 của một giải trong một phạm vi (một chi nhánh, hoặc cả hệ thống) */
   function top1(g, k, cn) {
@@ -273,10 +298,13 @@
     const chuaCham = sot.length
       ? '<details class="vd-sot"><summary>' + sot.length + ' ô chưa chấm được — xem lý do</summary><ul>' +
         sot.map(x => '<li>' + label(x) + '</li>').join('') + '</ul></details>' : '';
+    const td = tienDo(k);
     const luat = '<p class="vd-luat"><strong>Luật trao cúp</strong> · Cúp chỉ trao cho người ĐÃ QUA VẠCH CHUẨN. ' +
       'Bấm vào tên người được vinh danh để chúc mừng — mỗi người nói 30 giây. ' +
       'Vạch chuẩn lấy từ KPI_DINH_MUC: tuần = định mức ngày × ' + NGAY_TUAN +
-      ' · tháng = định mức tháng · quý = ×3.</p>';
+      ' · tháng = định mức tháng · quý = ×3' +
+      (td.ty < 1 ? ', rồi nhân theo phần kỳ đã qua (<strong>' + label(td.nhan) + '</strong>) vì kỳ chưa khép'
+                 : ', kỳ đã khép nên tính trọn') + '.</p>';
     return panel('Bảng vàng · 6 giải từ KPI', 'Theo ' + label(k.nhan) + ' · từng chi nhánh và toàn hệ thống', '',
       '<div class="vd-than">' + than + nutChiNhanh() + luat + trong + kd + kt + chuaCham + '</div>');
   }
