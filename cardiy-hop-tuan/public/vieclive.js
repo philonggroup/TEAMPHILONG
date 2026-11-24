@@ -282,12 +282,33 @@
       (live ? '' : editButton('tasks',v.id)) + hoTro + moApp +
       (!compact && !v.done && !live ? workflowButton('renew',v.id,'Gia hạn') : '') + '</div>';
   }
+  /* Họp chung thì rà soát theo từng chi nhánh, không trộn 3 bàn vào một mạch —
+     Tracy chốt 24/11/2026: rà soát cam kết, người phụ trách VÀ CHI NHÁNH. */
+  function theoChiNhanh(tasks) {
+    if (!isJoint()) return tasks.map(v => dongViec(v,false)).join('');
+    const nhom = new Map();
+    for (const v of tasks) {
+      const k = v.branch || 'Chưa rõ chi nhánh';
+      if (!nhom.has(k)) nhom.set(k,[]);
+      nhom.get(k).push(v);
+    }
+    return [...branchNames,'Chưa rõ chi nhánh'].filter(k => nhom.has(k)).map(k => {
+      const t = nhom.get(k);
+      const xong = t.filter(x => x.done).length;
+      const tre = t.filter(x => taskLate(x)).length;
+      return '<p class="viec-nhom"><strong>' + label(k) + '</strong> · ' + t.length + ' việc · ' +
+        xong + ' xong' + (tre ? ' · <span class="pill miss">' + tre + ' trễ hạn</span>' : '') + '</p>' +
+        t.map(v => dongViec(v,false)).join('');
+    }).join('');
+  }
   window.tasksPanel = function(compact) {
     /* Live chỉ áp kỳ TUẦN — tháng / quý / năm giữ bản đã soạn. */
     if (state.period !== 'week') return gocPanel(compact);
     if (!ds && !loi) return gocPanel(compact);
     const tasks = data().tasks;
-    const list = (compact ? tasks.slice(0,3) : tasks).map(v => dongViec(v,compact)).join('');
+    const list = compact
+      ? tasks.slice(0,3).map(v => dongViec(v,true)).join('')
+      : theoChiNhanh(tasks);
     const nut = compact ? '' :
       '<button class="button secondary" type="button" data-action="viec-live">Đọc lại từ app</button>' +
       '<a class="button secondary" href="' + APP_CHUA_LAM + '" target="_blank" rel="noopener">Mở trên app</a>';

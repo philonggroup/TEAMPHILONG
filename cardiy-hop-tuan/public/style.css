@@ -300,3 +300,8 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
   padding:.5rem .7rem;border:1px dashed #fcd9a4;border-radius:.6rem;background:#fffaf0;
   font-size:.8rem;line-height:1.5;color:#92400e}
 .viec-luat strong{font-weight:800}
+
+.viec-nhom{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.9rem 0 .2rem;
+  padding:.4rem .7rem;border-radius:.5rem;background:#eef4fb;color:#0a4da2;font-size:.82rem}
+.viec-nhom:first-child{margin-top:0}
+.viec-nhom strong{font-weight:800}

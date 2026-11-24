@@ -6,7 +6,7 @@ const steps = [
   {key:'goals',title:'Mục tiêu 90 ngày',icon:'target',detail:'Cập nhật tiến độ và ghi nhận các mục tiêu đang chậm.'},
   {key:'news',title:'Phản hồi',icon:'news',detail:'Ghi nhận phản hồi từ khách hàng, đối tác và đội ngũ.'},
   {key:'issues',title:'Vấn đề cần giải quyết',icon:'issue',detail:'Xác định nguyên nhân, thảo luận và chốt hành động (IDS).'},
-  {key:'tasks',title:'Danh sách hành động',icon:'tasks',detail:'Rà soát cam kết, người phụ trách và hạn hoàn thành.'},
+  {key:'tasks',title:'Danh sách hành động',icon:'tasks',detail:'Rà soát cam kết, người phụ trách và chi nhánh kèm hạn hoàn thành.'},
   {key:'close',title:'Kết luận',icon:'flag',detail:'Chốt biên bản và chấm điểm buổi họp.'},
 ];
 
