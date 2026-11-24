@@ -32,10 +32,10 @@
   const WAY_MAC_DINH = ['Way 1. Khách hàng tiềm năng','Way 2. Tỷ lệ chuyển đổi',
     'Way 3. Tỷ lệ giữ chân (quay lại mua)','Way 4. Số lần mua',
     'Way 5. Giá trị bình quân / giao dịch','Way 6. Tỷ suất lợi nhuận'];
-  const CHI_SO_MAC_DINH = ['Lượt xe vào xưởng','Khách được kiểm tra ATX',
-    'Báo giá lên trong ngày','Cuộc gọi chăm sóc khách / Cuộc gọi nhận','Lượt xe đặt lịch',
-    'Đăng bài Facebook Lốp Xe Phi Long','Google Maps - Zalo OA',
-    'Video ngắn kiểm tra lốp - gầm xe đăng TikTok, Facebook'];
+  const CHI_SO_MAC_DINH = ['DT trung bình / lượt hoàn tất','Khách được kiểm tra ATX',
+    'Báo Giá Lên Trong ngày','Cuộc gọi chăm sóc khách / Cuộc gọi nhận','Lượt xe đặt lịch',
+    'Cân chỉnh thước lái','Google Maps /Zalo OA: ảnh thật, xin đánh giá sau mỗi lượt',
+    'Video ngắn kiểm tra lốp, gầm xe thật đăng TikTok, Facebook mỗi ngày'];
   const gopDanhMuc = (lay,macDinh) =>
     [...new Set([...(ds||[]).map(lay).map(gon).filter(Boolean), ...macDinh])].sort();
   const nhanTT = t => t.replace(/^\d+\./,'');

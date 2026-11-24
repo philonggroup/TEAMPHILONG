@@ -1,9 +1,9 @@
 'use strict';
 
 const PREFIX = 'cardiy-meeting-';
-const CACHE = PREFIX+'v41';
+const CACHE = PREFIX+'v42';
 const FILES = [
-  './index.html','./style.css','./icons.js','./awards.js','./vision-form.js','./annual-plan.js','./strategy-excel.js','./swot.js','./app.js','./assistant.js','./install.js','./nguon.js','./sheet-sync.js','./task-preview.js','./vieclive.js','./nhansu.js','./cn1-meeting.js','./giaoban.js',
+  './index.html','./style.css','./icons.js','./awards.js','./vision-form.js','./annual-plan.js','./strategy-excel.js','./swot.js','./app.js','./assistant.js','./install.js','./nguon.js','./sheet-sync.js','./task-preview.js','./vieclive.js','./nhansu.js','./chiso.js','./cn1-meeting.js','./giaoban.js',
   './excel.js','./excel-ui.js','./vendor/jszip.min.js','./plg-plan-love-grow.png',
   './manifest.webmanifest','./app-180.png','./app-192.png','./app-512.png',
 ];
