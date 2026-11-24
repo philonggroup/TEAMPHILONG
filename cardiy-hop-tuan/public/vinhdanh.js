@@ -285,7 +285,7 @@
       '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
       '<p class="vd-tt">' + (m
         ? '<span class="vd-bac" style="background:' + label(m.mau) + '">' + label(m.ten) + '</span>'
-        : '<span class="pill neutral">chưa đặt mức</span>') + '</p>' +
+        : '<span class="pill neutral">chưa đặt mức</span>') + nutSao(g, x, m) + '</p>' +
       '</div>';
   }
   /* Vì sao một ô trống — để báo xuống dòng cuối, không hiện trên thẻ giải. */
@@ -314,7 +314,7 @@
       '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
       '<p class="vd-tt"><span class="vd-bac" style="background:' + h.mau + '">' +
       label(mot ? (isJoint() ? 'CAO NHẤT HỆ THỐNG' : 'CAO NHẤT BÀN NÀY') : h.ten) + '</span>' +
-      '<small>' + label(x.cn) + '</small></p></div>';
+      nutSao(g, x, null) + '<small>' + label(x.cn) + '</small></p></div>';
   }
   function theGiaiHang(g, k, sot) {
     /* Tracy chốt 24/11/2026: chọn mục nào thì hiện đúng mục đó. Chọn một
@@ -408,6 +408,88 @@
       '<div class="vd-than">' + than + nutChiNhanh() + luat + trong + kd + kt + chuaCham + '</div>');
   }
 
+  /* ──────────────────────────────────────────────────────────────────
+     NÚT NGÔI SAO · QLCN DUYỆT VINH DANH
+     Tracy chốt 24/11/2026: ngay cạnh huy hiệu MỨC có nút sao. QLCN bấm
+     sao để duyệt, bổ sung thông tin còn thiếu rồi lưu. Ghi về 2 bảng của
+     PHI LONG_GROUP: HOP_VINH_DANH (sổ) và THONG_BAO (để hiện trên app,
+     màn TOAN_BO_TB). Chỉ THÊM dòng, không sửa không xoá dòng nào.
+     ────────────────────────────────────────────────────────────────── */
+  const daDuyet = new Set();        /* khoá giải|tên — tránh bấm hai lần một phiên */
+  const khoaSao = (g, x) => g.ma + '|' + x.cn + '|' + x.ten;
+  function nutSao(g, x, m) {
+    const k = khoaSao(g, x);
+    if (daDuyet.has(k)) return '<span class="vd-sao vd-sao-xong" title="Đã duyệt vinh danh">★ đã duyệt</span>';
+    return '<button type="button" class="vd-sao" data-action="vd-sao"' +
+      ' data-giai="' + g.ma + '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '"' +
+      ' data-gt="' + x.gt + '" data-muc="' + label(m ? m.ten : '') + '"' +
+      ' title="QLCN duyệt vinh danh">★</button>';
+  }
+
+  let hopSao = null, saoDang = null, dangGhiSao = false;
+  function dungHopSao() {
+    if (hopSao) return hopSao;
+    hopSao = document.createElement('dialog');
+    hopSao.className = 'viec-day-hop vd-hop-sao';
+    hopSao.innerHTML =
+      '<form method="dialog"><h2>★ QLCN duyệt vinh danh</h2>' +
+      '<p class="vd-sao-ten"></p>' +
+      '<label>Người duyệt · QLCN<input name="ai" list="ds-nhan-su" required placeholder="Gõ tên để tìm"></label>' +
+      '<label>Ghi nhận thành tích · thông tin còn thiếu' +
+      '<textarea name="ghi" rows="3" placeholder="Ví dụ: giữ nhịp 3 tuần liền, kèm 2 bạn mới…"></textarea></label>' +
+      '<p class="vd-sao-bao"></p>' +
+      '<div class="viec-day-nut"><button type="button" class="button secondary" data-huy>Hủy</button>' +
+      '<button type="submit" class="button yellow">Lưu &amp; báo lên app</button></div></form>';
+    document.body.appendChild(hopSao);
+    hopSao.querySelector('[data-huy]').addEventListener('click', () => hopSao.close());
+    hopSao.querySelector('form').addEventListener('submit', guiSao);
+    return hopSao;
+  }
+  function moHopSao(b) {
+    const g = GIAI.find(x => x.ma === b.dataset.giai);
+    if (!g) return;
+    const k = ky();
+    saoDang = {g: g, ten: b.dataset.ten, cn: b.dataset.cn,
+      gt: Number(b.dataset.gt), muc: b.dataset.muc || '', ky: k.nhan};
+    const hop = dungHopSao();
+    hop.querySelector('.vd-sao-ten').textContent =
+      saoDang.ten + ' · ' + saoDang.cn + ' — ' + g.ten + ' · ' + tien(saoDang.gt, g.dv) +
+      (saoDang.muc ? ' · ' + saoDang.muc : '') + ' · ' + k.nhan;
+    hop.querySelector('.vd-sao-bao').textContent = '';
+    hop.querySelector('form').elements.ghi.value = '';
+    hop.showModal();
+  }
+  async function guiSao(event) {
+    event.preventDefault();
+    if (!saoDang || dangGhiSao) return;
+    const f = event.target;
+    const bao = f.querySelector('.vd-sao-bao');
+    const ai = gon(f.elements.ai.value);
+    if (!ai) { bao.textContent = 'Chưa chọn người duyệt.'; return; }
+    dangGhiSao = true;
+    f.querySelector('[type="submit"]').disabled = true;
+    bao.textContent = 'Đang ghi về app…';
+    try {
+      const d = saoDang;
+      const body = new URLSearchParams({khoa: KHOA, viec: 'vinh_danh',
+        ten: d.ten, cn: d.cn, hang_muc: d.g.ten, ket_qua: tien(d.gt, d.g.dv),
+        don_vi: d.g.dv, muc: d.muc, ky: d.ky, ghi_nhan: gon(f.elements.ghi.value), ai: ai}).toString();
+      const r = await fetch(API, {method: 'POST', body: body,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+      const j = await r.json().catch(() => null);
+      if (!j || j.ok !== true) throw new Error((j && j.loi) || 'cầu nối không trả lời đúng');
+      daDuyet.add(d.g.ma + '|' + d.cn + '|' + d.ten);
+      dangGhiSao = false;
+      hopSao.close();
+      render();
+      message('Đã vinh danh ' + d.ten + ' · ' + j.id + ' · đã báo lên màn Thông báo của app');
+    } catch (e) {
+      dangGhiSao = false;
+      f.querySelector('[type="submit"]').disabled = false;
+      bao.textContent = 'CHƯA ghi được: ' + (e.message || e);
+    }
+  }
+
   /* ---------- chúc mừng 30 giây ---------- */
   let demNguoc = null;
   function chucMung(b) {
@@ -450,6 +532,8 @@
   document.addEventListener('click', event => {
     const b = event.target.closest('[data-action="vd-chuc"]');
     if (b) { chucMung(b); return; }
+    const sao = event.target.closest('[data-action="vd-sao"]');
+    if (sao) { moHopSao(sao); return; }
     if (event.target.closest('[data-action="vd-live"]')) { loi = ''; lamMoi(); return; }
     /* Nút chọn chi nhánh của app luôn nhảy về Tổng quan. Chọn bàn ngay
        trên màn Vinh danh thì phải ở lại Vinh danh, không bị hất ra. */

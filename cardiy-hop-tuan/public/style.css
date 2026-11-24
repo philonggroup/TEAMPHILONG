@@ -415,3 +415,17 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .ban-hop-nhan svg{width:15px;height:15px}
 .ban-hop .cn-nut{gap:.3rem}
 .ban-hop .cn-o{padding:.3rem .7rem;font-size:.8rem;font-weight:750;border-radius:.45rem}
+
+/* ───── Vinh danh: nút ngôi sao QLCN duyệt ───── */
+.vd-sao{margin-left:.35rem;border:1px solid #f0c048;border-radius:.4rem;
+  background:#fff8e6;color:#b8860b;font:inherit;font-size:.78rem;font-weight:900;
+  line-height:1;padding:.22rem .45rem;cursor:pointer;vertical-align:middle}
+.vd-sao:hover,.vd-sao:focus-visible{background:#f0c048;color:#3b2a00}
+.vd-sao-xong{margin-left:.35rem;font-size:.68rem;font-weight:800;color:#1b9d6f;
+  white-space:nowrap}
+.vd-hop-sao{max-width:460px}
+.vd-hop-sao .vd-sao-ten{font-size:.82rem;font-weight:700;color:#0f172a;
+  padding:.5rem .65rem;border-radius:.5rem;background:#f4f8fd;line-height:1.5}
+.vd-hop-sao textarea{font:inherit;font-size:.86rem;font-weight:500;color:#0f172a;
+  border:1px solid #cddbef;border-radius:8px;padding:9px;resize:vertical}
+.vd-hop-sao .vd-sao-bao{font-size:.78rem;font-weight:700;color:#942b24;min-height:1em}
