@@ -74,17 +74,14 @@
   let dangDoc = false;
 
   const gon = v => String(v ?? '').replace(/\s+/g,' ').trim();
-  /* Tiền để nguyên từng đồng thì dài quá, đọc trong lúc họp không kịp.
-     Từ 1 triệu trở lên quy về "tr"; dưới 1 triệu giữ đủ số.
-     Chỉ áp cho ô có đơn vị "đ" — tức các bảng chỉ số của module này. */
-  const trieu = new Intl.NumberFormat('vi-VN',{maximumFractionDigits:1});
-  const gocShowNumber = window.showNumber;
-  window.showNumber = function(value, unit) {
-    if (unit === 'đ' && Math.abs(Number(value)) >= 1000000) {
-      return trieu.format(Number(value) / 1000000) + ' tr';
-    }
-    return gocShowNumber(value, unit);
-  };
+  /* Tiền để nguyên từng đồng thì dài quá, đọc trong lúc họp không kịp —
+     Tracy chốt 24/11/2026 hiện gọn. Quy về TRIỆU ngay lúc đọc số, đơn vị
+     "tr", để mọi bảng cùng một cách hiển thị.
+     (Không chen vào hàm hiển thị số của app: đó là biến nội bộ của app.js,
+      ghi đè qua window không ăn.) */
+  function doiTien(gt, dv) {
+    return dv === 'đ' ? {gt: gt === null ? null : gt / 1000000, dv: 'tr'} : {gt, dv};
+  }
   const khoa = v => gon(v).toUpperCase().replace(/\s+/g,'');
 
   /* "2.870.000" → 2870000 · "114,3%" → 114.3 · "" → null */
@@ -148,10 +145,10 @@
         const dThuc = timDong(th, k.thuc);
         const dCt = k.chiTieuTh ? timDong(th, k.chiTieuTh) : timDong(ct, k.chiTieuCt);
         if (!dThuc || !dCt) { canhBao.push(f.ma + ' · quý: thiếu dòng "' + k.ten + '"'); return null; }
-        const target = so(dCt[k.chiTieuTh ? cTh : cCt]);
-        const actual = so(dThuc[cTh]);
-        if (target === null && actual === null) return null;
-        return {title: k.ten, unit: k.dv, owner: '', target: target ?? 0, actual: actual ?? 0};
+        const t = doiTien(so(dCt[k.chiTieuTh ? cTh : cCt]), k.dv);
+        const a = doiTien(so(dThuc[cTh]), k.dv);
+        if (t.gt === null && a.gt === null) return null;
+        return {title: k.ten, unit: t.dv, owner: '', target: t.gt ?? 0, actual: a.gt ?? 0};
       }).filter(Boolean);
     }
     return ra;
@@ -191,13 +188,10 @@
     for (const cs of CHI_SO) {
       const dong = v.find(h => khoa(h[1]) === khoa(cs.ten));
       if (!dong) { canhBao.push(ma + ': không thấy chỉ số "' + cs.ten + '"'); continue; }
-      ds.push({
-        title: cs.ten,
-        unit: cs.dv,
-        owner: quanLy,
-        target: so(dong[kpi]) ?? 0,
-        actual: so(dong[thuc]) ?? 0,
-      });
+      const t = doiTien(so(dong[kpi]), cs.dv);
+      const a = doiTien(so(dong[thuc]), cs.dv);
+      ds.push({title: cs.ten, unit: t.dv, owner: quanLy,
+        target: t.gt ?? 0, actual: a.gt ?? 0});
     }
     return ds;
   }
@@ -210,8 +204,10 @@
       if (!dong) return null;
       const nhan = gon(dong[1]);
       const ty = (nhan.match(/\(([^)]*%)\)/) || ['',''])[1];
-      return {title: k.ten, unit: k.dv, ty: ty,
-        target: so(dong[kpi]) ?? 0, actual: so(dong[thuc]) ?? 0};
+      const t = doiTien(so(dong[kpi]), k.dv);
+      const a = doiTien(so(dong[thuc]), k.dv);
+      return {title: k.ten, unit: t.dv, ty: ty,
+        target: t.gt ?? 0, actual: a.gt ?? 0};
     }).filter(Boolean);
   }
 
