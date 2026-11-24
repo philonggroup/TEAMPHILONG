@@ -17,6 +17,8 @@
   const GID  = '157455132';                                      /* CONG_VIEC */
   const APP  = 'https://www.appsheet.com/start/866c1f09-779a-48ca-9b1c-094d9c81fef8';
   const APP_VIEW = APP + '#appName=PHILONGGROUP-171475980&view=_CONG_VIEC';
+  /* Màn "Việc cần làm" bên app = lát cắt _CV_CHUA_LAM (việc chưa làm) */
+  const APP_CHUA_LAM = APP + '#appName=PHILONGGROUP-171475980&view=_CV_CHUA_LAM';
   const MA_CN = ['CN1','CN2','CN3'];
   const LAM_MOI = 60000;      /* tự đọc lại mỗi 60s khi đang mở màn B5 */
   /* Cầu nối ghi ngược về CONG_VIEC — dùng chung Web App của giaoban.html.
@@ -249,7 +251,7 @@
     const list = (compact ? tasks.slice(0,3) : tasks).map(v => dongViec(v,compact)).join('');
     const nut = compact ? '' :
       '<button class="button secondary" type="button" data-action="viec-live">Đọc lại từ app</button>' +
-      '<a class="button secondary" href="' + APP_VIEW + '" target="_blank" rel="noopener">Mở app giao việc</a>';
+      '<a class="button secondary" href="' + APP_CHUA_LAM + '" target="_blank" rel="noopener">Mở trên app</a>';
     return panel('Việc cần làm', tasks.filter(v=>v.done).length + ' / ' + tasks.length + ' đã hoàn thành',
       '<div class="session-actions">' + nut + addButton('tasks','Thêm việc') + '</div>',
       thanhTrangThai() + '<div class="list">' + (list || '<p class="empty">App chưa giao việc nào cho bàn này.</p>') + '</div>');

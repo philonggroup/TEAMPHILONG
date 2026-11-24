@@ -240,7 +240,7 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 .tt-nut .tt-o:hover:not(:disabled){background:#f1f5f4}
 .tt-nut .tt-o:disabled{opacity:.5;cursor:progress}
 .tt-nut .tt-o.chon{background:#1b9d6f;color:#fff}
-.row-live{flex-wrap:wrap}
+
 
 .han-o{font:inherit;font-size:.78rem;font-weight:600;color:#0f172a;border:1px solid var(--line,#e2e8e5);
   border-radius:.4rem;padding:.1rem .3rem;background:#fff;cursor:pointer;max-width:9.5rem}
@@ -271,3 +271,11 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 .nav-sub-ten{flex:1 1 60%;line-height:1.25;min-width:0}
 .nav-sub-xong{display:inline-grid;place-items:center;flex:none;color:#5fd3a4}
 .nav-sub small{font-size:.7rem;opacity:.8;white-space:nowrap;margin-left:auto}
+
+/* Dòng việc live: tên việc chiếm trọn dòng trên, bộ nút xuống dòng dưới.
+   Trước đây ô chữ bị 3 nút trạng thái ép còn 249px nên tên việc dồn 3 dòng. */
+.row-live{flex-wrap:wrap;align-items:center;row-gap:8px}
+.row-live>.row-text{flex:1 1 100%}
+.row-live>.pill{margin-left:0}
+.row-live>.tt-nut{margin-left:auto}
+.row-live>.button{flex:none}
