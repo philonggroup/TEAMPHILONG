@@ -397,3 +397,10 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .vd-o.vd-muc1{border-color:#FECB00;background:#fffdf3}
 .vd-o.vd-muc2{border-color:#0C6FD4;background:#f3f8ff}
 .vd-o.vd-muc3{border-color:#1B9D6F;background:#f2fbf7}
+
+/* ───── Vinh danh: bục 1-2-3 toàn hệ thống ───── */
+.vd-buc1{border-color:#D4A017;background:#fffcf0}
+.vd-buc2{border-color:#8C9BAB;background:#f8fafc}
+.vd-buc3{border-color:#B06A2C;background:#fdf8f3}
+.vd-buc .vd-pham{font-weight:800}
+.vd-buc .vd-tt small{display:block;margin-top:.2rem;font-size:.7rem;color:#64748b;font-weight:700}

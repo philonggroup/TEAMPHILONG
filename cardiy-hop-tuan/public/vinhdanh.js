@@ -36,10 +36,13 @@
      ten:'Vinh danh KTV · Doanh thu DVL'},
     {ma:'dvnl',  khoi:'KỸ THUẬT VIÊN', ct:'DVNL',            dv:'đ',
      ten:'Vinh danh KTV · Doanh thu DVNL'},
-    {ma:'phieu', khoi:'KỸ THUẬT VIÊN', ct:'Phiếu Kiểm Tra Xe.', dv:'phiếu',
+    /* Tracy chốt 24/11/2026: hai giải này KHÔNG chấm theo mức, cũng không
+       chấm riêng từng bàn — lấy 3 người cao nhất TOÀN HỆ THỐNG, trao hạng
+       1 · 2 · 3. Ai mạnh nhất chuỗi thì lên bục, không phân biệt chi nhánh. */
+    {ma:'phieu', khoi:'KỸ THUẬT VIÊN', ct:'Phiếu Kiểm Tra Xe.', dv:'phiếu', hang: 3,
      ten:'Bứt tốc mạnh nhất · Phiếu kiểm tra an toàn'},
-    {ma:'luot',  khoi:'KỸ THUẬT VIÊN', ct:'Tổng Lượt xe',    dv:'lượt',
-     ten:'Top 1 · Tổng lượt xe phục vụ'},
+    {ma:'luot',  khoi:'KỸ THUẬT VIÊN', ct:'Tổng Lượt xe',    dv:'lượt', hang: 3,
+     ten:'Bứt tốc mạnh nhất · Tổng lượt xe phục vụ'},
   ];
   const CN = ['CN1','CN2','CN3'];
 
@@ -236,7 +239,7 @@
     };
   }
   /* Top 1 của một giải trong một phạm vi (một chi nhánh, hoặc cả hệ thống) */
-  function top1(g, k, cn) {
+  function xepHang(g, k, cn) {
     const cong = new Map();
     for (const d of dong) {
       if (d.ngay < k.tu || d.ngay > k.den) continue;
@@ -251,7 +254,10 @@
       o.gt += d.gt;
       cong.set(kh, o);
     }
-    const ds = [...cong.values()].sort((a,b) => b.gt - a.gt);
+    return [...cong.values()].filter(x => x.gt > 0).sort((a,b) => b.gt - a.gt);
+  }
+  function top1(g, k, cn) {
+    const ds = xepHang(g, k, cn);
     if (!ds.length) return null;
     const x = ds[0];
     x.muc = mucDat(g, x.gt, k);
@@ -264,28 +270,22 @@
      vạch chuẩn thì ô đó ẩn hẳn — không bêu tên người chưa đạt lên màn
      họp, cũng không để ai tưởng mình sắp có cúp. Lý do không chấm được
      (thiếu vạch chuẩn / chưa có số) gom xuống một dòng cuối bảng. */
+  /* Tracy chốt 24/11/2026: thẻ vinh danh CHỈ 3 mục — tên · doanh số · mức
+     đạt. Bỏ mốc, bỏ phần trăm tới bậc sau, bỏ dòng "kế sau": lúc xướng
+     tên trước cả ba bàn, thêm chữ nào là loãng chữ đó. */
   function theNguoi(g, x, ten, he) {
-    if (!x || !(x.gt > 0)) return '';          /* không có số thì ẩn, như Tracy chốt */
+    if (!x || !(x.gt > 0)) return '';          /* không có số thì ẩn */
     const m = x.muc;
     const lop = 'vd-o vd-co-cup' + (he ? ' vd-he' : '') + (m ? ' vd-muc' + m.bac : '');
-    const huy = m
-      ? '<p class="vd-tt"><span class="vd-bac" style="background:' + label(m.mau) + '">' +
-        label(m.ten) + '</span>' +
-        (m.tran
-          ? '<small>' + Math.round(m.tien * 100) + '% tới ' + (m.bac === 1 ? 'Mức 2' : 'Mức 3') +
-            ' · còn ' + tien(m.thieu, g.dv) + '</small>'
-          : '<small>đã lên bậc cao nhất</small>') + '</p>'
-      : '<p class="vd-tt"><span class="pill neutral">chưa đặt mức</span></p>';
     return '<div class="' + lop + '">' +
       '<span class="vd-pham">' + label(ten) + '</span>' +
       '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
       '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
       '" data-bac="' + label(m ? m.ten : '') + '">🏆 ' + label(x.ten) + '</button>' +
-      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong>' +
-      (m ? ' <small>mốc ' + tien(m.m1, g.dv) + ' · ' + tien(m.m2, g.dv) + '</small>' : '') + '</p>' +
-      huy +
-      (x.nhi && x.nhi.gt > 0
-        ? '<p class="vd-nhi">Kế sau: ' + label(x.nhi.ten) + ' · ' + tien(x.nhi.gt, g.dv) + '</p>' : '') +
+      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
+      '<p class="vd-tt">' + (m
+        ? '<span class="vd-bac" style="background:' + label(m.mau) + '">' + label(m.ten) + '</span>'
+        : '<span class="pill neutral">chưa đặt mức</span>') + '</p>' +
       '</div>';
   }
   /* Vì sao một ô trống — để báo xuống dòng cuối, không hiện trên thẻ giải. */
@@ -294,7 +294,33 @@
     if (!x.muc) return nhan + ': "' + g.ct + '" chưa có thang mức trong KPI_BAC_THANG';
     return '';
   }
+  /* Bục 3 bậc cho giải xếp hạng toàn hệ thống */
+  const HANG = [
+    {huy:'🥇', ten:'HẠNG 1', mau:'#D4A017'},
+    {huy:'🥈', ten:'HẠNG 2', mau:'#8C9BAB'},
+    {huy:'🥉', ten:'HẠNG 3', mau:'#B06A2C'},
+  ];
+  function theBuc(g, x, i) {
+    const h = HANG[i];
+    return '<div class="vd-o vd-co-cup vd-buc vd-buc' + (i+1) + '">' +
+      '<span class="vd-pham">' + h.huy + ' ' + label(h.ten) + ' · toàn hệ thống</span>' +
+      '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
+      '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
+      '" data-bac="' + label(h.ten) + '">' + h.huy + ' ' + label(x.ten) + '</button>' +
+      '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
+      '<p class="vd-tt"><span class="vd-bac" style="background:' + h.mau + '">' + label(h.ten) + '</span>' +
+      '<small>' + label(x.cn) + '</small></p></div>';
+  }
+  function theGiaiHang(g, k, sot) {
+    const ds = xepHang(g, k, null).slice(0, g.hang);
+    if (!ds.length) { sot.push(g.ten + ' · toàn hệ thống: chưa có số trong kỳ'); return ''; }
+    if (ds.length < g.hang) sot.push(g.ten + ': mới có ' + ds.length + ' người có số, chưa đủ ' + g.hang + ' hạng');
+    return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
+      '<p class="vd-khoi">' + label(g.khoi) + ' · 3 người cao nhất toàn hệ thống · ' + label(k.nhan) + '</p>' +
+      '<div class="vd-hang">' + ds.map((x,i) => theBuc(g,x,i)).join('') + '</div></section>';
+  }
   function theGiai(g, k, sot) {
+    if (g.hang) return theGiaiHang(g, k, sot);
     const pham = isJoint() ? CN : [CN[state.branch]];
     const o = pham.map(cn => {
       const nhan = isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch];
