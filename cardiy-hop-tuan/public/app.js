@@ -172,17 +172,23 @@ function stat(symbol,title,value,detail) {
 function panel(title,subtitle,action,body) {
   return '<section class="panel"><div class="panel-head"><div><h2>'+title+'</h2>'+(subtitle?'<p>'+subtitle+'</p>':'')+'</div>'+action+'</div>'+body+'</section>';
 }
+/* 3 dòng cơ cấu doanh thu được đặt tên kèm tỷ trọng riêng của từng chi nhánh
+   ("— DT lốp (62%)" ở CN1, "(72%)" ở CN2, "(70%)" ở CN3). Ghép theo tên đầy đủ thì
+   1 chỉ số bị tách thành 3 dòng rời, mỗi dòng trống 2 ô. Bỏ "(nn%)" ở cuối tên để
+   3 chi nhánh nằm chung 1 dòng so sánh. */
+const baseTitle = title => String(title ?? '').replace(/\s*\(\s*\d+(?:[.,]\d+)?\s*%\s*\)\s*$/,'').trim();
 function comparisonRows() {
   const groups = new Map();
   periodData().branches.forEach((branch,index)=>{
     const seen = new Map();
     branch.kpis.forEach(kpi=>{
-      const name = kpi.title.trim().normalize().toLocaleLowerCase('vi-VN');
+      const base = baseTitle(kpi.title);
+      const name = base.normalize().toLocaleLowerCase('vi-VN');
       const metricKey = JSON.stringify([name,kpi.unit]);
       const rank = seen.get(metricKey) ?? 0;
       seen.set(metricKey,rank+1);
       const key = JSON.stringify([metricKey,rank]);
-      if (!groups.has(key)) groups.set(key,{title:kpi.title,values:Array(jointIndex).fill(null)});
+      if (!groups.has(key)) groups.set(key,{title:base,values:Array(jointIndex).fill(null)});
       groups.get(key).values[index] = kpi;
     });
   });

@@ -177,6 +177,12 @@ function donVi_(ten) {
      trần, vì tên chỉ số doanh thu có kèm tỷ trọng trong ngoặc — ví dụ
      "— DT lốp (62%)" là tiền đồng chứ không phải phần trăm. */
   if (t.indexOf('TỶ LỆ') > -1 || t.indexOf('TỶ TRỌNG') > -1) return '%';
+  /* Online-MKT và báo giá phải xét TRƯỚC các luật LỐP / LƯỢT / XE, vì tên của chúng
+     có chứa "Lốp Xe Phi Long", "gầm xe", "sau mỗi lượt" — để sau sẽ bị gán nhầm
+     đơn vị 'xe' / 'lượt' (ví dụ "Đăng bài facebook Lốp Xe Phi Long" → 'xe'). */
+  if (t.indexOf('ĐĂNG BÀI') > -1 || t.indexOf('VIDEO') > -1) return 'bài';
+  if (t.indexOf('GOOGLE MAPS') > -1 || t.indexOf('ZALO') > -1) return 'lần';
+  if (t.indexOf('BÁO GIÁ') > -1) return 'báo giá';
   if (t.indexOf('DOANH THU') > -1 || t.indexOf('DT ') === 0 || t.indexOf('— DT') > -1 ||
       t.indexOf('· DV') > -1 || t.indexOf('CÔNG NỢ') > -1) return 'triệu đ';
   if (t.indexOf('LỐP') > -1 && t.indexOf('SỐ LƯỢNG') > -1) return 'lốp';
