@@ -413,14 +413,16 @@
   const khoaSao = (g, x) => g.ma + '|' + x.cn + '|' + x.ten;
   function nutSao(g, x, m) {
     const k = khoaSao(g, x);
-    if (daDuyet.has(k)) return '<span class="vd-sao vd-sao-xong" title="Đã duyệt vinh danh">★ đã duyệt</span>';
+    if (daDuyet.has(k)) return '<span class="vd-sao vd-sao-xong" title="Đã duyệt vinh danh">★ QLCN ĐÃ DUYỆT</span>';
     return '<button type="button" class="vd-sao" data-action="vd-sao"' +
       ' data-giai="' + g.ma + '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '"' +
       ' data-gt="' + x.gt + '" data-muc="' + label(m ? m.ten : '') + '"' +
-      ' title="QLCN duyệt vinh danh">★</button>';
+      ' title="QLCN duyệt vinh danh">★ QLCN DUYỆT</button>';
   }
 
-  let hopSao = null, saoDang = null, dangGhiSao = false;
+  let hopSao = null, saoDang = null, dangGhiSao = false, anhDang = '';
+  /* Ảnh đã duyệt trong phiên — để hộp chúc mừng hiện đúng mặt người. */
+  const anhNguoi = new Map();
   function dungHopSao() {
     if (hopSao) return hopSao;
     hopSao = document.createElement('dialog');
@@ -431,12 +433,30 @@
       '<label>Người duyệt · QLCN<input name="ai" list="ds-nhan-su" required placeholder="Gõ tên để tìm"></label>' +
       '<label>Ghi nhận thành tích · thông tin còn thiếu' +
       '<textarea name="ghi" rows="3" placeholder="Ví dụ: giữ nhịp 3 tuần liền, kèm 2 bạn mới…"></textarea></label>' +
+      '<label>Ảnh nhân sự · hiện kèm thông báo trên app' +
+      '<input type="file" name="anh" accept="image/jpeg,image/png,image/webp"></label>' +
+      '<div class="vd-sao-anh"></div>' +
       '<p class="vd-sao-bao"></p>' +
       '<div class="viec-day-nut"><button type="button" class="button secondary" data-huy>Hủy</button>' +
       '<button type="submit" class="button yellow">Lưu &amp; báo lên app</button></div></form>';
     document.body.appendChild(hopSao);
     hopSao.querySelector('[data-huy]').addEventListener('click', () => hopSao.close());
     hopSao.querySelector('form').addEventListener('submit', guiSao);
+    /* Thu nhỏ ảnh ngay trên máy trước khi gửi — dùng lại đúng bộ nén của
+       màn Vinh danh sẵn có, ra JPEG nhỏ nên cầu nối không bị quá tải. */
+    hopSao.querySelector('[name="anh"]').addEventListener('change', async event => {
+      const o = hopSao.querySelector('.vd-sao-anh');
+      const f = event.target.files && event.target.files[0];
+      anhDang = '';
+      if (!f) { o.innerHTML = ''; return; }
+      o.textContent = 'Đang thu nhỏ ảnh…';
+      try {
+        anhDang = await prepareAwardPhoto(f);
+        o.innerHTML = '<img alt="Ảnh nhân sự được vinh danh" src="' + anhDang + '">';
+      } catch (e) {
+        o.textContent = 'Không dùng được ảnh này: ' + (e.message || e);
+      }
+    });
     return hopSao;
   }
   function moHopSao(b) {
@@ -450,7 +470,11 @@
       saoDang.ten + ' · ' + saoDang.cn + ' — ' + g.ten + ' · ' + tien(saoDang.gt, g.dv) +
       (saoDang.muc ? ' · ' + saoDang.muc : '') + ' · ' + k.nhan;
     hop.querySelector('.vd-sao-bao').textContent = '';
-    hop.querySelector('form').elements.ghi.value = '';
+    const f0 = hop.querySelector('form');
+    f0.elements.ghi.value = '';
+    f0.elements.anh.value = '';
+    anhDang = '';
+    hop.querySelector('.vd-sao-anh').innerHTML = '';
     hop.showModal();
   }
   async function guiSao(event) {
@@ -467,16 +491,19 @@
       const d = saoDang;
       const body = new URLSearchParams({khoa: KHOA, viec: 'vinh_danh',
         ten: d.ten, cn: d.cn, hang_muc: d.g.ten, ket_qua: tien(d.gt, d.g.dv),
-        don_vi: d.g.dv, muc: d.muc, ky: d.ky, ghi_nhan: gon(f.elements.ghi.value), ai: ai}).toString();
+        don_vi: d.g.dv, muc: d.muc, ky: d.ky, ghi_nhan: gon(f.elements.ghi.value), ai: ai,
+        anh_b64: anhDang || ''}).toString();
       const r = await fetch(API, {method: 'POST', body: body,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
       const j = await r.json().catch(() => null);
       if (!j || j.ok !== true) throw new Error((j && j.loi) || 'cầu nối không trả lời đúng');
       daDuyet.add(d.g.ma + '|' + d.cn + '|' + d.ten);
+      if (anhDang) anhNguoi.set(khoa(d.ten), anhDang);
       dangGhiSao = false;
       hopSao.close();
       render();
-      message('Đã vinh danh ' + d.ten + ' · ' + j.id + ' · đã báo lên màn Thông báo của app');
+      message('Đã vinh danh ' + d.ten + ' · ' + j.id +
+        (anhDang ? ' · kèm ảnh' : ' · chưa có ảnh') + ' · đã báo lên màn Thông báo của app');
     } catch (e) {
       dangGhiSao = false;
       f.querySelector('[type="submit"]').disabled = false;
@@ -491,8 +518,10 @@
     if (!hop) return;
     const g = GIAI.find(x => x.ma === b.dataset.giai);
     const gt = Number(b.dataset.gt), bac = b.dataset.bac || '';
-    hop.querySelector('#award-portrait').innerHTML =
-      '<div class="award-portrait"><span class="award-icon" aria-hidden="true">🏆</span></div>';
+    const anh = anhNguoi.get(khoa(b.dataset.ten));
+    hop.querySelector('#award-portrait').innerHTML = '<div class="award-portrait">' +
+      (anh ? '<img alt="" src="' + anh + '" width="256" height="320">'
+           : '<span class="award-icon" aria-hidden="true">🏆</span>') + '</div>';
     hop.querySelector('#award-criterion').textContent = (g ? g.ten : '') + ' · ' + b.dataset.cn;
     hop.querySelector('#award-heading').textContent = 'Chúc mừng ' + b.dataset.ten + '!';
     const o = hop.querySelector('#award-result');

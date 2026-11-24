@@ -429,3 +429,10 @@ button.vd-ten:hover,button.vd-ten:focus-visible{text-decoration:underline}
 .vd-hop-sao textarea{font:inherit;font-size:.86rem;font-weight:500;color:#0f172a;
   border:1px solid #cddbef;border-radius:8px;padding:9px;resize:vertical}
 .vd-hop-sao .vd-sao-bao{font-size:.78rem;font-weight:700;color:#942b24;min-height:1em}
+
+/* ───── Vinh danh: ảnh nhân sự trong hộp QLCN duyệt ───── */
+.vd-sao-anh{font-size:.76rem;color:var(--muted);font-weight:700}
+.vd-sao-anh img{display:block;width:96px;height:120px;object-fit:cover;
+  border-radius:.5rem;border:1px solid var(--line)}
+.vd-hop-sao input[type=file]{font:inherit;font-size:.8rem;font-weight:500;color:#0f172a}
+.vd-sao{white-space:nowrap;letter-spacing:.02em}
