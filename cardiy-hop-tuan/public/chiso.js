@@ -41,12 +41,33 @@
     {dau:'· DV sửa chữa',      ten:'· DV sửa chữa',       dv:'đ'},
     {dau:'— DT BD-SC-PK',      ten:'— DT BD-SC-PK / NTP', dv:'đ'},
   ];
+  /* Kỳ QUÝ và 6 THÁNG: file CARDIY không có số thực đạt của quý (chỉ có
+     tab tháng 11), nên lấy từ cặp tab sẵn có trong 3 workbook chi nhánh:
+     TỔNG HỢP 6T (thực đạt) + CHỈ TIÊU 6T (chỉ tiêu). Không tab nào phải
+     nhập tay, không cộng tay — chỉ đọc đúng cột QUÝ 4 / 6 THÁNG.
+     Chỉ lấy những dòng CÓ ĐỦ CẶP chỉ tiêu ↔ thực đạt, không tự suy. */
+  const FILE_CN = [
+    {ma:'CN1', id:'1b2wcIrwdzgt1Sd67BbUMQTiOe4PFj1ShoSSzqS4x8sc'},
+    {ma:'CN2', id:'1O8f-5602r5YB23MFHsLN8QZt9BZQOnV3abm8k8Kgn0k'},
+    {ma:'CN3', id:'1B2eNY8T4iSf0E-UjGOmM30dcxqBOb6VZk1R4A4pXrVc'},
+  ];
+  const COT_QUY = {th: {quarter: 9, year: 10}, ct: {quarter: 10, year: 11}};
+  /* th = dòng trong TỔNG HỢP 6T · ct = dòng trong CHỈ TIÊU 6T */
+  const CAP_QUY = [
+    {ten:'Doanh thu',              dv:'đ', thuc:'DOANH THU CHUẨN',        chiTieuTh:'KPI doanh thu'},
+    {ten:'DT trung bình / lượt',   dv:'đ', thuc:'DT trung bình / lượt',   chiTieuTh:'DT trung bình / lượt CẦN'},
+    {ten:'Lượt xe hoàn tất',       dv:'lượt', thuc:'Lượt xe hoàn tất',    chiTieuCt:'Lượt xe hoàn tất / tháng'},
+    {ten:'Lốp thật bán ra',        dv:'lốp', thuc:'Lốp thật bán ra',      chiTieuCt:'Lốp thật / tháng'},
+    {ten:'Tỷ trọng DT lốp',        dv:'%', thuc:'Tỷ trọng DT lốp',        chiTieuCt:'Tỷ trọng DT lốp'},
+    {ten:'Tỷ trọng DT dịch vụ',    dv:'%', thuc:'Tỷ trọng DT dịch vụ',    chiTieuCt:'Tỷ trọng DT dịch vụ'},
+  ];
   const LAM_MOI = 300000;        /* chỉ số đổi chậm hơn việc — 5 phút một lần */
 
   let bang = null;               /* kỳ TUẦN  — {CN1:[…]} */
   let bangThang = null;          /* kỳ THÁNG — {CN1:[…]} */
   let ketQua = null;             /* kỳ TUẦN  — nhóm doanh thu */
   let ketQuaThang = null;        /* kỳ THÁNG — nhóm doanh thu */
+  let bangQuy = null;            /* {quarter:{CN1:[…]}, year:{CN1:[…]}} */
   let loi = '';
   let docLuc = null;
   let canhBao = [];
@@ -90,6 +111,38 @@
       else if (c !== '\r') o += c;
     }
     if (o.length || dong.length) { dong.push(o); ra.push(dong); }
+    return ra;
+  }
+
+  async function docTen(fileId, ten) {
+    const t = Date.now();
+    const url = 'https://docs.google.com/spreadsheets/d/' + fileId +
+      '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(ten) + '&_=' + t;
+    const r = await fetch(url,{cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' khi đọc tab ' + ten);
+    const text = await r.text();
+    if (/^\s*(<html|<!DOCTYPE)/i.test(text)) throw new Error('chưa mở quyền xem file chi nhánh');
+    return tachCsv(text);
+  }
+  /* Dò dòng theo đầu tên trong cột B */
+  const timDong = (v, dau) => v.find(h => khoa(h[1]).indexOf(khoa(dau)) === 0);
+
+  async function docQuy(ky) {
+    const ra = {};
+    for (const f of FILE_CN) {
+      const th = await docTen(f.id, 'TỔNG HỢP 6T');
+      const ct = await docTen(f.id, 'CHỈ TIÊU 6T');
+      const cTh = COT_QUY.th[ky], cCt = COT_QUY.ct[ky];
+      ra[f.ma] = CAP_QUY.map(k => {
+        const dThuc = timDong(th, k.thuc);
+        const dCt = k.chiTieuTh ? timDong(th, k.chiTieuTh) : timDong(ct, k.chiTieuCt);
+        if (!dThuc || !dCt) { canhBao.push(f.ma + ' · quý: thiếu dòng "' + k.ten + '"'); return null; }
+        const target = so(dCt[k.chiTieuTh ? cTh : cCt]);
+        const actual = so(dThuc[cTh]);
+        if (target === null && actual === null) return null;
+        return {title: k.ten, unit: k.dv, owner: '', target: target ?? 0, actual: actual ?? 0};
+      }).filter(Boolean);
+    }
     return ra;
   }
 
@@ -170,12 +223,18 @@
       }
       bang = ra;
       ketQua = rb;
+      try {
+        bangQuy = {quarter: await docQuy('quarter'), year: await docQuy('year')};
+      } catch (e) {
+        bangQuy = null;
+        canhBao.push('Quý / 6 tháng: ' + (e.message || e));
+      }
       bangThang = Object.keys(rc).length === TAB.length ? rc : null;
       ketQuaThang = Object.keys(rd).length === TAB.length ? rd : null;
       loi = '';
       docLuc = new Date();
     } catch (e) {
-      bang = null; ketQua = null; bangThang = null; ketQuaThang = null;
+      bang = null; ketQua = null; bangThang = null; ketQuaThang = null; bangQuy = null;
       loi = String(e.message || e);
     } finally {
       dangDoc = false;
@@ -184,7 +243,8 @@
 
   /* ---------- nối vào state: chỉ kỳ tuần ---------- */
   const nguonKy = () => state.period === 'month' ? bangThang
-    : state.period === 'week' ? bang : null;
+    : state.period === 'week' ? bang
+    : (bangQuy ? bangQuy[state.period] : null);
   const ketQuaKy = () => state.period === 'month' ? ketQuaThang
     : state.period === 'week' ? ketQua : null;
   const coLive = () => !!nguonKy();
@@ -206,9 +266,10 @@
   const gocComparison = window.comparisonPanel;
   const gocKpiPanel = window.kpiPanel;
   function nhanKy() {
-    return state.period === 'month'
-      ? 'tháng ' + Number(today().slice(5,7))
-      : 'tuần ' + soTuan() + ' tháng ' + Number(today().slice(5,7));
+    if (state.period === 'month') return 'tháng ' + Number(today().slice(5,7));
+    if (state.period === 'quarter') return 'quý 4 · từ TỔNG HỢP 6T của 3 chi nhánh';
+    if (state.period === 'year') return '6 tháng cuối năm · từ TỔNG HỢP 6T của 3 chi nhánh';
+    return 'tuần ' + soTuan() + ' tháng ' + Number(today().slice(5,7));
   }
   function thanhChiSo() {
     if (loi) return '<p class="sheet-error"><strong>CHƯA ĐỌC ĐƯỢC CHỈ SỐ LIVE</strong> · ' + label(loi) +
