@@ -184,8 +184,9 @@
   }
 
   /* ---------- vẽ ---------- */
-  function theNguoi(g, x, ten) {
-    if (!x) return '<div class="vd-o vd-trong"><span class="vd-pham">' + label(ten) + '</span>' +
+  function theNguoi(g, x, ten, he) {
+    const lop = 'vd-o' + (he ? ' vd-he' : '');
+    if (!x) return '<div class="' + lop + ' vd-trong"><span class="vd-pham">' + label(ten) + '</span>' +
       '<p class="vd-khong">Chưa có số trong kỳ này</p></div>';
     const tyLe = x.vach ? Math.round(x.gt / x.vach * 100) : null;
     const thieu = x.vach && !x.qua ? tien(x.vach - x.gt, g.dv) : '';
@@ -199,7 +200,7 @@
       : x.qua
         ? '<span class="pill good">Đã qua vạch chuẩn</span>'
         : '<span class="pill miss">Chưa qua vạch chuẩn</span><small>còn thiếu ' + thieu + '</small>';
-    return '<div class="vd-o' + (x.qua ? ' vd-co-cup' : '') + '">' +
+    return '<div class="' + lop + (x.qua ? ' vd-co-cup' : '') + '">' +
       '<span class="vd-pham">' + label(ten) + '</span>' + nut +
       '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong>' +
       (x.vach !== null ? ' / ' + tien(x.vach, g.dv) + (tyLe !== null ? ' · ' + tyLe + '%' : '') : '') + '</p>' +
@@ -211,7 +212,7 @@
     const pham = isJoint() ? CN : [CN[state.branch]];
     const o = pham.map((cn,i) => theNguoi(g, top1(g, k, cn),
       isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch])).join('');
-    const he = isJoint() ? theNguoi(g, top1(g, k, null), 'HỆ THỐNG') : '';
+    const he = isJoint() ? theNguoi(g, top1(g, k, null), 'HỆ THỐNG', true) : '';
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + o + he + '</div></section>';
