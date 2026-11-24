@@ -329,29 +329,23 @@
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + mo + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + ds.map((x,i) => theBuc(g,x,i)).join('') + '</div></section>';
   }
+  /* Tracy chốt 24/11/2026: Hệ thống CHỈ HIỆN ĐÚNG NGƯỜI ĐẠT — mỗi giải
+     một người duy nhất, là người cao nhất trong phạm vi đang chọn.
+     Trước đó mỗi giải bày 4 ô (3 bàn + hệ thống) nên người dẫn đầu hệ
+     thống bị in hai lần, lúc xướng tên dễ nhầm là hai giải khác nhau. */
   function theGiai(g, k, sot) {
     if (g.hang) return theGiaiHang(g, k, sot);
-    const pham = isJoint() ? CN : [CN[state.branch]];
-    const o = pham.map(cn => {
-      const nhan = isJoint() ? branchNames[CN.indexOf(cn)] : branchNames[state.branch];
-      const x = top1(g, k, cn);
-      const ly = viSao(g, x, nhan);
-      if (ly) sot.push(g.ten + ' · ' + ly);
-      return theNguoi(g, x, nhan);
-    }).join('');
-    /* Thẻ HỆ THỐNG chỉ hiện khi đang chọn Hệ thống — chọn mục nào hiện
-       đúng mục đó, không chen thêm ô làm rối lúc xướng tên. */
-    let he = '';
-    if (isJoint()) {
-      const xHe = top1(g, k, null);
-      const lyHe = viSao(g, xHe, 'HỆ THỐNG');
-      if (lyHe) sot.push(g.ten + ' · ' + lyHe);
-      he = theNguoi(g, xHe, 'HỆ THỐNG', true);
-    }
-    if (!o && !he) return '';        /* chưa ai đủ điều kiện → ẩn cả giải */
+    const pv = isJoint() ? null : CN[state.branch];
+    const nhan = isJoint() ? 'HỆ THỐNG' : branchNames[state.branch];
+    const x = top1(g, k, pv);
+    const ly = viSao(g, x, nhan);
+    if (ly) sot.push(g.ten + ' · ' + ly);
+    const o = theNguoi(g, x, nhan, isJoint());
+    if (!o) return '';
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
-      '<p class="vd-khoi">' + label(g.khoi) + ' · ' + label(k.nhan) + '</p>' +
-      '<div class="vd-hang">' + o + he + '</div></section>';
+      '<p class="vd-khoi">' + label(g.khoi) + ' · người cao nhất ' +
+      (isJoint() ? 'toàn hệ thống' : label(branchNames[state.branch])) + ' · ' + label(k.nhan) + '</p>' +
+      '<div class="vd-hang">' + o + '</div></section>';
   }
   function thanh(k) {
     if (loi) return '<p class="sheet-error"><strong>CHƯA ĐỌC ĐƯỢC KPI</strong> · ' + label(loi) +
