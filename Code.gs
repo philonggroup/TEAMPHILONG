@@ -53,7 +53,7 @@ function doGet(e) {
       case 'luu_bien_ban':  return ra_(luuBienBan_(p));
       case 'kh90':          return ra_(kh90_());
       case 'kiem_tra':      return ra_(kiemTra_());
-      default:              return ra_({ ok: false, loi: 'Không rõ tham số viec=' + p.viec });
+      default:              return ra_(dinhTuyenThem_(p));
     }
   } catch (err) {
     return ra_({ ok: false, loi: String(err && err.message || err) });

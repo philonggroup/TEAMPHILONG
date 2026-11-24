@@ -10,17 +10,15 @@
  *   trang_thai · ngay_hoan_thanh · nhat_ki
  * Không thêm dòng, không xoá dòng, không đụng bảng nào khác.
  *
- * CÁCH GẮN (1 lần):
- *   1. Thêm file này vào đúng dự án Apps Script của Code.gs
- *   2. Trong Code.gs, nhánh default của doGet đổi thành:
- *        default:  return ra_(dinhTuyenThem_(p));
- *   3. Triển khai → Quản lý triển khai → sửa bản đang chạy →
- *      Phiên bản: Phiên bản mới → Triển khai  (URL .../exec GIỮ NGUYÊN)
+ * Gắn vào giaoban.gs: nhánh default của doGet đổi thành
+ *   default:  return ra_(dinhTuyenThem_(p));
+ *
+ * ĐÃ TRIỂN KHAI: dự án "HỌP 4 NGUYÊN TẮC THỰC THI" · tệp CV_TRANG_THAI.gs
+ * Phiên bản 4 lúc 08:44 24/11/2026 — URL .../exec giữ nguyên.
  *******************************************************************/
 
 var TT_CHUAN = ['1.Chờ thực hiện', '2.Đang làm', '3.Hoàn thành'];
 
-/* Nhánh default của Code.gs gọi vào đây. Việc lạ vẫn trả đúng lỗi cũ. */
 function dinhTuyenThem_(p) {
   if (p.viec === 'doi_trang_thai') return doiTrangThaiCV_(p);
   return { ok: false, loi: 'Không rõ tham số viec=' + p.viec };
@@ -73,7 +71,7 @@ function doiTrangThaiCV_(p) {
     var dau = Utilities.formatDate(new Date(), MUI_GIO, 'ddMM HHmm');
     var cu = String(hang[c['nhat_ki']] || '');
     sh.getRange(dong, c['nhat_ki'] + 1)
-      .setValue('-' + dau + '  ' + ai + ':  ' + tt.replace(/^\d+\./, '') + '\n' + cu);
+      .setValue('-' + dau + '  ' + ai + ':  ' + tt.substring(tt.indexOf('.') + 1) + '\n' + cu);
   }
 
   SpreadsheetApp.flush();
