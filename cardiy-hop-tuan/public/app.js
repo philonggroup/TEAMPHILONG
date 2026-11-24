@@ -32,6 +32,21 @@ const today = () => localDate.format(new Date());
 const dateText = value => value ? value.split('-').reverse().join('/') : 'Chưa đặt hạn';
 const uid = () => crypto.randomUUID();
 const record = data => ({id:uid(),...data});
+/* Vấn đề có 3 trạng thái. 'Hành động đã chốt' nằm giữa: đã quyết xong việc phải làm
+   nhưng chưa xử lý xong, và là mốc để tự đẩy việc sang Danh sách hành động. */
+const TRANG_THAI_CHOT = 'Hành động đã chốt';
+const issueStatus = item => item.solved ? 'Đã xử lý' : (item.status===TRANG_THAI_CHOT ? TRANG_THAI_CHOT : 'Đang mở');
+/* Việc cần làm cũng 3 trạng thái, khớp đúng bộ trạng thái bảng CONG_VIEC của PHI LONG_GROUP
+   (1.Chờ thực hiện / 2.Đang làm / 3.Hoàn thành). done giữ nguyên kiểu boolean cho ô tick. */
+const TRANG_THAI_VIEC = ['Chờ thực hiện','Đang xử lý','Hoàn thành'];
+const taskStatus = item => item.done ? 'Hoàn thành' : (item.status==='Đang xử lý' ? 'Đang xử lý' : 'Chờ thực hiện');
+/* Hạn mặc định của hành động chốt tại họp: chủ nhật của tuần đang họp */
+function cuoiTuan() {
+  const [y,m,d] = today().split('-').map(Number);
+  const t = new Date(Date.UTC(y,m-1,d));
+  t.setUTCDate(t.getUTCDate() + (7 - (t.getUTCDay()||7)));
+  return t.toISOString().slice(0,10);
+}
 const label = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const get = (key,id) => data()[key].find(item => item.id === id);
 const stepByKey = key => steps.find(step => step.key === key);
@@ -233,7 +248,8 @@ function kpiPanel(compact) {
 }
 function tasksPanel(compact) {
   const tasks = data().tasks;
-  const list = (compact ? tasks.slice(0,3) : tasks).map(task => '<div class="row"><input type="checkbox" data-action="toggle" data-id="'+task.id+'" '+(task.done?'checked':'')+' aria-label="Hoàn thành '+label(task.title)+'"><div class="row-text"><strong class="'+(task.done?'done':'')+'">'+label(task.title)+'</strong><small>'+label([task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · '))+'</small></div>'+editButton('tasks',task.id)+(!compact&&!task.done?workflowButton('renew',task.id,'Gia hạn'):'')+'</div>').join('');
+  const list = (compact ? tasks.slice(0,3) : tasks).map(task => '<div class="row"><input type="checkbox" data-action="toggle" data-id="'+task.id+'" '+(task.done?'checked':'')+' aria-label="Hoàn thành '+label(task.title)+'"><div class="row-text"><strong class="'+(task.done?'done':'')+'">'+label(task.title)+'</strong><small>'+label([task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · '))+'</small></div>'+
+    pill(taskStatus(task),task.done?'good':taskStatus(task)==='Đang xử lý'?'warn':'neutral')+editButton('tasks',task.id)+(!compact&&!task.done?workflowButton('renew',task.id,'Gia hạn'):'')+'</div>').join('');
   const preview=compact?'':'<button class="button secondary" type="button" data-task-preview="'+(isJoint()?'':branchSelect.value.slice(0,3))+'">Đồng bộ công việc</button>';
   return panel('Việc cần làm',tasks.filter(task=>task.done).length+' / '+tasks.length+' đã hoàn thành','<div class="session-actions">'+preview+addButton('tasks','Thêm việc')+'</div>','<div class="list">'+(list||'<p class="empty">Chưa có việc cần làm.</p>')+'</div>');
 }
@@ -323,8 +339,10 @@ function contentFor(key) {
       const issues = [...data().issues].sort((a,b)=>Number(a.solved)-Number(b.solved)||['Cao','Vừa','Thấp'].indexOf(a.priority)-['Cao','Vừa','Thấp'].indexOf(b.priority));
       const list = issues.map((item,index)=>'<div class="row"><div class="row-text"><strong>'+label(item.title)+'</strong><small>'+label([item.branch,item.solution||'Chưa chốt hành động'].filter(Boolean).join(' · '))+'</small></div>'+
         (!item.solved&&index<3?'<span class="priority priority-discussion">Thảo luận '+(index+1)+'</span>':'')+
-        '<span class="priority">'+label(item.priority)+'</span>'+pill(item.solved?'Đã xử lý':'Đang mở',item.solved?'good':'warn')+editButton(key,item.id)+
-        (item.solution?workflowButton('task-from-issue',item.id,'Tạo hành động'):'')+'</div>').join('');
+        '<span class="priority">'+label(item.priority)+'</span>'+
+        pill(issueStatus(item),item.solved?'good':issueStatus(item)===TRANG_THAI_CHOT?'neutral':'warn')+editButton(key,item.id)+
+        (item.taskId?'<span class="priority">Đã vào Việc cần làm</span>'
+          :item.solution?workflowButton('task-from-issue',item.id,'Tạo hành động'):'')+'</div>').join('');
       return issuesGuide()+panel('Danh sách vấn đề','Xác định · Thảo luận · Giải quyết',addButton(key,'Thêm vấn đề'),'<div class="list">'+(list||'<p class="empty">Chưa có vấn đề.</p>')+'</div>');
     }
     case 'good':
@@ -509,11 +527,13 @@ const fieldsByKey = {
   news:[textField('title','Nội dung phản hồi',true),selectField('sentiment','Tính chất',['Tích cực','Tiêu cực']),selectField('source','Nguồn phản hồi',['Khách hàng','Nội bộ']),textField('owner','Người chia sẻ hoặc nguồn cụ thể')],
   kpis:[textField('title','Tên chỉ số',true),textField('owner','Người phụ trách',true),selectField('unit','Đơn vị',['xe','lượt','%','triệu đ','khách','lốp','phiếu','đơn']),numberField('target','Chỉ tiêu'),numberField('actual','Thực tế')],
   goals:[...mainFields,selectField('status','Trạng thái',['Đúng tiến độ','Cần xử lý','Hoàn thành']),areaField('milestones','Tiến độ cột mốc')],
-  tasks:[...mainFields,{name:'date',title:'Hạn hoàn thành',type:'date'}],
-  issues:[textField('title','Vấn đề',true),selectField('priority','Mức ưu tiên',['Cao','Vừa','Thấp']),areaField('cause','Xác định nguyên nhân'),areaField('discussion','Ghi nhận thảo luận'),areaField('solution','Hành động đã chốt'),selectField('solved','Trạng thái',['Đang mở','Đã xử lý'])],
+  tasks:[...mainFields,{name:'date',title:'Hạn hoàn thành',type:'date'},selectField('status','Trạng thái',TRANG_THAI_VIEC)],
+  issues:[textField('title','Vấn đề',true),selectField('priority','Mức ưu tiên',['Cao','Vừa','Thấp']),areaField('cause','Xác định nguyên nhân'),areaField('discussion','Ghi nhận thảo luận'),areaField('solution','Hành động đã chốt'),selectField('solved','Trạng thái',['Đang mở',TRANG_THAI_CHOT,'Đã xử lý'])],
 };
-function fieldMarkup(field,item) {
-  const value = field.name==='solved' ? (item.solved?'Đã xử lý':'Đang mở') : item[field.name] ?? '';
+function fieldMarkup(field,item,key) {
+  const value = field.name==='solved' ? issueStatus(item)
+    : (key==='tasks' && field.name==='status') ? taskStatus(item)
+    : item[field.name] ?? '';
   let input;
   if (field.type==='select') input = '<select name="'+field.name+'"'+(field.placeholder?' required':'')+'>'+
     (field.placeholder?'<option value="" disabled'+(value?'':' selected')+'>'+field.placeholder+'</option>':'')+
@@ -541,7 +561,7 @@ function openEditor(key,id,initial={},kpiBranch) {
   form.querySelector('#edit-title').textContent = (id?'Chỉnh sửa':'Thêm')+' · '+(key==='awards'?'Vinh danh':stepTitle(key))+
     (kpiBranch===undefined?'':' · '+branchNames[kpiBranch]);
   const container = form.querySelector('#fields');
-  container.innerHTML = fields.map(field=>fieldMarkup(field,item)).join('');
+  container.innerHTML = fields.map(field=>fieldMarkup(field,item,key)).join('');
   if (key==='awards') container.prepend(awardPhotoEditor(editContext,item));
   editor.showModal();
 }
@@ -585,7 +605,9 @@ form.addEventListener('submit',event=>{
   for (const field of fields) {
     const value = incoming[field.name].trim();
     if(key==='kpis' && field.name==='branch') continue;
-    item[field.name] = field.type==='number'?Number(value):field.name==='solved'?value==='Đã xử lý':value;
+    if (field.name==='solved') { item.solved = value==='Đã xử lý'; item.status = value; }
+    else if (key==='tasks' && field.name==='status') { item.status = value; item.done = value==='Hoàn thành'; }
+    else item[field.name] = field.type==='number'?Number(value):value;
   }
   if (key==='awards') {
     if (!isJoint()) item.branch=branchSelect.value;
@@ -593,6 +615,23 @@ form.addEventListener('submit',event=>{
     else delete item.photo;
   }
   if (!id) (destination??=(data()[key]??=[])).push(item);
+
+  /* Chốt hành động tại IDS thì việc phải tự rơi vào Danh sách hành động của kỳ đang họp,
+     không bắt người điều hành gõ lại. taskId giữ liên kết để không đẩy trùng lần lưu sau. */
+  let viecMoi = null;
+  if (key==='issues' && item.status===TRANG_THAI_CHOT && !item.taskId) {
+    viecMoi = record({
+      done:false,
+      title:((item.solution||('Xử lý: '+item.title)).replace(/\s+/g,' ').trim()).slice(0,180),
+      owner:'',
+      date:cuoiTuan(),
+      status:'Chờ thực hiện',
+      branch:item.branch||''
+    });
+    (data().tasks??=[]).push(viecMoi);
+    item.taskId = viecMoi.id;
+  }
+
   if (!save() && ['awards','kpis'].includes(key)) {
     if (!id) destination.pop();
     else destination[destination.indexOf(item)]=before;
@@ -601,7 +640,7 @@ form.addEventListener('submit',event=>{
   }
   editor.close();
   render();
-  message('Đã lưu thay đổi.');
+  message(viecMoi?'Đã chốt hành động và thêm vào Việc cần làm — nhớ gán người phụ trách.':'Đã lưu thay đổi.');
 });
 form.addEventListener('input',()=>form.querySelectorAll('input').forEach(input=>input.setCustomValidity('')));
 document.querySelector('#close-editor').onclick = () => editor.close();
@@ -610,8 +649,8 @@ editor.addEventListener('close',()=>{ editContext = null; });
 branchSelect.addEventListener('change',()=>switchBranch(branchSelect.selectedIndex,['excel','awards','vision','annual','swot','kpis','goals'].includes(view)?view:'overview'));
 function reportText(item) {
   const kind = item.period || 'week';
-  const taskLines = item.tasks.map(task=>(task.done?'[Đã xong] ':'[Đang mở] ')+[task.title,task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · ')+(item.acknowledged?.includes(task.id)?' · Đã xác nhận nhiệm vụ':''));
-  const issueLines = item.issues.map(issue=>(issue.solved?'[Đã xử lý] ':'[Đang mở] ')+issue.title+(issue.branch?' · '+issue.branch:'')+(issue.cause?'\n  Nguyên nhân: '+issue.cause:'')+(issue.discussion?'\n  Thảo luận: '+issue.discussion:'')+(issue.solution?'\n  Hành động: '+issue.solution:''));
+  const taskLines = item.tasks.map(task=>'['+taskStatus(task)+'] '+[task.title,task.branch,task.owner,dateText(task.date)].filter(Boolean).join(' · ')+(item.acknowledged?.includes(task.id)?' · Đã xác nhận nhiệm vụ':''));
+  const issueLines = item.issues.map(issue=>'['+issueStatus(issue)+'] '+issue.title+(issue.branch?' · '+issue.branch:'')+(issue.cause?'\n  Nguyên nhân: '+issue.cause:'')+(issue.discussion?'\n  Thảo luận: '+issue.discussion:'')+(issue.solution?'\n  Hành động: '+issue.solution:''));
   const metricLine = kpi=>showNumber(kpi.actual,kpi.unit)+' / '+showNumber(kpi.target,kpi.unit);
   const kpiLines = item.comparison
     ? item.comparison.map(row=>row.title+' · '+row.values.map((kpi,index)=>branchNames[index]+': '+(kpi?metricLine(kpi):'Chưa có chỉ số')).join(' | '))
@@ -671,7 +710,9 @@ workspace.addEventListener('change',event=>{
     return;
   }
   if (action!=='toggle') return;
-  get('tasks',event.target.dataset.id).done = event.target.checked;
+  const viec = get('tasks',event.target.dataset.id);
+  viec.done = event.target.checked;
+  viec.status = event.target.checked ? 'Hoàn thành' : (viec.status==='Hoàn thành' ? 'Đang xử lý' : viec.status||'Chờ thực hiện');
   save();
   const id = event.target.dataset.id;
   render();
