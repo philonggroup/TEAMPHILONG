@@ -481,9 +481,24 @@
     bao.textContent = 'Đang ghi về app…';
     try {
       const d = saoDang;
+      /* Mọi chữ tiếng Việt dựng ở đây rồi gửi sang, không để cầu nối tự
+         ghép — mã Apps Script sửa qua trình soạn trên web hay vỡ dấu.
+         "Toàn bộ" phải đúng từng chữ, vì app lọc quyền xem theo đúng ô này. */
+      const ketQua = tien(d.gt, d.g.dv);
+      const ghiNhan = gon(f.elements.ghi.value);
+      const nhanSu = ((window.CARDIY_NHAN_SU && window.CARDIY_NHAN_SU.danhSach()) || [])
+        .find(x => khoa(x.ten) === khoa(d.ten));
+      const tieuDe = '🏆 VINH DANH · ' + d.ten + ' · ' + d.g.ten;
+      const noiDung = '🏆 ' + d.ten + (d.cn ? ' · ' + d.cn : '') + '\n\n' +
+        d.g.ten + (d.ky ? ' · ' + d.ky : '') + '\n' +
+        'Kết quả: ' + ketQua + (d.muc ? ' · ' + d.muc : '') +
+        (ghiNhan ? '\n\n' + ghiNhan : '') +
+        '\n\nDuyệt bởi: ' + ai;
       const body = new URLSearchParams({khoa: KHOA, viec: 'vinh_danh',
-        ten: d.ten, cn: d.cn, hang_muc: d.g.ten, ket_qua: tien(d.gt, d.g.dv),
-        don_vi: d.g.dv, muc: d.muc, ky: d.ky, ghi_nhan: gon(f.elements.ghi.value), ai: ai,
+        ten: d.ten, cn: d.cn, hang_muc: d.g.ten, ket_qua: ketQua,
+        don_vi: d.g.dv, muc: d.muc, ky: d.ky, ghi_nhan: ghiNhan, ai: ai,
+        ma_nv: nhanSu ? nhanSu.ma : '', ca_nhan: 'Cá nhân', hien_thi: 'Có',
+        phan_quyen: 'Toàn bộ', tieu_de: tieuDe, noi_dung: noiDung,
         anh_b64: anhDang || ''}).toString();
       const r = await fetch(API, {method: 'POST', body: body,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
