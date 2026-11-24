@@ -224,3 +224,11 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
   .top-item{padding:6px 10px;gap:5px;font-size:.78rem}
   .top-item svg{width:14px;height:14px}
 }
+
+/* ── B5 · Danh sách hành động đọc live từ app PHI LONG GROUP ── */
+.viec-live{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:0 0 .75rem;
+  padding:.55rem .7rem;border:1px solid var(--line,#e2e8e5);border-radius:.6rem;
+  background:rgba(27,157,111,.07);font-size:.82rem;line-height:1.5}
+.viec-live strong{font-weight:700}
+.viec-chiso{display:block;color:#0e7a52;font-weight:600}
+.row-text .sheet-error{display:block;font-weight:600}
