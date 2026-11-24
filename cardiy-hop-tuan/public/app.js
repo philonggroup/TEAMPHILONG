@@ -119,6 +119,8 @@ branchSelect.selectedIndex = state.branch;
 const initialView = new URLSearchParams(location.search);
 let view = ['swot','annual','vision'].find(key=>initialView.get(key)==='1') ?? 'overview';
 let previewStep = 'good';
+/* Tracy chốt 24/11/2026: Chương trình họp nằm trên thanh menu, nhấp vào mới xổ các bước. */
+let moChuongTrinh = false;
 let editContext = null;
 let toastTimer;
 function isJoint() { return state.branch === jointIndex; }
@@ -176,14 +178,27 @@ function nav() {
   const ben = items.filter(item=>!TOP_KEYS.includes(item[0]));
   const thanhNgang = document.querySelector('#topnav');
   if (thanhNgang) thanhNgang.innerHTML = tren.map(item=>nut(item,'top-item')).join('');
-  document.querySelector('#nav').innerHTML = ben.map(item=>nut(item,'nav-item')).join('');
+  document.querySelector('#nav').innerHTML = ben.map(item=>nut(item,'nav-item')).join('') + chuongTrinhMenu();
   document.querySelector('#crumb').textContent = isJoint() && ['overview','meeting'].includes(view) ? jointName : items.find(item => item[0] === view)?.[1] ?? (view==='annual'?'Kế hoạch năm':view==='swot'?'SWOT':stepByKey(view)?stepTitle(view):'Họp nhanh');
 }
-function agenda(active) {
-  return '<aside class="panel agenda-panel"><div class="panel-head agenda-title"><h2>Chương trình họp</h2><span>'+meetingMinutes()+' phút</span></div><ol class="agenda">'+steps.map(step => {
-    const done = data().session?.done.includes(step.key);
-    return '<li><button data-action="step" data-key="'+step.key+'" class="'+(active===step.key?'active':'')+'"'+(active===step.key?' aria-current="step"':'')+'><span class="agenda-icon">'+icon(done?'check':step.icon)+'</span><strong>'+stepTitle(step.key)+'</strong><small>'+duration(step.key)+' phút</small></button></li>';
-  }).join('')+'</ol></aside>';
+/* Chương trình họp trên thanh menu: nhấp vào mới hiện menu con các bước.
+   Đang ở trong một bước thì tự xổ sẵn để biết mình đang ở đâu. */
+function chuongTrinhMenu() {
+  const dangBuoc = steps.some(step=>step.key===view);
+  const mo = moChuongTrinh || dangBuoc;
+  const phien = data().session;
+  const dangChay = phien && !phien.endedAt ? phien.step : '';
+  const con = steps.map((step,i)=>{
+    const xong = phien?.done.includes(step.key);
+    const chon = view===step.key || (view==='meeting' && dangChay===step.key);
+    return '<button type="button" class="nav-sub'+(chon?' chon':'')+'" data-action="step" data-key="'+step.key+'"'+
+      (chon?' aria-current="step"':'')+'><span class="nav-sub-ma">B'+(i+1)+'</span>'+
+      icon(xong?'check':step.icon)+'<span class="nav-sub-ten">'+label(stepTitle(step.key))+'</span>'+
+      '<small>'+duration(step.key)+'′</small></button>';
+  }).join('');
+  return '<div class="nav-ct"><button type="button" class="nav-item nav-ct-mo" data-action="mo-chuong-trinh" '+
+    'aria-expanded="'+mo+'">'+icon('calendar')+'Chương trình họp<span class="nav-ct-dau">'+(mo?'▾':'▸')+'</span></button>'+
+    (mo?'<div class="nav-ct-con">'+con+'</div>':'')+'</div>';
 }
 function stat(symbol,title,value,detail) {
   return '<article class="stat"><span class="stat-icon">'+icon(symbol)+'</span><div><p>'+title+'</p><strong class="num">'+value+'</strong><small>'+detail+'</small></div></article>';
@@ -405,7 +420,7 @@ function overview() {
   ].filter(([, ,kpi])=>kpi).map(([symbol,title,kpi])=>stat(symbol,title,showNumber(kpi.actual,kpi.unit),'Mục tiêu '+showNumber(kpi.target,kpi.unit))).join('') : '';
   const open = d.issues.filter(item=>!item.solved).length;
   return '<section class="hero"><div><p class="eyebrow">PHÒNG ĐIỀU HÀNH · '+label(branchSelect.value)+'</p><h1>'+meetingTitle()+'</h1><div class="hero-meta"><span>'+icon('calendar')+periodDate(d.session?.date||today())+'</span><span>'+icon('clock')+meetingMinutes()+' phút</span>'+pill(active?'Đang diễn ra':d.session?.endedAt?'Đã kết thúc':'Sẵn sàng họp',active?'good':'neutral')+'</div></div><button class="button yellow" data-action="start">'+icon('play')+(active?'Tiếp tục họp':d.session?.endedAt?'Bắt đầu buổi mới':isJoint()?'Bắt đầu họp chung':'Bắt đầu cuộc họp')+'</button></section>'+
-    weeklyHandover()+'<div class="stats">'+branchPicker()+(metrics||stat('chart','KPI đạt',d.kpis.filter(kpi=>kpi.actual>=kpi.target).length+' / '+d.kpis.length,'Chỉ số '+periodName()))+stat('issue','Vấn đề đang mở',open,'Cần xử lý qua IDS')+'</div>'+(isJoint()?'<div class="wide-panel">'+comparisonPanel()+'</div>':'')+'<div class="dashboard"><div class="column">'+(isJoint()?'':kpiPanel(true))+tasksPanel(true)+(isJoint()?branchSummary():'')+'</div>'+agenda(active?d.session.step:'')+'</div>';
+    weeklyHandover()+'<div class="stats">'+branchPicker()+(metrics||stat('chart','KPI đạt',d.kpis.filter(kpi=>kpi.actual>=kpi.target).length+' / '+d.kpis.length,'Chỉ số '+periodName()))+stat('issue','Vấn đề đang mở',open,'Cần xử lý qua IDS')+'</div>'+(isJoint()?'<div class="wide-panel">'+comparisonPanel()+'</div>':'')+'<div class="dashboard"><div class="column">'+(isJoint()?'':kpiPanel(true))+tasksPanel(true)+(isJoint()?branchSummary():'')+'</div></div>';
 }
 /* Tracy chốt 24/11/2026: màn Tổng quan LUÔN có nút chọn bàn họp —
    Tất cả 3 chi nhánh hoặc từng chi nhánh — không phải mở ô xổ trên đầu. */
@@ -443,7 +458,7 @@ function meeting() {
   const control = active?'<button class="button secondary clock" data-action="timer"></button>':'<button class="button primary" data-action="start">'+icon('play')+(d.session?.endedAt?'Bắt đầu buổi mới':'Bắt đầu cuộc họp')+'</button>';
   const next = index<steps.length-1?'<button class="button primary" data-action="next">'+(active?'Hoàn tất bước và tiếp tục':'Xem bước tiếp theo')+'</button>':'';
   return pageTitle(meetingTitle(),label(isJoint()?branchNames.map(name=>name.split(' · ')[1]).join(' · '):branchSelect.value)+' · '+periodDate(d.session?.date||today())+' · '+dateText(d.session?.date||today()),'<div class="session-actions">'+control+'</div>')+
-    '<div class="dashboard"><div><div class="column"><p>'+step.detail+'</p>'+contentFor(step.key)+'</div><div class="step-footer"><button class="button secondary" data-action="prev" '+(index===0?'disabled':'')+'>Mục trước</button>'+next+'</div></div>'+agenda(step.key)+'</div>';
+    '<div class="dashboard"><div><div class="column"><p>'+step.detail+'</p>'+contentFor(step.key)+'</div><div class="step-footer"><button class="button secondary" data-action="prev" '+(index===0?'disabled':'')+'>Mục trước</button>'+next+'</div></div></div>';
 }
 function visionPage() {
   const culture = [
@@ -776,6 +791,10 @@ document.addEventListener('click',event=>{
         save();
       }
       changeView('meeting');
+      break;
+    case 'mo-chuong-trinh':
+      moChuongTrinh = !moChuongTrinh;
+      nav();
       break;
     case 'step':
       setStep(key);

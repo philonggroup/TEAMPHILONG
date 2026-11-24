@@ -254,3 +254,17 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
   font:inherit;font-size:.72rem;font-weight:600;padding:.25rem .5rem;border-radius:.4rem;cursor:pointer;white-space:nowrap}
 .cn-nut .cn-o:hover{background:#f1f5f4}
 .cn-nut .cn-o.chon{background:#1b9d6f;border-color:#1b9d6f;color:#fff}
+
+.nav-ct{margin-top:4px}
+.nav-ct-mo{justify-content:flex-start}
+.nav-ct-dau{margin-left:auto;font-size:.8rem;opacity:.7}
+.nav-ct-con{margin:3px 0 6px 10px;padding-left:8px;border-left:2px solid var(--line,#e2e8e5);
+  display:flex;flex-direction:column;gap:2px}
+.nav-sub{display:flex;align-items:center;gap:7px;width:100%;text-align:left;background:transparent;
+  border:1px solid transparent;border-radius:8px;padding:5px 7px;color:var(--ink,#172742);font-size:.8rem}
+.nav-sub:hover{background:#f0f6ff;border-color:#dbe9fc}
+.nav-sub.chon{background:#0a4da2;border-color:#0a4da2;color:#fff}
+.nav-sub svg,.nav-sub .cardiy-icon{width:15px;height:15px;flex:none}
+.nav-sub-ma{font-weight:800;font-size:.7rem;opacity:.75;min-width:1.1rem}
+.nav-sub-ten{flex:1;line-height:1.25}
+.nav-sub small{font-size:.7rem;opacity:.75;white-space:nowrap}
