@@ -1,9 +1,9 @@
 'use strict';
 
 const PREFIX = 'cardiy-meeting-';
-const CACHE = PREFIX+'v27';
+const CACHE = PREFIX+'v28';
 const FILES = [
-  './index.html','./style.css','./icons.js','./awards.js','./vision-form.js','./annual-plan.js','./strategy-excel.js','./swot.js','./app.js','./assistant.js','./install.js','./nguon.js','./sheet-sync.js','./task-preview.js','./cn1-meeting.js','./giaoban.js',
+  './index.html','./style.css','./icons.js','./awards.js','./vision-form.js','./annual-plan.js','./strategy-excel.js','./swot.js','./app.js','./assistant.js','./install.js','./nguon.js','./sheet-sync.js','./task-preview.js','./vieclive.js','./nhansu.js','./cn1-meeting.js','./giaoban.js',
   './excel.js','./excel-ui.js','./vendor/jszip.min.js','./plg-plan-love-grow.png',
   './manifest.webmanifest','./app-180.png','./app-192.png','./app-512.png',
 ];
@@ -27,7 +27,10 @@ self.addEventListener('fetch',event=>{
   if (!navigation && !assets.has(request.url)) return;
   event.respondWith((async()=>{
     try {
-      return await fetch(request);
+      /* cache:'reload' để bỏ qua bộ nhớ đệm HTTP của trình duyệt.
+         GitHub Pages đặt max-age nên không có dòng này thì bản vừa đẩy
+         lên có thể 10 phút sau mới tới tay người họp. */
+      return await fetch(request.url,{cache:'reload'});
     } catch {
       const cache = await caches.open(CACHE);
       return await cache.match(navigation?appUrl('./index.html'):request) ?? Response.error();
