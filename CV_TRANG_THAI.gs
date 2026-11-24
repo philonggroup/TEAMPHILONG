@@ -14,7 +14,9 @@
  *   default:  return ra_(dinhTuyenThem_(p));
  *
  * ĐÃ TRIỂN KHAI: dự án "HỌP 4 NGUYÊN TẮC THỰC THI" · tệp CV_TRANG_THAI.gs
- * Phiên bản 4 lúc 08:44 24/11/2026 — URL .../exec giữ nguyên.
+ * Phiên bản 5 lúc 09:11 24/11/2026 — URL .../exec giữ nguyên.
+ * Bản đang chạy giống hệt file này về mã; chỉ khác phần chú thích đầu file
+ * (bị vỡ chữ lúc sửa trong trình soạn) — sẽ dọn ở lần deploy sau.
  *******************************************************************/
 
 var TT_CHUAN = ['1.Chờ thực hiện', '2.Đang làm', '3.Hoàn thành'];
