@@ -304,22 +304,27 @@
     const h = HANG[i];
     /* Mỗi mục một người thì không gọi là hạng — gọi thẳng HỆ THỐNG. */
     const mot = g.hang === 1;
+    const noi = isJoint() ? 'TOÀN HỆ THỐNG' : label(branchNames[state.branch]);
     return '<div class="vd-o vd-co-cup vd-buc vd-buc' + (i+1) + (mot ? ' vd-he' : '') + '">' +
-      '<span class="vd-pham">' + (mot ? '🏆 TOÀN HỆ THỐNG' : h.huy + ' ' + label(h.ten) + ' · toàn hệ thống') + '</span>' +
+      '<span class="vd-pham">' + (mot ? '🏆 ' + noi : h.huy + ' ' + label(h.ten) + ' · ' + noi) + '</span>' +
       '<button type="button" class="vd-ten vd-thang" data-action="vd-chuc" data-giai="' + g.ma +
       '" data-ten="' + label(x.ten) + '" data-cn="' + label(x.cn) + '" data-gt="' + x.gt +
-      '" data-bac="' + label(mot ? 'TOÀN HỆ THỐNG' : h.ten) + '">' +
+      '" data-bac="' + label(mot ? noi : h.ten) + '">' +
       (mot ? '🏆' : h.huy) + ' ' + label(x.ten) + '</button>' +
       '<p class="vd-so"><strong>' + tien(x.gt, g.dv) + '</strong></p>' +
       '<p class="vd-tt"><span class="vd-bac" style="background:' + h.mau + '">' +
-      label(mot ? 'CAO NHẤT HỆ THỐNG' : h.ten) + '</span>' +
+      label(mot ? (isJoint() ? 'CAO NHẤT HỆ THỐNG' : 'CAO NHẤT BÀN NÀY') : h.ten) + '</span>' +
       '<small>' + label(x.cn) + '</small></p></div>';
   }
   function theGiaiHang(g, k, sot) {
-    const ds = xepHang(g, k, null).slice(0, g.hang);
-    if (!ds.length) { sot.push(g.ten + ' · toàn hệ thống: chưa có số trong kỳ'); return ''; }
+    /* Tracy chốt 24/11/2026: chọn mục nào thì hiện đúng mục đó. Chọn một
+       bàn thì xét trong bàn đó; chọn Hệ thống mới xét cả chuỗi. */
+    const pv = isJoint() ? null : CN[state.branch];
+    const ds = xepHang(g, k, pv).slice(0, g.hang);
+    if (!ds.length) { sot.push(g.ten + ' · ' + (pv || 'toàn hệ thống') + ': chưa có số trong kỳ'); return ''; }
     if (ds.length < g.hang) sot.push(g.ten + ': mới có ' + ds.length + ' người có số, chưa đủ ' + g.hang + ' hạng');
-    const mo = g.hang === 1 ? 'người cao nhất toàn hệ thống' : g.hang + ' người cao nhất toàn hệ thống';
+    const noi = pv ? label(branchNames[CN.indexOf(pv)]) : 'toàn hệ thống';
+    const mo = (g.hang === 1 ? 'người cao nhất ' : g.hang + ' người cao nhất ') + noi;
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + mo + ' · ' + label(k.nhan) + '</p>' +
       '<div class="vd-hang">' + ds.map((x,i) => theBuc(g,x,i)).join('') + '</div></section>';
@@ -334,12 +339,15 @@
       if (ly) sot.push(g.ten + ' · ' + ly);
       return theNguoi(g, x, nhan);
     }).join('');
-    /* Thẻ HỆ THỐNG hiện ở CẢ hai chế độ: xem riêng một bàn vẫn phải thấy
-       người đang dẫn đầu toàn hệ thống, đó là mức để so. */
-    const xHe = top1(g, k, null);
-    const lyHe = viSao(g, xHe, 'HỆ THỐNG');
-    if (lyHe) sot.push(g.ten + ' · ' + lyHe);
-    const he = theNguoi(g, xHe, 'HỆ THỐNG', true);
+    /* Thẻ HỆ THỐNG chỉ hiện khi đang chọn Hệ thống — chọn mục nào hiện
+       đúng mục đó, không chen thêm ô làm rối lúc xướng tên. */
+    let he = '';
+    if (isJoint()) {
+      const xHe = top1(g, k, null);
+      const lyHe = viSao(g, xHe, 'HỆ THỐNG');
+      if (lyHe) sot.push(g.ten + ' · ' + lyHe);
+      he = theNguoi(g, xHe, 'HỆ THỐNG', true);
+    }
     if (!o && !he) return '';        /* chưa ai đủ điều kiện → ẩn cả giải */
     return '<section class="vd-giai"><h3>' + label(g.ten) + '</h3>' +
       '<p class="vd-khoi">' + label(g.khoi) + ' · ' + label(k.nhan) + '</p>' +
