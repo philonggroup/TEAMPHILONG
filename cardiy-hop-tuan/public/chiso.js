@@ -68,13 +68,14 @@
     return Math.min(5, Math.floor((ngay - 1) / 7) + 1);
   }
   const cotTuan = n => ({kpi: 5 + (n-1)*3, thuc: 6 + (n-1)*3});   /* 0-based */
-  /* Cột tháng dò theo tiêu đề dòng 3 ("KPI THÁNG 11" · "THỰC ĐẠT THÁNG"),
-     không đếm cứng, để sang tháng khác vẫn đúng. */
+  /* Cột tháng: sau 5 tuần × 3 cột là KPI THÁNG (20) · % ĐẠT THÁNG (21) ·
+     THỰC ĐẠT THÁNG (22). Phải đếm theo vị trí vì gviz KHÔNG trả nhãn tiêu
+     đề của 3 tab này (dòng 3 về rỗng), chỉ trả số.
+     Kiểm chứng trước khi dùng: cột 21 phải là ô phần trăm. */
+  const COT_THANG = {kpi: 20, thuc: 22, ty: 21};
   function cotThang(v) {
-    const de = (v[2] || []).map(khoa);
-    const kpi = de.findIndex(x => x.indexOf('KPITHÁNG') === 0);
-    const thuc = de.findIndex(x => x.indexOf('THỰCĐẠTTHÁNG') === 0);
-    return (kpi > -1 && thuc > -1) ? {kpi, thuc} : null;
+    const co = v.some(h => h.length > COT_THANG.thuc && /%/.test(String(h[COT_THANG.ty] || '')));
+    return co ? {kpi: COT_THANG.kpi, thuc: COT_THANG.thuc} : null;
   }
 
   function tachCsv(text) {
