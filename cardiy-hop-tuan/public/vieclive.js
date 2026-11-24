@@ -19,6 +19,12 @@
   const APP_VIEW = APP + '#appName=PHILONGGROUP-171475980&view=_CONG_VIEC';
   const MA_CN = ['CN1','CN2','CN3'];
   const LAM_MOI = 60000;      /* tự đọc lại mỗi 60s khi đang mở màn B5 */
+  /* Cầu nối ghi ngược về CONG_VIEC — dùng chung Web App của giaoban.html.
+     Tracy chốt 24/11/2026: nút trạng thái phải ghi thẳng về app. */
+  const API  = 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec';
+  const KHOA = 'PHILONG2026';
+  const TT_CHUAN = ['1.Chờ thực hiện','2.Đang làm','3.Hoàn thành'];
+  const nhanTT = t => t.replace(/^\d+\./,'');
   const TOI_DA_VIEC = 5;      /* Tracy chốt: mỗi chi nhánh tối ưu 5 hành động */
 
   let ds = null;              /* danh sách việc live, null = chưa đọc được */
@@ -26,6 +32,7 @@
   let docLuc = null;
   let dangDoc = false;
   let hen = null;
+  let dangGhi = false;
 
   /* ---------- đọc CSV ---------- */
   function tachCsv(text) {
@@ -195,6 +202,12 @@
       ' · <strong>' + hien.length + '</strong> việc · <strong>' + chuaXong + '</strong> chưa xong · ' +
       '<strong>' + tre + '</strong> trễ hạn · <strong>' + thieu + '</strong> dòng thiếu yếu tố' + qua + '</p>';
   }
+  function nutTrangThai(v) {
+    return '<div class="tt-nut" role="group" aria-label="Trạng thái việc">' + TT_CHUAN.map(t =>
+      '<button type="button" class="tt-o' + (v.status === nhanTT(t) ? ' chon' : '') +
+      '" data-action="viec-tt" data-id="' + label(v.sheetId) + '" data-tt="' + label(t) +
+      '" aria-pressed="' + (v.status === nhanTT(t)) + '">' + nhanTT(t) + '</button>').join('') + '</div>';
+  }
   function dongViec(v, compact) {
     const live = v.nguon === 'app';
     const canh = live ? coCanhBao(v) : [];
@@ -202,15 +215,21 @@
     const phu = [v.branch, v.owner + (v.ownerCode ? ' ('+v.ownerCode+')' : ''), dateText(v.date) + (v.gio ? ' ' + v.gio : '')]
       .map(gon).filter(Boolean).join(' · ');
     const doBang = live && v.chiSo ? '<small class="viec-chiso">Đo bằng · ' + label(v.chiSo) + '</small>' : '';
-    const lech = live && v.done !== (v.status === 'Hoàn thành') ? pill('Chưa ghi về app','warn') : '';
     const moApp = live && !compact
       ? '<a class="button secondary" href="' + APP_VIEW + '&row=' + encodeURIComponent(v.sheetId) + '" target="_blank" rel="noopener">Mở trong app</a>' : '';
-    return '<div class="row"><input type="checkbox" data-action="toggle" data-id="' + v.id + '" ' + (v.done?'checked':'') +
-      ' aria-label="Hoàn thành ' + label(v.title) + '"><div class="row-text"><strong class="' + (v.done?'done':'') + '">' +
+    /* Dòng live KHÔNG còn ô tick: tick chỉ đổi tại chỗ rồi bị vòng đọc lại xoá.
+       Thay bằng 3 nút ghi thẳng về bảng CONG_VIEC. */
+    const o = live ? '' :
+      '<input type="checkbox" data-action="toggle" data-id="' + v.id + '" ' + (v.done?'checked':'') +
+      ' aria-label="Hoàn thành ' + label(v.title) + '">';
+    const trangThai = live
+      ? (compact ? pill(v.status, v.done?'good':v.status==='Đang làm'?'warn':'neutral') : nutTrangThai(v))
+      : pill(taskStatus(v), v.done?'good':taskStatus(v)==='Đang làm'?'warn':'neutral');
+    return '<div class="row' + (live?' row-live':'') + '">' + o +
+      '<div class="row-text"><strong class="' + (v.done?'done':'') + '">' +
       label(v.title) + '</strong><small>' + label(phu) + '</small>' + doBang +
       canh.map(c => '<small class="sheet-error">⚠ ' + label(c) + '</small>').join('') + '</div>' +
-      (taskLate(v) ? pill('🔥 Trễ kế hoạch','miss') : han ? pill(han,'warn') : '') + lech +
-      pill(taskStatus(v), v.done?'good':taskStatus(v)==='Đang làm'?'warn':'neutral') +
+      (taskLate(v) ? pill('🔥 Trễ kế hoạch','miss') : han ? pill(han,'warn') : '') + trangThai +
       (live ? '' : editButton('tasks',v.id)) + moApp +
       (!compact && !v.done && !live ? workflowButton('renew',v.id,'Gia hạn') : '') + '</div>';
   }
@@ -240,10 +259,38 @@
     loi = '';
     lamMoi();
   });
+
+  /* ---------- nút trạng thái: ghi thẳng về bảng CONG_VIEC ---------- */
+  document.addEventListener('click', async event => {
+    const nut = event.target.closest('[data-action="viec-tt"]');
+    if (!nut || dangGhi) return;
+    const sid = nut.dataset.id, tt = nut.dataset.tt;
+    const v = (ds || []).find(x => x.sheetId === sid);
+    if (!v || v.status === nhanTT(tt)) return;
+    dangGhi = true;
+    nut.disabled = true;
+    message('Đang ghi "' + nhanTT(tt) + '" về app…');
+    try {
+      const body = new URLSearchParams({khoa:KHOA, viec:'doi_trang_thai', id:sid,
+        trang_thai:tt, nguoi:'Họp nhanh'}).toString();
+      const r = await fetch(API,{method:'POST',body:body,
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      const j = await r.json().catch(()=>null);
+      if (!j || j.ok !== true) throw new Error((j && j.loi) || 'cầu nối không trả lời đúng');
+      dangGhi = false;
+      await lamMoi(false);
+      render();
+      message('Đã ghi về app · ' + v.sheetId + ' → ' + nhanTT(tt) + (j.luc ? ' lúc ' + j.luc : ''));
+    } catch (e) {
+      dangGhi = false;
+      nut.disabled = false;
+      message('CHƯA ghi được về app: ' + (e.message || e) + ' — Apps Script có thể chưa deploy bản mới.');
+    }
+  });
   function datHen() {
     window.clearInterval(hen);
     hen = window.setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || dangGhi) return;
       if (!['tasks','overview','meeting'].includes(view)) return;
       lamMoi();
     }, LAM_MOI);

@@ -232,3 +232,12 @@ body.gb-rong #gb-frame{flex:1 1 auto;height:auto;min-height:0}
 .viec-live strong{font-weight:700}
 .viec-chiso{display:block;color:#0e7a52;font-weight:600}
 .row-text .sheet-error{display:block;font-weight:600}
+
+.tt-nut{display:inline-flex;border:1px solid var(--line,#e2e8e5);border-radius:.5rem;overflow:hidden;flex:0 0 auto}
+.tt-nut .tt-o{appearance:none;border:0;background:#fff;color:#64748b;font:inherit;font-size:.74rem;
+  font-weight:600;padding:.34rem .6rem;cursor:pointer;white-space:nowrap;border-left:1px solid var(--line,#e2e8e5)}
+.tt-nut .tt-o:first-child{border-left:0}
+.tt-nut .tt-o:hover:not(:disabled){background:#f1f5f4}
+.tt-nut .tt-o:disabled{opacity:.5;cursor:progress}
+.tt-nut .tt-o.chon{background:#1b9d6f;color:#fff}
+.row-live{flex-wrap:wrap}
