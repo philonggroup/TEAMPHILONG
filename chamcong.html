@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bảng chấm công · PHI LONG GROUP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --la:#1B9D6F; --la-dam:#0E7A52; --la-nhat:#7FD1AE;
+  --bien:#2CA9BC; --nang:#F2B705; --do:#D93025;
+  --nen:#F4F7F5; --the:#FFFFFF; --chu:#1F2937; --mo:#6B7280; --vien:#E3E8E4;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--nen);color:var(--chu);
+  font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  font-size:14px;padding-bottom:28px}
+.bao{max-width:1120px;margin:0 auto;padding:12px}
+
+.dinh{background:linear-gradient(135deg,var(--la) 0%,var(--la-dam) 100%);color:#fff;
+  border-radius:16px;padding:14px 16px;position:relative;overflow:hidden}
+.dinh:after{content:"";position:absolute;right:-30px;bottom:-40px;width:150px;height:150px;
+  border-radius:50%;background:rgba(127,209,174,.25)}
+.dinh h1{margin:0;font-size:17px;font-weight:800;letter-spacing:.2px}
+.dinh p{margin:4px 0 0;font-size:12.5px;opacity:.92}
+
+.the{background:var(--the);border:1px solid var(--vien);border-radius:14px;padding:12px;margin-top:12px}
+.the h2{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--la-dam);
+  display:flex;align-items:center;gap:6px}
+.loc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+label.nhan{display:block;font-size:11.5px;font-weight:600;color:var(--mo);margin-bottom:3px}
+select,input{width:100%;padding:9px 10px;border:1px solid var(--vien);border-radius:10px;
+  font-family:inherit;font-size:13.5px;background:#fff;color:var(--chu)}
+select:focus,input:focus{outline:2px solid var(--la-nhat);border-color:var(--la)}
+
+.nut{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;cursor:pointer;
+  padding:11px 15px;border-radius:11px;font-family:inherit;font-size:13.5px;font-weight:700;color:#fff;
+  background:var(--la);margin:6px 6px 0 0}
+.nut:active{transform:translateY(1px)}
+.nut.vang{background:var(--nang);color:#3A2B00}
+.nut.bien{background:var(--bien)}
+.nut.vien{background:#fff;color:var(--la-dam);border:1.5px solid var(--la)}
+.nut[disabled]{opacity:.5;cursor:not-allowed}
+
+.sl{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.o{background:#F7FBF9;border:1px solid var(--vien);border-radius:12px;padding:10px;text-align:center}
+.o b{display:block;font-size:20px;font-weight:800;color:var(--la-dam);line-height:1.15}
+.o span{display:block;font-size:11px;color:var(--mo);margin-top:2px;font-weight:600}
+.o.canh b{color:var(--nang)} .o.xau b{color:var(--do)}
+
+.cuon{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--vien);border-radius:12px}
+table.bc{border-collapse:collapse;width:100%;min-width:760px;font-size:12.5px;background:#fff}
+table.bc th,table.bc td{border:1px solid #C9D2CB;padding:5px 6px;text-align:center;white-space:nowrap}
+table.bc th{background:#FFF7D6;font-weight:700}
+table.bc td.nhan-o{text-align:left;font-weight:600;background:#FAFCFB}
+table.bc td.tuan{background:#FFF2CC;font-weight:700}
+table.bc tr.tong td{background:#FFF7D6;font-weight:700}
+table.bc td.k{background:#FFE2E2;color:var(--do);font-weight:800}
+table.bc td.p{background:#E8F0FE;color:#1A56C4;font-weight:800}
+table.bc td.tre{color:var(--do);font-weight:700}
+table.bc td.thieu{background:#FFF9E6;color:#8A6100;font-weight:700}
+table.bc td.dang{color:var(--bien);font-weight:700}
+.cn-o{display:inline-block;padding:1px 7px;border-radius:999px;background:#E9F6F0;
+  color:var(--la-dam);font-size:11px;font-weight:700}
+
+.canhbao{margin-top:10px;border-left:4px solid var(--nang);background:#FFFBEB;
+  border-radius:10px;padding:10px 12px;font-size:12.5px}
+.canhbao b{color:#8A6100}
+.canhbao ul{margin:6px 0 0 18px;padding:0} .canhbao li{margin:2px 0}
+.loi{border-left-color:var(--do);background:#FEF2F2}
+.loi b{color:var(--do)}
+.chu-y{font-size:11.5px;color:var(--mo);margin-top:8px;line-height:1.5}
+.an{display:none}
+.tai{margin-top:6px;font-size:12px;color:var(--mo)}
+.dang{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;
+  border-radius:50%;animation:q .7s linear infinite;vertical-align:-2px}
+@keyframes q{to{transform:rotate(360deg)}}
+code.lenh{display:block;background:#0F172A;color:#E6F4EE;padding:9px 11px;border-radius:9px;
+  font-size:11.5px;overflow:auto;margin:6px 0;white-space:pre-wrap;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="bao">
+
+  <div class="dinh">
+    <h1>BẢNG CHẤM CÔNG THEO TUẦN</h1>
+    <p id="phuDe">PHI LONG GROUP · đang tải dữ liệu…</p>
+  </div>
+
+  <div class="the" id="theLoc">
+    <h2>Chọn kỳ và nhân sự</h2>
+    <div class="loc">
+      <div><label class="nhan">Chi nhánh</label>
+        <select id="cn">
+          <option value="ALL">Tất cả</option>
+          <option value="CN1">PHI LONG 1 (CN1)</option>
+          <option value="CN2">PHI LONG 2 (CN2)</option>
+          <option value="CN3">PHI LONG 3 (CN3)</option>
+          <option value="CN5">CN5 (HIKASA)</option>
+          <option value="BGĐ">BGĐ</option>
+        </select></div>
+      <div><label class="nhan">Tháng</label><select id="thang"></select></div>
+      <div><label class="nhan">Năm</label><select id="nam"></select></div>
+      <div><label class="nhan">Nhân sự</label><select id="nv"></select></div>
+      <div><label class="nhan">Nơi ký (in trên phiếu)</label><input id="noiKy" placeholder="Đồng Xoài"></div>
+      <div><label class="nhan">Người chấm công</label><input id="nguoiCham" placeholder="VƯƠNG THU HIỀN"></div>
+    </div>
+    <button class="nut" id="btLoad">🔄 Tải lại dữ liệu</button>
+    <button class="nut vang" id="btX1">⬇️ Xuất Excel — 1 nhân sự</button>
+    <button class="nut bien" id="btXAll">⬇️ Xuất Excel — cả danh sách</button>
+    <div class="tai" id="tai"></div>
+  </div>
+
+  <div id="hdCard" class="the an">
+    <h2>⚙️ Chưa nối được nguồn dữ liệu</h2>
+    <div id="hdNoiDung"></div>
+  </div>
+
+  <div class="the" id="theTT">
+    <h2 id="ttTieuDe">Tổng hợp tháng</h2>
+    <div class="sl" id="slBox"></div>
+    <div class="chu-y">Giờ công chuẩn 8h/ngày · vào ca 07:00 (ân hạn 5 phút) · hết ca 17:30 ·
+      dấu <b>+</b> tính từ 17:45 và chỉ để ghi nhận, không nối vào lương.</div>
+  </div>
+
+  <div class="the">
+    <h2 id="bcTieuDe">Chi tiết theo tuần</h2>
+    <div class="cuon"><div id="bcBox"></div></div>
+    <div id="cbBox"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   1. CẤU HÌNH — CHỈ SỬA Ở ĐÂY
+   ================================================================ */
+var CAU_HINH = {
+  /* Web App Apps Script của PHI LONG_GROUP (cùng URL với giaoban.html).
+     Cần dán thêm tệp CHAMCONG.gs vào dự án rồi deploy phiên bản mới. */
+  API : 'https://script.google.com/macros/s/AKfycbx2b5foWxdy2lVMVyoKLFGQrCE5zK1FqM7_3ivsNzJbuPFPqowAD6w-a8fjIO4BC1Xd_w/exec',
+  KHOA: 'PHILONG2026',
+  NOI_KY: { CN1:'Đồng Xoài', CN2:'Đồng Xoài', CN3:'Thủ Dầu Một', CN5:'Thủ Dầu Một', 'BGĐ':'Đồng Xoài', ALL:'Đồng Xoài' },
+  TEN_CN: { CN1:'PHI LONG 1 (CN1)', CN2:'PHI LONG 2 (CN2)', CN3:'PHI LONG 3 (CN3)', CN5:'CN5 - HIKASA', 'BGĐ':'Ban giám đốc' },
+  NGUOI_CHAM: ''
+};
+
+var THU = ['Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy','Chủ nhật'];
+var DL = null;      // dữ liệu đang hiển thị
+var Q  = {};        // tham số URL
+
+/* ================================================================
+   2. TIỆN ÍCH
+   ================================================================ */
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'); }
+function hai(n){ return (n<10?'0':'')+n; }
+function soNgayThang(thang,nam){ return new Date(nam,thang,0).getDate(); }
+/* 0=Thứ hai … 6=Chủ nhật */
+function thuVN(nam,thang,ngay){ return (new Date(nam,thang-1,ngay).getDay()+6)%7; }
+
+/* Chia tháng thành các tuần Thứ hai → Chủ nhật, giống mẫu giấy đang dùng */
+function chiaTuan(thang,nam){
+  var sn = soNgayThang(thang,nam), tuan = [], cur = [null,null,null,null,null,null,null], co = false;
+  for (var d=1; d<=sn; d++){
+    var t = thuVN(nam,thang,d);
+    if (t===0 && co){ tuan.push(cur); cur=[null,null,null,null,null,null,null]; }
+    cur[t]=d; co=true;
+    if (d===sn) tuan.push(cur);
+  }
+  return tuan;
+}
+
+function phutTu(hhmm){
+  var m = String(hhmm||'').match(/^(\d{1,2}):(\d{2})/);
+  return m ? (+m[1])*60 + (+m[2]) : null;
+}
+
+/* ================================================================
+   3. TẢI DỮ LIỆU
+   ================================================================ */
+function tai(){
+  var cn = el('cn').value, thang = el('thang').value, nam = el('nam').value;
+  el('tai').textContent = 'Đang đọc bảng CHAM_CONG…';
+  el('btLoad').disabled = true;
+  var u = CAU_HINH.API + '?khoa=' + encodeURIComponent(CAU_HINH.KHOA)
+        + '&viec=chamcong&thang=' + thang + '&nam=' + nam + '&cn=' + encodeURIComponent(cn)
+        + '&t=' + Date.now();
+  fetch(u, { method:'GET' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      el('btLoad').disabled = false;
+      if (!j || !j.ok){ chuaNoi(j && j.loi ? j.loi : 'Nguồn trả về rỗng'); return; }
+      el('hdCard').classList.add('an');
+      DL = j; napNhanSu(); ve();
+      el('tai').textContent = 'Nguồn: bảng CHAM_CONG · PHI LONG_GROUP · đọc lúc ' + (j.ngay_chay||'');
+    })
+    .catch(function(e){ el('btLoad').disabled=false; chuaNoi(String(e&&e.message||e)); });
+}
+
+function chuaNoi(loi){
+  DL = duLieuMinhHoa();
+  napNhanSu(); ve();
+  el('tai').textContent = 'Đang xem SỐ MINH HOẠ — chưa đọc được dữ liệu thật.';
+  el('hdCard').classList.remove('an');
+  el('hdNoiDung').innerHTML =
+    '<div class="canhbao loi"><b>Nguồn báo:</b> ' + esc(loi) + '</div>' +
+    '<p style="font-size:12.5px;line-height:1.6;margin:10px 0 4px">' +
+    'Trang đang hiển thị <b>số minh hoạ</b> để xem trước mẫu. Để đọc số thật, làm 1 lần:</p>' +
+    '<ol style="font-size:12.5px;line-height:1.7;margin:0 0 4px 18px;padding:0">' +
+    '<li>Mở file <b>PHI LONG_GROUP</b> → Tiện ích mở rộng → <b>Apps Script</b></li>' +
+    '<li>Thêm tệp <b>CHAMCONG.gs</b> (lấy trong repo TEAMPHILONG) → dán → Lưu</li>' +
+    '<li>Trong tệp <b>CV_TRANG_THAI.gs</b>, thêm 1 dòng vào hàm <code>dinhTuyenThem_</code>:' +
+    '<code class="lenh">if (p.viec === \'chamcong\') return chamCong_(p);</code></li>' +
+    '<li>Triển khai → Quản lý triển khai → ✏️ → Phiên bản: <b>Phiên bản mới</b> → Triển khai</li>' +
+    '</ol>' +
+    '<p style="font-size:12.5px;margin:8px 0 0">Kiểm tra nhanh bằng cách mở link này trên trình duyệt:</p>' +
+    '<code class="lenh">' + esc(CAU_HINH.API + '?khoa=' + CAU_HINH.KHOA +
+      '&viec=chamcong&thang=' + el('thang').value + '&nam=' + el('nam').value + '&cn=CN3') + '</code>';
+}
+
+function napNhanSu(){
+  var s = el('nv'), cu = s.value;
+  s.innerHTML = '';
+  if (!DL) return;
+  var ds = DL.nhan_su.slice().sort(function(a,b){
+    return (a.cn+a.ten).localeCompare(b.cn+b.ten,'vi');
+  });
+  ds.forEach(function(x){
+    var o = document.createElement('option');
+    o.value = x.ma;
+    o.textContent = x.ten + ' · ' + x.ma + (x.cn ? ' · ' + x.cn : '') + (x.ngoai_ds ? ' ⚠' : '');
+    s.appendChild(o);
+  });
+  if (Q.ma && DL.ngay[Q.ma]) s.value = Q.ma;
+  else if (cu && DL.ngay[cu] !== undefined) s.value = cu;
+}
+
+/* ================================================================
+   4. DỰNG MÔ HÌNH 1 PHIẾU (dùng chung cho hiển thị và xuất Excel)
+   ================================================================ */
+function moHinh(ma){
+  var ng = (DL.ngay[ma] || {}), np = (DL.nghi[ma] || {});
+  var ns = null;
+  DL.nhan_su.forEach(function(x){ if (x.ma===ma) ns=x; });
+  if (!ns) ns = { ma:ma, ten:ma, bo_phan:'', cn:'', vi_tri:'' };
+
+  var tuan = chiaTuan(DL.thang, DL.nam);
+  var khoi = tuan.map(function(w,i){
+    var o = { so:i+1, ngay:w, vao:[], ra:[], them:[], cong:[],
+              tCong:0, tThem:0, tKL:0, tLe:0, tP:0 };
+    for (var k=0;k<7;k++){
+      var d = w[k];
+      if (d==null){ o.vao.push(null); o.ra.push(null); o.them.push(null); o.cong.push(null); continue; }
+      /* Ngoài phạm vi app đã chạy (trước ngày đầu tiên có dữ liệu, hoặc sau hôm nay):
+         để TRỐNG, không đánh "K" vắng cho nhân sự. */
+      var batDau = DL.ngay_bat_dau || 0, hnay = DL.hom_nay || 0;
+      if ((batDau && d < batDau) || (hnay && d > hnay)){
+        o.vao.push({t:''}); o.ra.push({t:''}); o.them.push({t:''}); o.cong.push({t:'',loai:''});
+        continue;
+      }
+      var r = ng[d], loai = np[d] || '';
+      if (r && (r.vao || r.ra)){
+        var dangLam = (r.canh_bao||[]).indexOf('dang_lam') >= 0;
+        o.vao.push({ t:r.vao || '', tre:(r.canh_bao||[]).indexOf('tre')>=0 });
+        o.ra.push({ t:r.ra || '', thieu:(r.canh_bao||[]).indexOf('thieu_ra')>=0 });
+        o.them.push({ t: r.dau_cong ? '+' : '' });
+        /* Có chấm vào mà thiếu lượt ra: KHÔNG ghi "K" (K = vắng) để không trừ oan công,
+           ghi dấu "–" và tô ô cảnh báo cho người duyệt xử lý. */
+        var tCong = r.cong ? 1 : (loai ? loai : (dangLam ? '…' : ((r.vao || r.ra) ? '–' : 'K')));
+        o.cong.push({ t: tCong, gio: r.gio,
+                      loai: r.cong ? '' : (loai ? 'p'
+                            : (dangLam ? 'dang' : (tCong === '–' ? 'thieu' : 'k'))) });
+        o.tCong += r.cong ? 1 : 0;
+        o.tThem += r.dau_cong ? 1 : 0;
+        if (!r.cong && loai==='KL') o.tKL++;
+        if (!r.cong && loai==='L') o.tLe++;
+        if (!r.cong && loai==='P') o.tP++;
+      } else if (loai){
+        o.vao.push({t:''}); o.ra.push({t:''}); o.them.push({t:''});
+        o.cong.push({ t:loai, loai:'p' });
+        if (loai==='KL') o.tKL++; else if (loai==='L') o.tLe++; else o.tP++;
+      } else {
+        o.vao.push({t:''}); o.ra.push({t:''}); o.them.push({t:''});
+        o.cong.push({ t:'K', loai:'k' });
+      }
+    }
+    return o;
+  });
+
+  var tt = DL.tom_tat[ma] || {};
+  return { ns:ns, thang:DL.thang, nam:DL.nam, khoi:khoi, tom_tat:tt,
+           tCong: khoi.reduce(function(s,x){return s+x.tCong;},0),
+           tThem: khoi.reduce(function(s,x){return s+x.tThem;},0),
+           noiKy: el('noiKy').value || CAU_HINH.NOI_KY[ns.cn] || 'Đồng Xoài',
+           nguoiCham: el('nguoiCham').value || CAU_HINH.NGUOI_CHAM || '' };
+}
+
+/* ================================================================
+   5. HIỂN THỊ
+   ================================================================ */
+function ve(){
+  if (!DL){ return; }
+  var ma = el('nv').value;
+  if (!ma){ el('bcBox').innerHTML = '<p style="padding:12px">Không có nhân sự nào trong kỳ này.</p>'; return; }
+  var M = moHinh(ma);
+
+  el('phuDe').textContent = CAU_HINH.TEN_CN[el('cn').value] + ' · Tháng ' +
+    M.thang + '/' + M.nam + ' · ' + DL.nhan_su.length + ' nhân sự';
+  el('ttTieuDe').textContent = 'Tổng hợp — ' + M.ns.ten + ' (' + M.ns.ma + ')';
+  el('bcTieuDe').textContent = 'Chi tiết theo tuần — ' + M.ns.ten;
+
+  var t = M.tom_tat;
+  el('slBox').innerHTML =
+    o_('Ngày công', M.tCong, '') +
+    o_('Tổng giờ làm', (t.gio||0).toFixed(1), '') +
+    o_('Dấu +', M.tThem, M.tThem? 'canh':'') +
+    o_('Lần trễ giờ', t.tre||0, (t.tre?'xau':'')) +
+    o_('Thiếu giờ ra', t.thieu_ra||0, (t.thieu_ra?'xau':'')) +
+    (t.dang_lam ? o_('Hôm nay đang trong ca', t.dang_lam, 'canh') : '') +
+    o_('Ngày dưới 8h', t.duoi_8h||0, (t.duoi_8h?'canh':'')) +
+    o_('Nghỉ phép', t.nghi_p||0, '') +
+    o_('Nghỉ không lương', t.nghi_kl||0, '');
+
+  el('bcBox').innerHTML = bangHTML(M);
+  el('cbBox').innerHTML = canhBaoHTML(M);
+}
+function o_(ten,gt,cls){
+  return '<div class="o '+cls+'"><b>'+esc(gt)+'</b><span>'+esc(ten)+'</span></div>';
+}
+
+function bangHTML(M){
+  var h = '<table class="bc">';
+  M.khoi.forEach(function(w){
+    h += '<tr><th style="width:92px">Tuần</th><th style="width:118px">Chấm công</th>';
+    for (var k=0;k<7;k++){
+      h += '<th>' + THU[k] + '<br><span style="font-weight:600;color:#6B7280">' +
+           (w.ngay[k]==null ? '—' : hai(w.ngay[k]) + '/' + hai(M.thang)) + '</span></th>';
+    }
+    h += '<th style="width:74px">Tổng</th></tr>';
+
+    h += '<tr><td class="tuan" rowspan="4">Tuần ' + w.so + '</td><td class="nhan-o">Giờ vào</td>';
+    for (var k=0;k<7;k++) h += o2(w.vao[k], w.vao[k]&&w.vao[k].tre?'tre':'');
+    h += '<td></td></tr>';
+
+    h += '<tr><td class="nhan-o">Giờ ra</td>';
+    for (var k=0;k<7;k++) h += o2(w.ra[k], w.ra[k]&&w.ra[k].thieu?'thieu':'');
+    h += '<td></td></tr>';
+
+    h += '<tr><td class="nhan-o">Làm thêm giờ</td>';
+    for (var k=0;k<7;k++) h += o2(w.them[k], '');
+    h += '<td>' + (w.tThem||'') + '</td></tr>';
+
+    h += '<tr class="tong"><td class="nhan-o">Tổng ngày công</td>';
+    for (var k=0;k<7;k++){
+      var c = w.cong[k];
+      if (c==null) h += '<td style="background:#F3F4F6"></td>';
+      else h += '<td class="' + (c.loai||'') + '" title="' + (c.gio?c.gio+' giờ':'') + '">' + esc(c.t) + '</td>';
+    }
+    h += '<td>' + w.tCong + '</td></tr>';
+  });
+  h += '<tr class="tong"><td colspan="9" style="text-align:right">TỔNG NGÀY CÔNG THÁNG ' +
+       M.thang + '/' + M.nam + '</td><td>' + M.tCong + '</td></tr>';
+  h += '</table>';
+  return h;
+}
+function o2(c,cls){
+  if (c==null) return '<td style="background:#F3F4F6"></td>';
+  return '<td class="'+cls+'">' + esc(c.t||'') + '</td>';
+}
+
+function canhBaoHTML(M){
+  var t = M.tom_tat, r = '';
+  var ds = [];
+  if (t.thieu_ra) ds.push('<b>' + t.thieu_ra + ' ngày</b> có giờ vào nhưng không có lượt chấm ra — ngày đó chưa tính được công.');
+  if (t.tre)      ds.push('<b>' + t.tre + ' lần</b> vào sau 07:05 (ân hạn 5 phút) — liên quan Quỹ kết nối.');
+  if (t.duoi_8h)  ds.push('<b>' + t.duoi_8h + ' ngày</b> tổng giờ làm dưới 8 giờ.');
+  if (ds.length) r += '<div class="canhbao"><b>Cần xem lại ở nhân sự này</b><ul><li>' + ds.join('</li><li>') + '</li></ul></div>';
+
+  var loi = (DL.loi_du_lieu||[]).filter(function(x){ return !x.ma || x.ma===M.ns.ma; });
+  if (loi.length){
+    var s = loi.slice(0,12).map(function(x){
+      return esc((x.ngay? x.ngay+': ':'') + x.mo_ta);
+    }).join('</li><li>');
+    r += '<div class="canhbao loi"><b>Lỗi dữ liệu thô (' + loi.length + ')</b><ul><li>' + s + '</li></ul>' +
+         (loi.length>12 ? '<div style="margin-top:4px">… và ' + (loi.length-12) + ' dòng nữa.</div>' : '') +
+         '</div>';
+  }
+  return r;
+}
+
+/* ================================================================
+   6. BỘ GHI FILE EXCEL (.xlsx) — tự viết, KHÔNG dùng thư viện ngoài
+   ================================================================ */
+var XL = (function(){
+
+  /* ---- CRC32 ---- */
+  var BANG = (function(){
+    var t = new Uint32Array(256);
+    for (var n=0;n<256;n++){
+      var c = n;
+      for (var k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+      t[n] = c>>>0;
+    }
+    return t;
+  })();
+  function crc32(u8){
+    var c = 0xFFFFFFFF;
+    for (var i=0;i<u8.length;i++) c = BANG[(c ^ u8[i]) & 0xFF] ^ (c>>>8);
+    return (c ^ 0xFFFFFFFF)>>>0;
+  }
+  function utf8(s){
+    if (typeof TextEncoder!=='undefined') return new TextEncoder().encode(s);
+    var b = unescape(encodeURIComponent(s)), u = new Uint8Array(b.length);
+    for (var i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
+    return u;
+  }
+
+  /* ---- ZIP (lưu nguyên, không nén) ---- */
+  function zip(files){
+    var parts = [], cd = [], off = 0, n = files.length;
+    files.forEach(function(f){
+      var ten = utf8(f.ten), d = f.data, c = crc32(d);
+      var lh = new Uint8Array(30 + ten.length), v = new DataView(lh.buffer);
+      v.setUint32(0, 0x04034b50, true); v.setUint16(4, 20, true); v.setUint16(6, 0x0800, true);
+      v.setUint16(8, 0, true); v.setUint16(10, 0, true); v.setUint16(12, 0x21, true);
+      v.setUint32(14, c, true); v.setUint32(18, d.length, true); v.setUint32(22, d.length, true);
+      v.setUint16(26, ten.length, true); v.setUint16(28, 0, true);
+      lh.set(ten, 30);
+      parts.push(lh, d);
+
+      var ch = new Uint8Array(46 + ten.length), w = new DataView(ch.buffer);
+      w.setUint32(0, 0x02014b50, true); w.setUint16(4, 20, true); w.setUint16(6, 20, true);
+      w.setUint16(8, 0x0800, true); w.setUint16(10, 0, true);
+      w.setUint16(12, 0, true); w.setUint16(14, 0x21, true);
+      w.setUint32(16, c, true); w.setUint32(20, d.length, true); w.setUint32(24, d.length, true);
+      w.setUint16(28, ten.length, true); w.setUint16(30, 0, true); w.setUint16(32, 0, true);
+      w.setUint16(34, 0, true); w.setUint16(36, 0, true); w.setUint32(38, 0, true);
+      w.setUint32(42, off, true);
+      ch.set(ten, 46);
+      cd.push(ch);
+      off += lh.length + d.length;
+    });
+    var cdLen = cd.reduce(function(s,x){ return s + x.length; }, 0);
+    var eo = new Uint8Array(22), e = new DataView(eo.buffer);
+    e.setUint32(0, 0x06054b50, true); e.setUint16(4,0,true); e.setUint16(6,0,true);
+    e.setUint16(8, n, true); e.setUint16(10, n, true);
+    e.setUint32(12, cdLen, true); e.setUint32(16, off, true); e.setUint16(20, 0, true);
+
+    var tong = parts.reduce(function(s,x){ return s+x.length; },0) + cdLen + 22;
+    var ra = new Uint8Array(tong), p = 0;
+    parts.forEach(function(x){ ra.set(x,p); p += x.length; });
+    cd.forEach(function(x){ ra.set(x,p); p += x.length; });
+    ra.set(eo, p);
+    return ra;
+  }
+
+  function xe(s){ return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/\u0000/g,''); }
+
+  function cot(i){ var s=''; i++; while(i>0){ var r=(i-1)%26; s=String.fromCharCode(65+r)+s; i=(i-1-r)/26; } return s; }
+  function ref(r,c){ return cot(c) + r; }
+  function serial(nam,thang,ngay){
+    return Math.round((Date.UTC(nam,thang-1,ngay) - Date.UTC(1899,11,30))/86400000);
+  }
+
+  /* ---- styles.xml ---- */
+  var STYLES =
+  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+  '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+  '<numFmts count="2">' +
+    '<numFmt numFmtId="164" formatCode="dd/mm"/>' +
+    '<numFmt numFmtId="165" formatCode="0.0"/>' +
+  '</numFmts>' +
+  '<fonts count="5">' +
+    '<font><sz val="10"/><name val="Arial"/></font>' +
+    '<font><b/><sz val="10"/><name val="Arial"/></font>' +
+    '<font><b/><sz val="11"/><name val="Arial"/></font>' +
+    '<font><b/><sz val="10"/><color rgb="FFC00000"/><name val="Arial"/></font>' +
+    '<font><sz val="9"/><color rgb="FF6B7280"/><name val="Arial"/></font>' +
+  '</fonts>' +
+  '<fills count="9">' +
+    '<fill><patternFill patternType="none"/></fill>' +
+    '<fill><patternFill patternType="gray125"/></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFFF00"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFC000"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFE2E2"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFF9E6"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFD9EAD3"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFE8F0FE"/><bgColor indexed="64"/></patternFill></fill>' +
+  '</fills>' +
+  '<borders count="2">' +
+    '<border><left/><right/><top/><bottom/><diagonal/></border>' +
+    '<border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right>' +
+    '<top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom><diagonal/></border>' +
+  '</borders>' +
+  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+  '<cellXfs count="19">' +
+    /* 0 */ '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    /* 1 */ '<xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 2 */ '<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 3 */ '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+    /* 4 */ '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 5 */ '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>' +
+    /* 6 */ '<xf numFmtId="0" fontId="1" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 7 */ '<xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 8 */ '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /* 9 */ '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*10 */ '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*11 */ '<xf numFmtId="0" fontId="3" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*12 */ '<xf numFmtId="164" fontId="1" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*13 */ '<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*14 */ '<xf numFmtId="0" fontId="1" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+    /*15 */ '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>' +
+    /*16 */ '<xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    /*17 */ '<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>' +
+    /*18 */ '<xf numFmtId="0" fontId="1" fillId="8" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+  '</cellXfs>' +
+  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+  '</styleSheet>';
+
+  /* ---- Dựng 1 sheet từ mô tả { cols, rows:[{r,h,cells:[{c,s,v,t}]}], merges:[], ten } ---- */
+  function sheetXML(sh){
+    var x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>';
+    if (sh.cols && sh.cols.length){
+      x += '<cols>';
+      sh.cols.forEach(function(c){
+        x += '<col min="'+c.tu+'" max="'+c.den+'" width="'+c.w+'" customWidth="1"/>';
+      });
+      x += '</cols>';
+    }
+    x += '<sheetData>';
+    sh.rows.forEach(function(r){
+      x += '<row r="'+r.r+'"' + (r.h ? ' ht="'+r.h+'" customHeight="1"' : '') + '>';
+      r.cells.forEach(function(o){
+        var rf = ref(r.r, o.c), st = (o.s==null?0:o.s);
+        if (o.v==null || o.v===''){ x += '<c r="'+rf+'" s="'+st+'"/>'; return; }
+        if (o.t === 'n'){ x += '<c r="'+rf+'" s="'+st+'"><v>'+o.v+'</v></c>'; return; }
+        x += '<c r="'+rf+'" s="'+st+'" t="inlineStr"><is><t xml:space="preserve">'+xe(o.v)+'</t></is></c>';
+      });
+      x += '</row>';
+    });
+    x += '</sheetData>';
+    if (sh.merges && sh.merges.length){
+      x += '<mergeCells count="'+sh.merges.length+'">';
+      sh.merges.forEach(function(m){ x += '<mergeCell ref="'+m+'"/>'; });
+      x += '</mergeCells>';
+    }
+    x += '<pageMargins left="0.25" right="0.25" top="0.4" bottom="0.4" header="0.3" footer="0.3"/>' +
+         '<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="' +
+           (sh.motTrang ? '1' : '0') + '"/>' +
+         '</worksheet>';
+    return x;
+  }
+
+  /* ---- Gói workbook ---- */
+  function taoFile(sheets){
+    var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+    sheets.forEach(function(s,i){
+      ct += '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+    });
+    ct += '</Types>';
+
+    var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      '</Relationships>';
+
+    var wb = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>';
+    sheets.forEach(function(s,i){
+      wb += '<sheet name="'+xe(s.ten)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>';
+    });
+    wb += '</sheets></workbook>';
+
+    var wbr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
+    sheets.forEach(function(s,i){
+      wbr += '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>';
+    });
+    wbr += '<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>';
+    wbr += '</Relationships>';
+
+    var files = [
+      { ten:'[Content_Types].xml', data: utf8(ct) },
+      { ten:'_rels/.rels',         data: utf8(rels) },
+      { ten:'xl/workbook.xml',     data: utf8(wb) },
+      { ten:'xl/_rels/workbook.xml.rels', data: utf8(wbr) },
+      { ten:'xl/styles.xml',       data: utf8(STYLES) }
+    ];
+    sheets.forEach(function(s,i){
+      files.push({ ten:'xl/worksheets/sheet'+(i+1)+'.xml', data: utf8(sheetXML(s)) });
+    });
+    return zip(files);
+  }
+
+  return { taoFile:taoFile, serial:serial, ref:ref, cot:cot };
+})();
+
+/* ---- Tên sheet hợp lệ, không trùng ---- */
+function tenSheet(ten, daCo){
+  var s = String(ten||'NV').replace(/[\[\]\*\?\/\\:]/g,' ').replace(/\s+/g,' ').trim();
+  if (!s) s = 'NV';
+  if (s.length > 28) s = s.slice(0,28).trim();
+  var g = s, i = 2;
+  while (daCo[g.toLowerCase()]) { g = s + ' ' + i; i++; }
+  daCo[g.toLowerCase()] = 1;
+  return g;
+}
+
+/* ================================================================
+   7. DỰNG SHEET BẢNG CHẤM CÔNG CỦA 1 NHÂN SỰ (đúng mẫu đang dùng)
+   ================================================================ */
+function sheetNhanSu(M, ten){
+  var rows = [], merges = [];
+  function R(r,h,cells){ rows.push({ r:r, h:h, cells:cells }); }
+  function dai(r, tu, den, s){     /* tô viền cho dải ô trống */
+    var a = [];
+    for (var c=tu;c<=den;c++) a.push({ c:c, s:s });
+    return a;
+  }
+
+  /* --- Đầu phiếu --- */
+  R(1, 15.75, [{c:0,s:1,v:'Chi Nhánh '+(M.ns.cn||'')},{c:1,s:1},{c:2,s:1}]);
+  merges.push('A1:C1');
+  R(2, 15.75, [{c:0,s:1,v:'Họ Tên Nhân Viên  : '+M.ns.ten},{c:1,s:1},{c:2,s:1},{c:3,s:1},{c:4,s:1}]);
+  merges.push('A2:E2');          /* rộng hơn mẫu cũ để tên dài không bị cắt */
+  R(3, 22.5, dai(3,0,14,2).map(function(o,i){ return i===0 ? {c:0,s:2,v:'BẢNG CHẤM CÔNG THEO TUẦN'} : o; }));
+  merges.push('A3:O3');
+  R(4, 21.75, dai(4,0,14,1).map(function(o,i){
+    return i===0 ? {c:0,s:1,v:'Tháng '+M.thang+' Năm '+M.nam} : o; }));
+  merges.push('A4:O4');
+
+  /* --- Từng tuần: 3 dòng tiêu đề + 4 dòng dữ liệu --- */
+  M.khoi.forEach(function(w,wi){
+    var r0 = 5 + wi*7;
+
+    /* dòng tiêu đề 1: ngày */
+    var c1 = [{c:0,s:3,v:'Mã nhân viên'},{c:1,s:3,v:'Tuần'},{c:2,s:3,v:'Chấm Công'}];
+    for (var k=0;k<7;k++){
+      if (w.ngay[k]==null) c1.push({ c:3+k, s:3 });
+      else c1.push({ c:3+k, s:12, v:XL.serial(M.nam,M.thang,w.ngay[k]), t:'n' });
+    }
+    c1.push({c:10,s:3,v:'Tổng cộng'},{c:11,s:3},{c:12,s:3,v:'Ngày nghỉ'},{c:13,s:3},{c:14,s:3});
+    R(r0, 21.75, c1);
+    merges.push('A'+r0+':A'+(r0+2), 'B'+r0+':B'+(r0+2), 'C'+r0+':C'+(r0+2),
+                'K'+r0+':L'+r0, 'M'+r0+':O'+r0);
+
+    /* dòng tiêu đề 2 + 3: thứ */
+    var c2 = [{c:0,s:3},{c:1,s:3},{c:2,s:3}];
+    for (var k=0;k<7;k++) c2.push({ c:3+k, s:3, v:THU[k] });
+    c2.push({c:10,s:3,v:'Chính thức'},{c:11,s:3,v:'Làm thêm'},
+            {c:12,s:3,v:'Nghỉ không lương'},{c:13,s:3,v:'Nghỉ lễ'},{c:14,s:3,v:'Nghỉ phép'});
+    R(r0+1, 24, c2);
+    R(r0+2, 20.25, dai(r0+2,0,14,3));
+    for (var k=0;k<7;k++){
+      merges.push(XL.cot(3+k)+(r0+1)+':'+XL.cot(3+k)+(r0+2));
+    }
+    merges.push('K'+(r0+1)+':K'+(r0+2), 'L'+(r0+1)+':L'+(r0+2),
+                'M'+(r0+1)+':M'+(r0+2), 'N'+(r0+1)+':N'+(r0+2), 'O'+(r0+1)+':O'+(r0+2));
+
+    /* 4 dòng dữ liệu */
+    var nhanDong = ['Giờ vào','Giờ ra','Làm thêm giờ','Tổng ngày công'];
+    for (var d=0; d<4; d++){
+      var rr = r0 + 3 + d;
+      var cells = [{c:0, s:4, v: d===0 ? M.ns.ma : ''},
+                   {c:1, s:6, v: d===0 ? ('Tuần '+w.so) : ''},
+                   {c:2, s:5, v: nhanDong[d]}];
+      for (var k=0;k<7;k++){
+        var o = (d===0?w.vao:d===1?w.ra:d===2?w.them:w.cong)[k];
+        if (o==null){ cells.push({ c:3+k, s:4 }); continue; }
+        var st = 4, gt = o.t;
+        if (d===0 && o.tre)  st = 16;
+        if (d===1 && o.thieu) st = 16;
+        if (d===3){
+          st = (o.loai==='k') ? 11
+             : (o.loai==='thieu' ? 16 : (o.loai==='dang' ? 4 : (o.loai==='p' ? 18 : 1)));
+          if (gt===1) { cells.push({ c:3+k, s:1, v:1, t:'n' }); continue; }
+        }
+        cells.push({ c:3+k, s:st, v:gt });
+      }
+      if (d===3){
+        cells.push({c:10,s:8,v:w.tCong,t:'n'}, {c:11,s:8,v:w.tThem||0,t:'n'},
+                   {c:12,s:4,v:w.tKL||'',t:w.tKL?'n':'s'},
+                   {c:13,s:4,v:w.tLe||'',t:w.tLe?'n':'s'},
+                   {c:14,s:4,v:w.tP||'',t:w.tP?'n':'s'});
+      } else {
+        cells.push({c:10,s:4},{c:11,s:4},{c:12,s:4},{c:13,s:4},{c:14,s:4});
+      }
+      R(rr, 16.5, cells);
+    }
+    merges.push('A'+(r0+3)+':A'+(r0+6), 'B'+(r0+3)+':B'+(r0+6));
+  });
+
+  /* --- Tổng tháng + ký --- */
+  var rf = 5 + M.khoi.length*7;
+  var ct = dai(rf,0,9,7);
+  ct[0] = {c:0,s:7,v:'TỔNG NGÀY CÔNG THÁNG '+hai(M.thang)+'/'+M.nam};
+  ct.push({c:10,s:7,v:M.tCong,t:'n'},{c:11,s:7,v:M.tThem,t:'n'},
+          {c:12,s:7,v:M.tom_tat.nghi_kl||0,t:'n'},{c:13,s:7,v:M.tom_tat.nghi_le||0,t:'n'},
+          {c:14,s:7,v:M.tom_tat.nghi_p||0,t:'n'});
+  R(rf, 18, ct);
+  merges.push('A'+rf+':J'+rf);
+
+  var hn = new Date();
+  R(rf+1, 15.75, [{c:10,s:9,v:M.noiKy+', Ngày '+hai(hn.getDate())+' tháng '+hai(hn.getMonth()+1)+' năm '+hn.getFullYear()}]);
+  merges.push('K'+(rf+1)+':O'+(rf+1));
+  R(rf+2, 15.75, [{c:1,s:10,v:'Người chấm công'},{c:5,s:10,v:'Trưởng bộ phận/ Phòng ban'},{c:11,s:10,v:'Người duyệt'}]);
+  merges.push('F'+(rf+2)+':H'+(rf+2), 'L'+(rf+2)+':N'+(rf+2));
+  R(rf+3, 15.75, [{c:1,s:9,v:'(Ký, họ tên)'},{c:5,s:9,v:'(Ký, họ tên)'},{c:11,s:9,v:'(Ký, họ tên)'}]);
+  merges.push('F'+(rf+3)+':H'+(rf+3), 'L'+(rf+3)+':N'+(rf+3));
+  R(rf+6, 15.75, [{c:1,s:10,v:(M.nguoiCham||'').toUpperCase()},
+                  {c:11,s:10,v:(M.ns.ten||'').toUpperCase()}]);
+  merges.push('L'+(rf+6)+':N'+(rf+6));
+
+  /* --- Ghi chú quy ước, để ai cũng đọc được bảng --- */
+  R(rf+8, 14, [{c:0,s:17,v:'Quy ước: 1 = đủ công · K = không có lượt chấm nào (vắng) · – = có chấm vào nhưng thiếu lượt chấm ra, chờ duyệt · … = hôm nay còn đang trong ca · P = nghỉ phép · KL = nghỉ không lương · L = nghỉ lễ · dấu + = ra sau 17:45 (chỉ ghi nhận, không tính lương).'}]);
+  R(rf+9, 14, [{c:0,s:17,v:'Ô vàng nhạt = vào sau 07:05 hoặc thiếu lượt chấm ra. Nguồn: bảng CHAM_CONG · app PHI LONG GROUP · gộp 1 ngày = 1 dòng (vào = lượt sớm nhất, ra = lượt muộn nhất).'}]);
+
+  return {
+    ten: ten, motTrang: true,          /* mỗi nhân sự gói gọn 1 trang A4 ngang để in và ký */
+    cols: [{tu:1,den:1,w:8.5},{tu:2,den:2,w:9.5},{tu:3,den:3,w:17.9},
+           {tu:4,den:10,w:11.6},{tu:11,den:15,w:9.9}],
+    rows: rows, merges: merges
+  };
+}
+
+/* ---- Sheet tổng hợp cho kế toán ---- */
+function sheetTongHop(ds){
+  var rows = [], merges = [];
+  var tieu = ['STT','Mã NV','Họ và tên','Bộ phận','CN','Ngày công','Tổng giờ',
+              'Dấu +','Lần trễ','Thiếu giờ ra','Ngày dưới 8h','Nghỉ phép','Nghỉ KL','Nghỉ lễ'];
+  rows.push({ r:1, h:22.5, cells:[{c:0,s:2,v:'TỔNG HỢP CHẤM CÔNG THÁNG '+hai(DL.thang)+'/'+DL.nam}]
+    .concat((function(){ var a=[]; for(var c=1;c<14;c++) a.push({c:c,s:2}); return a; })()) });
+  merges.push('A1:N1');
+  rows.push({ r:2, h:28, cells: tieu.map(function(t,i){ return {c:i,s:14,v:t}; }) });
+
+  ds.forEach(function(M,i){
+    var t = M.tom_tat;
+    rows.push({ r:3+i, h:16.5, cells:[
+      {c:0,s:4,v:i+1,t:'n'}, {c:1,s:4,v:M.ns.ma}, {c:2,s:5,v:M.ns.ten},
+      {c:3,s:5,v:M.ns.bo_phan}, {c:4,s:4,v:M.ns.cn},
+      {c:5,s:8,v:M.tCong,t:'n'}, {c:6,s:13,v:(t.gio||0),t:'n'},
+      {c:7,s:4,v:M.tThem,t:'n'}, {c:8,s:(t.tre?11:4),v:(t.tre||0),t:'n'},
+      {c:9,s:(t.thieu_ra?11:4),v:(t.thieu_ra||0),t:'n'},
+      {c:10,s:(t.duoi_8h?16:4),v:(t.duoi_8h||0),t:'n'},
+      {c:11,s:4,v:(t.nghi_p||0),t:'n'}, {c:12,s:4,v:(t.nghi_kl||0),t:'n'},
+      {c:13,s:4,v:(t.nghi_le||0),t:'n'}
+    ]});
+  });
+  var rt = 3 + ds.length;
+  rows.push({ r:rt, h:18, cells:[
+    {c:0,s:7,v:'TỔNG'},{c:1,s:7},{c:2,s:7},{c:3,s:7},{c:4,s:7},
+    {c:5,s:7,v:ds.reduce(function(s,x){return s+x.tCong;},0),t:'n'},
+    {c:6,s:7,v:Math.round(ds.reduce(function(s,x){return s+(x.tom_tat.gio||0);},0)*10)/10,t:'n'},
+    {c:7,s:7,v:ds.reduce(function(s,x){return s+x.tThem;},0),t:'n'},
+    {c:8,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.tre||0);},0),t:'n'},
+    {c:9,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.thieu_ra||0);},0),t:'n'},
+    {c:10,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.duoi_8h||0);},0),t:'n'},
+    {c:11,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.nghi_p||0);},0),t:'n'},
+    {c:12,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.nghi_kl||0);},0),t:'n'},
+    {c:13,s:7,v:ds.reduce(function(s,x){return s+(x.tom_tat.nghi_le||0);},0),t:'n'}
+  ]});
+  rows.push({ r:rt+2, h:14, cells:[{c:0,s:17,v:'Đọc từ bảng CHAM_CONG lúc '+(DL.ngay_chay||'')+
+    ' · gộp 1 ngày = 1 dòng/người · dấu + chỉ ghi nhận, không nối lương.'}] });
+
+  return { ten:'TỔNG HỢP',
+    cols:[{tu:1,den:1,w:5.5},{tu:2,den:2,w:9},{tu:3,den:3,w:26},{tu:4,den:4,w:16},
+          {tu:5,den:5,w:6.5},{tu:6,den:14,w:10.5}],
+    rows:rows, merges:merges };
+}
+
+/* ================================================================
+   8. XUẤT FILE
+   ================================================================ */
+function luu(u8, ten){
+  var b = new Blob([u8], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = ten;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+
+function xuat(nhieu){
+  if (!DL){ alert('Chưa có dữ liệu.'); return; }
+  var daCo = {}, sheets = [], ds = [];
+  if (nhieu){
+    DL.nhan_su.slice().sort(function(a,b){ return (a.cn+a.ten).localeCompare(b.cn+b.ten,'vi'); })
+      .forEach(function(x){ ds.push(moHinh(x.ma)); });
+    if (!ds.length){ alert('Không có nhân sự nào trong kỳ này.'); return; }
+    sheets.push(sheetTongHop(ds));
+  } else {
+    var ma = el('nv').value;
+    if (!ma){ alert('Chưa chọn nhân sự.'); return; }
+    ds.push(moHinh(ma));
+  }
+  ds.forEach(function(M){
+    sheets.push(sheetNhanSu(M, tenSheet(M.ns.ten, daCo)));
+  });
+
+  var ten = nhieu
+    ? ('BANG_CHAM_CONG_' + el('cn').value.replace(/[^\w]/g,'') + '_T' + hai(DL.thang) + '_' + DL.nam + '.xlsx')
+    : ('CHAM_CONG_' + ds[0].ns.ma + '_T' + hai(DL.thang) + '_' + DL.nam + '.xlsx');
+  try {
+    luu(XL.taoFile(sheets), ten);
+    el('tai').textContent = 'Đã xuất: ' + ten + ' (' + sheets.length + ' sheet)';
+  } catch(e){
+    alert('Không xuất được file: ' + (e && e.message || e));
+  }
+}
+
+/* ================================================================
+   9. SỐ MINH HOẠ (khi chưa nối được nguồn)
+   ================================================================ */
+function duLieuMinhHoa(){
+  var thang = parseInt(el('thang').value,10), nam = parseInt(el('nam').value,10);
+  var sn = soNgayThang(thang,nam);
+  var ngay = {}, tt;
+  var mau = [['NV022','Ngọc Trâm','Bán hàng CN3','CN3'],
+             ['NV027','Bùi Quốc Phú','Kỹ thuật CN3','CN3'],
+             ['NV010','Kế toán trưởng - Hiền','Kế toán CN3','CN3']];
+  var ns = mau.map(function(m){ return { ma:m[0], ten:m[1], bo_phan:m[2], cn:m[3], vi_tri:'' }; });
+  var tomTat = {};
+  ns.forEach(function(x, idx){
+    ngay[x.ma] = {}; var t = { cong:0, gio:0, dau_cong:0, tre:0, thieu_ra:0, duoi_8h:0,
+                               nghi_p:0, nghi_kl:0, nghi_le:0, ngay_co_cham:0 };
+    for (var d=1; d<=sn; d++){
+      var thu = thuVN(nam,thang,d);
+      if (thu===6 && (d+idx)%3===0) continue;                   // vài chủ nhật nghỉ
+      var vao = 6*60 + 50 + ((d*7+idx*13)%30);
+      var raP = 17*60 + 20 + ((d*11+idx*5)%45);
+      var thieu = ((d+idx)%9===0);
+      var gio = thieu ? 0 : Math.round((raP-vao)/6)/10;
+      ngay[x.ma][d] = { vao:hai(Math.floor(vao/60))+':'+hai(vao%60),
+                        ra: thieu ? '' : hai(Math.floor(raP/60))+':'+hai(raP%60),
+                        gio:gio, cong: thieu?0:1, dau_cong:(!thieu && raP>=17*60+45)?1:0,
+                        so_luot: thieu?1:2, so_dong:2, ca:'CA3', nguon:'APP',
+                        canh_bao: [].concat(vao>7*60+5?['tre']:[], thieu?['thieu_ra']:[],
+                                   (!thieu&&gio<8)?['duoi_8h']:[]), ghi_chu:'' };
+      t.ngay_co_cham++; t.cong += thieu?0:1; t.gio += gio; t.dau_cong += ngay[x.ma][d].dau_cong;
+      if (vao>7*60+5) t.tre++; if (thieu) t.thieu_ra++; if (!thieu && gio<8) t.duoi_8h++;
+    }
+    t.gio = Math.round(t.gio*10)/10;
+    tomTat[x.ma] = t;
+  });
+  return { ok:true, minh_hoa:true, thang:thang, nam:nam, cn:el('cn').value, so_ngay:sn,
+           ngay_chay:'(số minh hoạ)', nhan_su:ns, ngay:ngay, nghi:{}, tom_tat:tomTat,
+           loi_du_lieu:[] };
+}
+
+/* ================================================================
+   10. KHỞI ĐỘNG
+   ================================================================ */
+(function khoiDong(){
+  try { Q = {}; new URLSearchParams(location.search).forEach(function(v,k){ Q[k]=v; }); }
+  catch(e){ Q = {}; }
+
+  var hn = new Date();
+  var thang = parseInt(Q.thang,10) || (hn.getMonth()+1);
+  var nam   = parseInt(Q.nam,10)   || hn.getFullYear();
+
+  var st = el('thang');
+  for (var m=1;m<=12;m++){
+    var o=document.createElement('option'); o.value=m; o.textContent='Tháng '+m;
+    if (m===thang) o.selected=true; st.appendChild(o);
+  }
+  var sy = el('nam');
+  for (var y=hn.getFullYear()-1; y<=hn.getFullYear()+1; y++){
+    var o2_=document.createElement('option'); o2_.value=y; o2_.textContent=y;
+    if (y===nam) o2_.selected=true; sy.appendChild(o2_);
+  }
+  if (Q.cn) el('cn').value = String(Q.cn).toUpperCase();
+  if (Q.noi_ky) el('noiKy').value = Q.noi_ky;
+  if (Q.nguoi_cham) el('nguoiCham').value = Q.nguoi_cham;
+  el('noiKy').placeholder = CAU_HINH.NOI_KY[el('cn').value] || 'Đồng Xoài';
+
+  /* Nhân sự thường mở từ app: chỉ xem của mình, ẩn phần chọn người khác */
+  if (Q.ma && String(Q.quyen||'').toLowerCase() !== 'admin'){
+    el('nv').disabled = true;
+    el('cn').disabled = true;
+    el('btXAll').classList.add('an');
+  }
+
+  el('btLoad').addEventListener('click', tai);
+  el('btX1').addEventListener('click', function(){ xuat(false); });
+  el('btXAll').addEventListener('click', function(){ xuat(true); });
+  ['cn','thang','nam'].forEach(function(id){
+    el(id).addEventListener('change', function(){
+      el('noiKy').placeholder = CAU_HINH.NOI_KY[el('cn').value] || 'Đồng Xoài';
+      tai();
+    });
+  });
+  el('nv').addEventListener('change', ve);
+  ['noiKy','nguoiCham'].forEach(function(id){ el(id).addEventListener('input', function(){}); });
+
+  tai();
+})();
+</script>
+</body>
+</html>

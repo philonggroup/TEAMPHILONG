@@ -22,6 +22,7 @@
 var TT_CHUAN = ['1.Chờ thực hiện', '2.Đang làm', '3.Hoàn thành'];
 
 function dinhTuyenThem_(p) {
+  if (p.viec === 'chamcong') return chamCong_(p);          /* CHAMCONG.gs — chỉ đọc */
   if (p.viec === 'doi_trang_thai') return doiTrangThaiCV_(p);
   if (p.viec === 'doi_han') return doiHanCV_(p);
   if (p.viec === 'them_cong_viec') return themCongViecCV_(p);
