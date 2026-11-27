@@ -48,7 +48,8 @@ function chamCong_(p) {
 
   var ss = SpreadsheetApp.openById(CC_FILE);
   var ns = ccNhanSu_(ss);                       // danh sách nhân sự
-  var kq = ccDocChamCong_(ss, thang, nam);      // { ngay:{ma:{d:{...}}}, loi:[] }
+  var homNay = ccHomNay_(thang, nam);           // số ngày hôm nay (0 nếu không phải tháng này)
+  var kq = ccDocChamCong_(ss, thang, nam, homNay);
   var np = ccDocNghiPhep_(ss, thang, nam);      // { ma: { d: 'P'|'KL'|'L' } }
 
   var dsMa = {};
@@ -84,6 +85,10 @@ function chamCong_(p) {
     ok: true,
     thang: thang, nam: nam, cn: cnLoc,
     so_ngay: new Date(nam, thang, 0).getDate(),
+    /* Ngày đầu tiên trong tháng có dữ liệu chấm công của toàn hệ thống.
+       Trước ngày này app chưa chạy nên KHÔNG được đánh "K" (vắng) cho ai. */
+    ngay_bat_dau: kq.ngayBatDau || 0,
+    hom_nay: homNay,
     ngay_chay: Utilities.formatDate(new Date(), CC_TZ, 'dd/MM/yyyy HH:mm'),
     cau_hinh: { vao_ca: '07:00', het_ca: '17:30', an_han_vao: CC_AN_HAN,
                 an_han_ra: CC_AN_HAN_R, gio_chuan: CC_GIO_CHUAN, cong_chuan_thang: 26 },
@@ -133,9 +138,16 @@ function ccCot_(hang) {
 }
 
 /* ================= CHẤM CÔNG — GỘP 1 NGÀY 1 DÒNG ================= */
-function ccDocChamCong_(ss, thang, nam) {
+/* Trả về số ngày hôm nay nếu đang xem đúng tháng hiện tại, ngược lại 0.
+   Dùng để KHÔNG báo "thiếu giờ ra" với ngày hôm nay — ca còn đang chạy. */
+function ccHomNay_(thang, nam) {
+  var s = Utilities.formatDate(new Date(), CC_TZ, 'yyyy-MM-dd').split('-');
+  return (+s[0] === nam && +s[1] === thang) ? +s[2] : 0;
+}
+
+function ccDocChamCong_(ss, thang, nam, homNay) {
   var sh = ss.getSheetByName('CHAM_CONG');
-  var ra = { ngay: {}, loi: [], tenTheoMa: {}, cnTheoMa: {} };
+  var ra = { ngay: {}, loi: [], tenTheoMa: {}, cnTheoMa: {}, ngayBatDau: 0 };
   if (!sh) { ra.loi.push({ loai: 'thieu_bang', mo_ta: 'Không thấy bảng CHAM_CONG' }); return ra; }
 
   var v = sh.getDataRange().getValues();
@@ -168,6 +180,7 @@ function ccDocChamCong_(ss, thang, nam) {
     if (bp) ra.cnTheoMa[ma] = bp;
 
     var k = d.getDate();
+    if (!ra.ngayBatDau || k < ra.ngayBatDau) ra.ngayBatDau = k;
     if (!gom[ma]) gom[ma] = {};
     if (!gom[ma][k]) gom[ma][k] = { luot: [], nguon: {}, soDong: 0, boQua: 0, ghiChu: [], ca: '' };
     var o = gom[ma][k];
@@ -202,7 +215,8 @@ function ccDocChamCong_(ss, thang, nam) {
         cb.push('khong_co_luot');
       } else {
         if (vao > CC_VAO_CA + CC_AN_HAN) cb.push('tre');
-        if (raa === null) { cb.push('thieu_ra'); }
+        /* Ngày hôm nay chưa hết ca thì là ĐANG LÀM, không phải thiếu giờ ra */
+        if (raa === null) { cb.push((+k === homNay) ? 'dang_lam' : 'thieu_ra'); }
         else {
           gio = Math.round((raa - vao) / 6) / 10;        // 1 chữ số thập phân
           cong = 1;
@@ -275,7 +289,7 @@ function ccDocNghiPhep_(ss, thang, nam) {
 
 /* ================= TÓM TẮT THÁNG ================= */
 function ccTomTat_(ngay, nghi) {
-  var t = { cong: 0, gio: 0, dau_cong: 0, tre: 0, thieu_ra: 0, duoi_8h: 0,
+  var t = { cong: 0, gio: 0, dau_cong: 0, tre: 0, thieu_ra: 0, duoi_8h: 0, dang_lam: 0,
             nghi_p: 0, nghi_kl: 0, nghi_le: 0, ngay_co_cham: 0 };
   Object.keys(ngay || {}).forEach(function (k) {
     var o = ngay[k];
@@ -285,6 +299,7 @@ function ccTomTat_(ngay, nghi) {
     t.dau_cong += o.dau_cong;
     if (o.canh_bao.indexOf('tre') >= 0) t.tre++;
     if (o.canh_bao.indexOf('thieu_ra') >= 0) t.thieu_ra++;
+    if (o.canh_bao.indexOf('dang_lam') >= 0) t.dang_lam++;
     if (o.canh_bao.indexOf('duoi_8h') >= 0) t.duoi_8h++;
   });
   Object.keys(nghi || {}).forEach(function (k) {

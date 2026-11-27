@@ -61,6 +61,7 @@ table.bc td.k{background:#FFE2E2;color:var(--do);font-weight:800}
 table.bc td.p{background:#E8F0FE;color:#1A56C4;font-weight:800}
 table.bc td.tre{color:var(--do);font-weight:700}
 table.bc td.thieu{background:#FFF9E6;color:#8A6100;font-weight:700}
+table.bc td.dang{color:var(--bien);font-weight:700}
 .cn-o{display:inline-block;padding:1px 7px;border-radius:999px;background:#E9F6F0;
   color:var(--la-dam);font-size:11px;font-weight:700}
 
@@ -254,16 +255,25 @@ function moHinh(ma){
     for (var k=0;k<7;k++){
       var d = w[k];
       if (d==null){ o.vao.push(null); o.ra.push(null); o.them.push(null); o.cong.push(null); continue; }
+      /* Ngoài phạm vi app đã chạy (trước ngày đầu tiên có dữ liệu, hoặc sau hôm nay):
+         để TRỐNG, không đánh "K" vắng cho nhân sự. */
+      var batDau = DL.ngay_bat_dau || 0, hnay = DL.hom_nay || 0;
+      if ((batDau && d < batDau) || (hnay && d > hnay)){
+        o.vao.push({t:''}); o.ra.push({t:''}); o.them.push({t:''}); o.cong.push({t:'',loai:''});
+        continue;
+      }
       var r = ng[d], loai = np[d] || '';
       if (r && (r.vao || r.ra)){
+        var dangLam = (r.canh_bao||[]).indexOf('dang_lam') >= 0;
         o.vao.push({ t:r.vao || '', tre:(r.canh_bao||[]).indexOf('tre')>=0 });
         o.ra.push({ t:r.ra || '', thieu:(r.canh_bao||[]).indexOf('thieu_ra')>=0 });
         o.them.push({ t: r.dau_cong ? '+' : '' });
         /* Có chấm vào mà thiếu lượt ra: KHÔNG ghi "K" (K = vắng) để không trừ oan công,
            ghi dấu "–" và tô ô cảnh báo cho người duyệt xử lý. */
-        var tCong = r.cong ? 1 : (loai ? loai : ((r.vao || r.ra) ? '–' : 'K'));
+        var tCong = r.cong ? 1 : (loai ? loai : (dangLam ? '…' : ((r.vao || r.ra) ? '–' : 'K')));
         o.cong.push({ t: tCong, gio: r.gio,
-                      loai: r.cong ? '' : (loai ? 'p' : (tCong === '–' ? 'thieu' : 'k')) });
+                      loai: r.cong ? '' : (loai ? 'p'
+                            : (dangLam ? 'dang' : (tCong === '–' ? 'thieu' : 'k'))) });
         o.tCong += r.cong ? 1 : 0;
         o.tThem += r.dau_cong ? 1 : 0;
         if (!r.cong && loai==='KL') o.tKL++;
@@ -310,6 +320,7 @@ function ve(){
     o_('Dấu +', M.tThem, M.tThem? 'canh':'') +
     o_('Lần trễ giờ', t.tre||0, (t.tre?'xau':'')) +
     o_('Thiếu giờ ra', t.thieu_ra||0, (t.thieu_ra?'xau':'')) +
+    (t.dang_lam ? o_('Hôm nay đang trong ca', t.dang_lam, 'canh') : '') +
     o_('Ngày dưới 8h', t.duoi_8h||0, (t.duoi_8h?'canh':'')) +
     o_('Nghỉ phép', t.nghi_p||0, '') +
     o_('Nghỉ không lương', t.nghi_kl||0, '');
@@ -625,8 +636,8 @@ function sheetNhanSu(M, ten){
   /* --- Đầu phiếu --- */
   R(1, 15.75, [{c:0,s:1,v:'Chi Nhánh '+(M.ns.cn||'')},{c:1,s:1},{c:2,s:1}]);
   merges.push('A1:C1');
-  R(2, 15.75, [{c:0,s:1,v:'Họ Tên Nhân Viên  : '+M.ns.ten},{c:1,s:1},{c:2,s:1}]);
-  merges.push('A2:C2');
+  R(2, 15.75, [{c:0,s:1,v:'Họ Tên Nhân Viên  : '+M.ns.ten},{c:1,s:1},{c:2,s:1},{c:3,s:1},{c:4,s:1}]);
+  merges.push('A2:E2');          /* rộng hơn mẫu cũ để tên dài không bị cắt */
   R(3, 22.5, dai(3,0,14,2).map(function(o,i){ return i===0 ? {c:0,s:2,v:'BẢNG CHẤM CÔNG THEO TUẦN'} : o; }));
   merges.push('A3:O3');
   R(4, 21.75, dai(4,0,14,1).map(function(o,i){
@@ -675,7 +686,8 @@ function sheetNhanSu(M, ten){
         if (d===0 && o.tre)  st = 16;
         if (d===1 && o.thieu) st = 16;
         if (d===3){
-          st = (o.loai==='k') ? 11 : (o.loai==='thieu' ? 16 : (o.loai==='p' ? 18 : 1));
+          st = (o.loai==='k') ? 11
+             : (o.loai==='thieu' ? 16 : (o.loai==='dang' ? 4 : (o.loai==='p' ? 18 : 1)));
           if (gt===1) { cells.push({ c:3+k, s:1, v:1, t:'n' }); continue; }
         }
         cells.push({ c:3+k, s:st, v:gt });
@@ -715,12 +727,12 @@ function sheetNhanSu(M, ten){
   merges.push('L'+(rf+6)+':N'+(rf+6));
 
   /* --- Ghi chú quy ước, để ai cũng đọc được bảng --- */
-  R(rf+8, 14, [{c:0,s:17,v:'Quy ước: 1 = đủ công · K = không có lượt chấm nào (vắng) · – = có chấm vào nhưng thiếu lượt chấm ra, chờ duyệt · P = nghỉ phép · KL = nghỉ không lương · L = nghỉ lễ · dấu + = ra sau 17:45 (chỉ ghi nhận, không tính lương).'}]);
+  R(rf+8, 14, [{c:0,s:17,v:'Quy ước: 1 = đủ công · K = không có lượt chấm nào (vắng) · – = có chấm vào nhưng thiếu lượt chấm ra, chờ duyệt · … = hôm nay còn đang trong ca · P = nghỉ phép · KL = nghỉ không lương · L = nghỉ lễ · dấu + = ra sau 17:45 (chỉ ghi nhận, không tính lương).'}]);
   R(rf+9, 14, [{c:0,s:17,v:'Ô vàng nhạt = vào sau 07:05 hoặc thiếu lượt chấm ra. Nguồn: bảng CHAM_CONG · app PHI LONG GROUP · gộp 1 ngày = 1 dòng (vào = lượt sớm nhất, ra = lượt muộn nhất).'}]);
 
   return {
     ten: ten, motTrang: true,          /* mỗi nhân sự gói gọn 1 trang A4 ngang để in và ký */
-    cols: [{tu:1,den:1,w:5.3},{tu:2,den:2,w:9.5},{tu:3,den:3,w:17.9},
+    cols: [{tu:1,den:1,w:8.5},{tu:2,den:2,w:9.5},{tu:3,den:3,w:17.9},
            {tu:4,den:10,w:11.6},{tu:11,den:15,w:9.9}],
     rows: rows, merges: merges
   };
